@@ -20,6 +20,8 @@ from aqt.qt import *
 # with this you can eg. get current module object
 import sys
 
+turn_on_global_shortcut_routine = True
+
 initialized = False
 
 def init():
@@ -96,7 +98,6 @@ action2 = QAction("Debug", mw)
 mw.connect(action2, SIGNAL("triggered()"), debugger)
 mw.form.menuTools.insertAction(basep, action2)
 
-turn_on_global_shortcut_routine = True
 if turn_on_global_shortcut_routine:
   import pyqxtgs as gs
   mw.anki_global = gs.PyGlobalShortcutHandler()
