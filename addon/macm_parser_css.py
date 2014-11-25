@@ -1,7 +1,27 @@
-from lxml import html
+import bs4
 import lxml
 import requests
 import json
+
+USE_SOUP = True
+
+def parse_func(txt)
+	if(USE_SOUP):
+		return bs4.BeautifulSoup(txt)
+	else:
+		return lxml.html.fromstring(txt)
+
+def select_func(self,query):
+	if(USE_SOUP):
+		return self.select(query)
+	else:
+		return self.cssselect(query)
+
+if(USE_SOUP):
+	bs4.BeautifulSoup.my_select = select_func
+else :
+	lxml.html.HtmlElement = select_func
+
 
 class word_sense(object):
 	
