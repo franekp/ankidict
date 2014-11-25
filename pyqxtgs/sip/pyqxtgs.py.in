@@ -1,0 +1,14 @@
+from PyQt4 import pyqtconfig
+# @SIP_CONFIGURATION@
+
+class Configuration(pyqtconfig.Configuration):
+    def __init__(self, sub_cfg=None):
+        if sub_cfg: cfg = sub_cfg
+        else: cfg = []
+        cfg.append(_pkg_config)
+        pyqtconfig.Configuration.__init__(self, cfg)
+
+class pyqxtgsModuleMakefile(pyqtconfig.QtGuiModuleMakefile):
+    def finalise(self):
+        self.extra_libs.append("pyqxtgs")
+        pyqtconfig.QtGuiModuleMakefile.finalise(self)
