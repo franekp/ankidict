@@ -15,12 +15,13 @@ def select_func(self,query):
 	if(USE_SOUP):
 		return self.select(query)
 	else:
+		#TODO: precompiling queries and caching them in some dict
 		return self.cssselect(query)
 
 if(USE_SOUP):
-	bs4.BeautifulSoup.my_select = select_func
+	bs4.BeautifulSoup.sel_css = select_func
 else :
-	lxml.html.HtmlElement = select_func
+	lxml.html.HtmlElement.sel_css = select_func
 
 
 class word_sense(object):
