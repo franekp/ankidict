@@ -18,28 +18,54 @@ def select_func(self,query):
 		#TODO: precompiling queries and caching them in some dict
 		return self.cssselect(query)
 
+def map_get_text(li):
+	def f(el):
+		return el.get_text()
+	return map(f,li)
+
 if(USE_SOUP):
 	bs4.BeautifulSoup.sel_css = select_func
 else :
 	lxml.html.HtmlElement.sel_css = select_func
-
+	def gettextmethod(self):
+		return "".join(self.xpath(".//text()"))
+	lxml.html.HtmlElement.get_text = gettextmethod
 
 class word_sense(object):
 	
 	def from_html(self, element,ks=[]): #element - div.SENSE-BODY | div.SUB-SENSE-CONTENT
+		'''
 		self.definition = element.xpath(
 		"span[@class='DEFINITION']//text()")
-		self.definition = "".join(self.definition)
+		'''
+		self.definition = element.sel_css("span.DEFINITION")[0].get_text()
+		'''
 		self.keys = element.xpath("./strong/text() | \
 		./span[@class='SENSE-VARIANT']//span[@class='BASE']/text() | \
 		./span[@class='MULTIWORD']//span[@class='BASE']/text()")
+		'''
+		self.keys = element.sel_css("> strong")
+		self.keys += element.sel_css("> span.SENSE-VARIANT span.BASE")
+		self.keys += element.sel_css("> span.MULTIWORD span.BASE")
+		self.keys = map_get_text(self.keys)
 		self.keys = self.keys + ks
 		def mk_example(el):
+			'''
 			fst = el.xpath("./strong//text()")
 			fst = "".join(fst)
+			'''
+			fst = map_get_text(el.sel_css("> strong"))
+			fst = "".join(fst)
+			'''
 			snd = "".join(el.xpath(".//p//text()"))
+			'''
+			snd = map_get_text(el.sel_css("p"))
+			snd = "".join(snd)
 			return (fst,snd)
+		'''
 		self.examples = map(mk_example, element.xpath("./div[@class='EXAMPLES']"))
+		'''
+		self.examples = map(mk_example, element.css_sel("> div.EXAMPLES"))
 	
 	def from_primitive(self,data):
 		raise "UNIMPL"
@@ -48,9 +74,12 @@ class word_sense(object):
 		return (self.definition,self.examples)
 	
 	def __init__(self,inp,ks=[]):
+		'''
 		if isinstance(inp,lxml.html.HtmlElement) :
 			self.from_html(inp,ks)
-		else: self.from_json(inp)
+		else:
+		'''
+		self.from_json(inp)
 	
 	def write(self):
 		print self.keys
@@ -70,24 +99,48 @@ class dict_entry(object):
 	
 	def from_url(self,url):
 		self.senses = []
-		page_text = requests.get(url)
-		page_tree = html.fromstring(page_text.text)
+		page_text = requests.get(url).text
+		page_tree = parse_func(page_text)
+		#senses:
+		'''
 		sense_bodies = page_tree.xpath("//ol[@class='senses']//div[@class='SENSE-BODY'] |\
 		//ol[@class='senses']//div[@class='SUB-SENSE-CONTENT']")
+		'''
+		sense_bodies = page_tree.sel_css("ol.senses div.SENSE-BODY ,\
+		ol.senses div.SUB-SENSE-CONTENT")
 		self.senses = map(lambda a: word_sense(a) , sense_bodies)
+		#related:
+		'''
 		self.related = page_tree.xpath( \
 		"//div[@class='entrylist']//ul//a[@title]")
+		'''
+		self.related = page_tree.sel_css("div.entrylist ul a[title]")
 		def mk_related(el):
+			'''
 			li = el.xpath(".//span[@class!='PART-OF-SPEECH']/text()")
 			return "".join(li)
+			'''
+			li = el.sel_css("span")
+			li = map_get_text(li)
+			return "".join(li)
 		self.related = map(mk_related, self.related)
-		# self.phrases = 
+		#phrases:
+		'''
 		phr_list = page_tree.xpath("//div[@id='phrases_container']/ul/li")
+		'''
+		phr_list = page_tree.sel_css("div#phrases_container > ul > li")
 		self.phrases = []
 		def mk_phrase(el):
+			'''
 			phr_names = map(lambda s: "".join(s.xpath(".//text()")) , \
 			el.xpath(".//span[@class='BASE']"))
+			'''
+			# FIXME: może być czasem strong zamiast span.base
+			phr_names = map(lambda s: s.get_text(), el.sel_css("span.BASE"))
+			'''
 			sbodies = el.xpath(".//div[@class='SENSE-BODY']")
+			'''
+			sbodies = el.sel_css("div.SENSE-BODY")
 			phr_senses = map(lambda a: word_sense(a, phr_names) , sbodies)
 			self.phrases = self.phrases + phr_senses
 		map(mk_phrase, phr_list)
