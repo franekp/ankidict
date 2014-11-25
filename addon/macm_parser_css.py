@@ -1,22 +1,42 @@
+# -*- coding: utf-8 -*- 
 import bs4
 import lxml
+import lxml.html
 import requests
 import json
 
-USE_SOUP = True
+USE_SOUP = False
 
-def parse_func(txt)
+def parse_func(txt):
 	if(USE_SOUP):
 		return bs4.BeautifulSoup(txt)
 	else:
 		return lxml.html.fromstring(txt)
 
 def select_func(self,query):
+	# TODO TODO ogar czy soup dopuszcza select siebie, jeśli nie(najprawdopodobniej), to
+	# TODO TODO trzea zrobić to tak, że opakowujemy go i potem jedziemy z selectem.
+	id_obscure = "asdfgh1234"
 	if(USE_SOUP):
-		return self.select(query)
+		if(query[0] != '>'):
+			return self.select(query)
+		else:
+			tmp_id = self['id']
+			self['id'] = id_obscure
+			res = self.select("#"+id_obscure+" "+query)
+			self['id'] = tmp_id
+			return res
 	else:
 		#TODO: precompiling queries and caching them in some dict
-		return self.cssselect(query)
+		if(query[0] != '>'):
+			return self.cssselect(query)
+		else:
+			tmp_id = self.attrib['id']
+			self.attrib['id'] = id_obscure
+			res = self.cssselect("#"+id_obscure+" "+query)
+			self.attrib['id'] = tmp_id
+			return res
+
 
 def map_get_text(li):
 	def f(el):
@@ -25,6 +45,7 @@ def map_get_text(li):
 
 if(USE_SOUP):
 	bs4.BeautifulSoup.sel_css = select_func
+	bs4.element.Tag.sel_css = select_func
 else :
 	lxml.html.HtmlElement.sel_css = select_func
 	def gettextmethod(self):
@@ -38,15 +59,17 @@ class word_sense(object):
 		self.definition = element.xpath(
 		"span[@class='DEFINITION']//text()")
 		'''
+		#print element.sel_css("span.DEFINITION")
 		self.definition = element.sel_css("span.DEFINITION")[0].get_text()
+		#print self.definition
 		'''
 		self.keys = element.xpath("./strong/text() | \
 		./span[@class='SENSE-VARIANT']//span[@class='BASE']/text() | \
 		./span[@class='MULTIWORD']//span[@class='BASE']/text()")
 		'''
-		self.keys = element.sel_css("> strong")
-		self.keys += element.sel_css("> span.SENSE-VARIANT span.BASE")
-		self.keys += element.sel_css("> span.MULTIWORD span.BASE")
+		self.keys = element.sel_css("strong")
+		self.keys += element.sel_css("span.SENSE-VARIANT span.BASE")
+		self.keys += element.sel_css("span.MULTIWORD span.BASE")
 		self.keys = map_get_text(self.keys)
 		self.keys = self.keys + ks
 		def mk_example(el):
@@ -54,7 +77,7 @@ class word_sense(object):
 			fst = el.xpath("./strong//text()")
 			fst = "".join(fst)
 			'''
-			fst = map_get_text(el.sel_css("> strong"))
+			fst = map_get_text(el.sel_css("strong"))
 			fst = "".join(fst)
 			'''
 			snd = "".join(el.xpath(".//p//text()"))
@@ -65,7 +88,7 @@ class word_sense(object):
 		'''
 		self.examples = map(mk_example, element.xpath("./div[@class='EXAMPLES']"))
 		'''
-		self.examples = map(mk_example, element.css_sel("> div.EXAMPLES"))
+		self.examples = map(mk_example, element.sel_css("div.EXAMPLES"))
 	
 	def from_primitive(self,data):
 		raise "UNIMPL"
@@ -78,8 +101,9 @@ class word_sense(object):
 		if isinstance(inp,lxml.html.HtmlElement) :
 			self.from_html(inp,ks)
 		else:
-		'''
 		self.from_json(inp)
+		'''
+		self.from_html(inp)
 	
 	def write(self):
 		print self.keys
@@ -106,8 +130,22 @@ class dict_entry(object):
 		sense_bodies = page_tree.xpath("//ol[@class='senses']//div[@class='SENSE-BODY'] |\
 		//ol[@class='senses']//div[@class='SUB-SENSE-CONTENT']")
 		'''
-		sense_bodies = page_tree.sel_css("ol.senses div.SENSE-BODY ,\
-		ol.senses div.SUB-SENSE-CONTENT")
+		nested_sbodies = page_tree.sel_css("ol.senses div.SUB-SENSE-CONTENT")
+		# tego póki co nie włączamy:
+		'''
+		if USE_SOUP:
+			for i in nested_sbodies:
+				i['class'] = "SENSE-BODY"
+		if not USE_SOUP:
+			for i in nested_sbodies:
+				i.attrib['class'] = "SENSE-BODY"
+		'''
+		
+		sense_bodies = page_tree.sel_css("ol.senses div.SENSE-BODY")
+		def get_nested(a):
+			return a.sel_css("div.SUB-SENSE-CONTENT")
+		nsense_bodies = [ [i]+get_nested(i) for i in sense_bodies]
+		sense_bodies = [item for sublist in nsense_bodies for item in sublist]
 		self.senses = map(lambda a: word_sense(a) , sense_bodies)
 		#related:
 		'''
@@ -162,7 +200,7 @@ class dict_entry(object):
 		print len(self.phrases)
 
 def main():
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/make'
+	page_url = 'http://www.macmillandictionary.com/dictionary/british/throw-off'
 	dict_entry(page_url).write()
 
 main()
