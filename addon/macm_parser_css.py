@@ -223,6 +223,12 @@ class dict_entry(object):
 		print len(self.phrases)
 
 def main():
+	words = ['take-on', # multiple keys in last sense
+	'Yours', # big error
+	'take off', # informal senses
+	''
+	]
+	
 	page_url = 'http://www.macmillandictionary.com/dictionary/british/Yours'
 	dict_entry(page_url).write()
 
