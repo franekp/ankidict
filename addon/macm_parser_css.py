@@ -5,7 +5,7 @@ import lxml.html
 import requests
 import json
 
-USE_SOUP = True
+USE_SOUP = False
 
 
 def parse_func(txt):
@@ -121,13 +121,7 @@ class word_sense(object):
 		return (self.definition,self.examples)
 	
 	def __init__(self,inp,ks=[]):
-		'''
-		if isinstance(inp,lxml.html.HtmlElement) :
-			self.from_html(inp,ks)
-		else:
-		self.from_json(inp)
-		'''
-		self.from_html(inp)
+		self.from_html(inp,ks)
 	
 	def write(self):
 		print self.keys
@@ -155,17 +149,9 @@ class dict_entry(object):
 		//ol[@class='senses']//div[@class='SUB-SENSE-CONTENT']")
 		'''
 		''' nested_sbodies = page_tree.sel_css("ol.senses div.SUB-SENSE-CONTENT") '''
-		# tego póki co nie włączamy:
-		'''
-		if USE_SOUP:
-			for i in nested_sbodies:
-				i['class'] = "SENSE-BODY"
-		if not USE_SOUP:
-			for i in nested_sbodies:
-				i.attrib['class'] = "SENSE-BODY"
-		'''
 		
 		sense_bodies = page_tree.sel_css("ol.senses div.SENSE-BODY")
+		
 		def get_nested(a):
 			return a.sel_css("div.SUB-SENSE-CONTENT")
 		nsense_bodies = [ [i]+get_nested(i) for i in sense_bodies]
@@ -200,7 +186,8 @@ class dict_entry(object):
 			el.xpath(".//span[@class='BASE']"))
 			'''
 			# FIXME: może być czasem strong zamiast span.base
-			phr_names = map(lambda s: s.get_text(), el.sel_css("span.BASE"))
+			phr_names = map_get_text(el.sel_css("span.BASE"))
+			print 'phr_names = ', phr_names
 			'''
 			sbodies = el.xpath(".//div[@class='SENSE-BODY']")
 			'''
@@ -228,12 +215,12 @@ class dict_entry(object):
 
 def main():
 	words = ['take-on', # multiple keys in last sense
-	'Yours', # big error
+	'yours', # big error
 	'take off', # informal senses
 	''
 	]
 	
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/Yours'
+	page_url = 'http://www.macmillandictionary.com/dictionary/british/take-on'
 	dict_entry(page_url).write()
 
 main()
