@@ -20,7 +20,11 @@ def select_func(self,query):
 	#1 [DONE] trzea zrobić to tak, że opakowujemy go (bierzemy 'parent')
 	# 		i potem jedziemy z selectem.
 	#2 [DONE] zrobić dobre sel_css(">...")
-	#3 TODO przepisać i sprawdzić cały kod, żeby się zgadzał z xpathem
+	#3 [DONE] przepisać i sprawdzić cały kod, żeby się zgadzał z xpathem
+	#  [TODO] dodać obsługę senses typu yours, z jakimś ogólnym akapitem na początku
+	#  [DONE] dodać support dla dopisków typu infml, fml, etc
+	#  [TODO] ogar innych dopisków (offensive, american, british, vulgar,
+	#			abbr, euph, etc.) 
 	#4 ew. koniec query typu txt i to jakoś jeszcze... (ale raczej nie)
 	id_obscure = "asdfgh1234"
 	while query[0] == ' ':
@@ -62,19 +66,23 @@ def map_get_text(li):
 		return el.get_text()
 	return map(f,li)
 
+def init():
+	if(USE_SOUP):
+		bs4.BeautifulSoup.sel_css = select_func
+		bs4.element.Tag.sel_css = select_func
+	else :
+		lxml.html.HtmlElement.sel_css = select_func
+		def gettextmethod(self):
+			return "".join(self.xpath(".//text()"))
+		lxml.html.HtmlElement.get_text = gettextmethod
 
-if(USE_SOUP):
-	bs4.BeautifulSoup.sel_css = select_func
-	bs4.element.Tag.sel_css = select_func
-else :
-	lxml.html.HtmlElement.sel_css = select_func
-	def gettextmethod(self):
-		return "".join(self.xpath(".//text()"))
-	lxml.html.HtmlElement.get_text = gettextmethod
+init()
 
-class word_sense(object):
+
+class DictEntrySense(object):
 	
-	def from_html(self, element,ks=[]): #element - div.SENSE-BODY | div.SUB-SENSE-CONTENT
+	def __from_html(self, element,ks=[],style_lvl=""):
+		#element - div.SENSE-BODY | div.SUB-SENSE-CONTENT
 		
 		'''
 		self.definition = element.xpath(
@@ -93,8 +101,8 @@ class word_sense(object):
 		self.keys = map_get_text(self.keys)
 		self.keys = self.keys + ks
 		
-		#TODO TODO TODO
-		self.style_level = element.sel_css(" > span.STYLE-LEVEL")
+		self.style_level = "".join(map_get_text(element.sel_css(" > span.STYLE-LEVEL")))
+		self.style_level += style_lvl
 		
 		def mk_example(el):
 			'''
@@ -114,30 +122,20 @@ class word_sense(object):
 		'''
 		self.examples = map(mk_example, element.sel_css(" > div.EXAMPLES"))
 	
-	def from_primitive(self,data):
-		raise "UNIMPL"
+	def __init__(self,inp=None,ks=[],style_lvl=""):
+		if inp is not None:
+			self.__from_html(inp,ks,style_lvl)
 	
-	def to_primitive(self):
-		return (self.definition,self.examples)
-	
-	def __init__(self,inp,ks=[]):
-		self.from_html(inp,ks)
-	
-	def write(self):
+	def print_txt(self):
 		print self.keys
+		print self.style_level
 		print self.definition
 		print self.examples
 		print "___________________\n"
-	
-	def __str__(self):
-		#TODO: print words also here
-		return str(self.definition)+"\n"+str(self.examples)+"\n___\n"
-	
-	def __repr__(self):
-		return self.__str__()
 
 
-class dict_entry(object):
+
+class DictEntry(object):
 	
 	def from_url(self,url):
 		self.senses = []
@@ -157,7 +155,7 @@ class dict_entry(object):
 		nsense_bodies = [ [i]+get_nested(i) for i in sense_bodies]
 		# flatten sense_bodies
 		sense_bodies = [item for sublist in nsense_bodies for item in sublist]
-		self.senses = map(lambda a: word_sense(a) , sense_bodies)
+		self.senses = map(lambda a: DictEntrySense(a) , sense_bodies)
 		#related:
 		'''
 		self.related = page_tree.xpath( \
@@ -187,43 +185,80 @@ class dict_entry(object):
 			'''
 			# FIXME: może być czasem strong zamiast span.base
 			phr_names = map_get_text(el.sel_css("span.BASE"))
-			print 'phr_names = ', phr_names
+			phr_style_level = "".join(map_get_text(el.sel_css(" span.STYLE-LEVEL")))
 			'''
 			sbodies = el.xpath(".//div[@class='SENSE-BODY']")
 			'''
 			sbodies = el.sel_css("div.SENSE-BODY")
 			sbodies += el.sel_css("div.SUB-SENSE-CONTENT")
-			phr_senses = map(lambda a: word_sense(a, phr_names) , sbodies)
+			phr_senses = map(lambda a: DictEntrySense(a, phr_names, phr_style_level)
+				, sbodies)
 			self.phrases = self.phrases + phr_senses
 		map(mk_phrase, phr_list)
 	
 	def __init__(self,url):
 		self.from_url(url)
-		
-	def write(self):
+	
+	def print_txt(self):
 		print "	[[[ self.senses ]]]"
 		for i in self.senses:
-			i.write()
+			i.print_txt()
 		print len(self.senses)
 		print "	[[[ self.related ]]]"
 		print self.related
 		print len(self.related)
 		print "	[[[ self.phrases ]]]"
 		for i in self.phrases:
-			i.write()
+			i.print_txt()
 		print len(self.phrases)
 
 def main():
-	words = ['take-on', # multiple keys in last sense
-	'yours', # big error
-	'take off', # informal senses
-	''
+	words = [
+		'take-on', # multiple keys in last sense
+		'yours', # big error
+		'take off', # informal
+		'air', # plural, singular, nested senses
+		'reference', # american nested, [only before noun] nested, cntable, uncntable,
+		# phrase formal
 	]
-	
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/take-on'
-	dict_entry(page_url).write()
+	page_url = 'http://www.macmillandictionary.com/dictionary/british/reference'
+	DictEntry(page_url).print_txt()
 
 main()
 
+'''
+interfejs:
+
+class DictEntrySense
+	
+	keys :: [string]
+		dodatkowe uszczegółowienia słowa: np. yours -> Sincerely yours
+	
+	style_level :: string
+		'formal' albo 'informal' albo ''
+	
+	definition :: string
+		definicja słowa w stringu
+	
+	examples :: [(key :: string, ex :: string)]
+		przykłady użycia słowa
+		key - dodatkowo uszczegółowione słowo na potrzeby przykładu
+		ex - treść przykładu
+
+
+class DictEntry
+	
+	senses :: [DictEntrySense]
+		znaczenia słowa (bez fraz)
+	
+	phrases :: [DictEntrySense]
+		znaczenia fraz zrobionych z tego słowa
+		(jak jakaś fraza ma kilka znaczeń, to każde z
+		nich jest na tej liście)
+	
+	related :: [string]
+		slowa/frazy powiązane z danym słowem
+	
+'''
 
 
