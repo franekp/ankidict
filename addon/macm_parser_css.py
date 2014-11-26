@@ -75,13 +75,13 @@ else :
 class word_sense(object):
 	
 	def from_html(self, element,ks=[]): #element - div.SENSE-BODY | div.SUB-SENSE-CONTENT
+		
 		'''
 		self.definition = element.xpath(
 		"span[@class='DEFINITION']//text()")
 		'''
-		#print element.sel_css("span.DEFINITION")
 		self.definition = "".join(map_get_text(element.sel_css(" > span.DEFINITION")))
-		#print self.definition
+		
 		'''
 		self.keys = element.xpath("./strong/text() | \
 		./span[@class='SENSE-VARIANT']//span[@class='BASE']/text() | \
@@ -92,6 +92,10 @@ class word_sense(object):
 		self.keys += element.sel_css(" > span.MULTIWORD span.BASE")
 		self.keys = map_get_text(self.keys)
 		self.keys = self.keys + ks
+		
+		#TODO TODO TODO
+		self.style_level = element.sel_css(" > span.STYLE-LEVEL")
+		
 		def mk_example(el):
 			'''
 			fst = el.xpath("./strong//text()")
