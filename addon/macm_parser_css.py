@@ -5,7 +5,7 @@ import lxml.html
 import requests
 import json
 
-USE_SOUP = False
+USE_SOUP = True
 
 
 def parse_func(txt):
@@ -21,11 +21,10 @@ def select_func(self,query):
 	# 		i potem jedziemy z selectem.
 	#2 [DONE] zrobić dobre sel_css(">...")
 	#3 [DONE] przepisać i sprawdzić cały kod, żeby się zgadzał z xpathem
-	#  [TODO] dodać obsługę senses typu yours, z jakimś ogólnym akapitem na początku
+	#  [DONE] dodać obsługę senses typu yours, z jakimś ogólnym akapitem na początku
 	#  [DONE] dodać support dla dopisków typu infml, fml, etc
 	#  [TODO] ogar innych dopisków (offensive, american, british, vulgar,
-	#			abbr, euph, etc.) 
-	#4 ew. koniec query typu txt i to jakoś jeszcze... (ale raczej nie)
+	#			abbr, euph, etc.)
 	id_obscure = "asdfgh1234"
 	while query[0] == ' ':
 		query = query[1:]
@@ -172,6 +171,10 @@ class DictEntry(object):
 			else:
 				return el.attrib['title']
 		self.related = map(mk_related, self.related)
+		#intro_paragraph:
+		self.intro_paragraph = "\n".join(map_get_text(
+			page_tree.sel_css("div.SUMMARY div.p")))
+		#div.HEAD-INFO - też spis treści
 		#phrases:
 		'''
 		phr_list = page_tree.xpath("//div[@id='phrases_container']/ul/li")
@@ -200,6 +203,8 @@ class DictEntry(object):
 		self.from_url(url)
 	
 	def print_txt(self):
+		print "	[[[ self.intro_paragraph ]]]"
+		print self.intro_paragraph
 		print "	[[[ self.senses ]]]"
 		for i in self.senses:
 			i.print_txt()
@@ -215,13 +220,14 @@ class DictEntry(object):
 def main():
 	words = [
 		'take-on', # multiple keys in last sense
-		'yours', # big error
+		'yours', # intro paragraph, informal phrase
 		'take off', # informal
 		'air', # plural, singular, nested senses
 		'reference', # american nested, [only before noun] nested, cntable, uncntable,
-		# phrase formal
+						# formal phrase
+		'my', # intro_paragraph
 	]
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/reference'
+	page_url = 'http://www.macmillandictionary.com/dictionary/british/yours'
 	DictEntry(page_url).print_txt()
 
 main()
@@ -258,6 +264,9 @@ class DictEntry
 	
 	related :: [string]
 		slowa/frazy powiązane z danym słowem
+	
+	intro_paragraph ":: string
+		
 	
 '''
 
