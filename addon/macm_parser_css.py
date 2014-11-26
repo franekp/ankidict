@@ -5,13 +5,15 @@ import lxml.html
 import requests
 import json
 
-USE_SOUP = False
+USE_SOUP = True
+
 
 def parse_func(txt):
 	if(USE_SOUP):
 		return bs4.BeautifulSoup(txt)
 	else:
 		return lxml.html.fromstring(txt)
+
 
 def select_func(self,query):
 	#1 [DONE] ogar czy soup dopuszcza select siebie, jeśli nie(najprawdopodobniej), to
@@ -60,6 +62,7 @@ def map_get_text(li):
 		return el.get_text()
 	return map(f,li)
 
+
 if(USE_SOUP):
 	bs4.BeautifulSoup.sel_css = select_func
 	bs4.element.Tag.sel_css = select_func
@@ -77,7 +80,7 @@ class word_sense(object):
 		"span[@class='DEFINITION']//text()")
 		'''
 		#print element.sel_css("span.DEFINITION")
-		self.definition = element.sel_css("span.DEFINITION")[0].get_text()
+		self.definition = "".join(map_get_text(element.sel_css(" > span.DEFINITION")))
 		#print self.definition
 		'''
 		self.keys = element.xpath("./strong/text() | \
@@ -94,7 +97,7 @@ class word_sense(object):
 			fst = el.xpath("./strong//text()")
 			fst = "".join(fst)
 			'''
-			fst = map_get_text(el.sel_css("strong"))
+			fst = map_get_text(el.sel_css(" > strong"))
 			fst = "".join(fst)
 			'''
 			snd = "".join(el.xpath(".//p//text()"))
@@ -105,7 +108,7 @@ class word_sense(object):
 		'''
 		self.examples = map(mk_example, element.xpath("./div[@class='EXAMPLES']"))
 		'''
-		self.examples = map(mk_example, element.sel_css("div.EXAMPLES"))
+		self.examples = map(mk_example, element.sel_css(" > div.EXAMPLES"))
 	
 	def from_primitive(self,data):
 		raise "UNIMPL"
@@ -147,7 +150,7 @@ class dict_entry(object):
 		sense_bodies = page_tree.xpath("//ol[@class='senses']//div[@class='SENSE-BODY'] |\
 		//ol[@class='senses']//div[@class='SUB-SENSE-CONTENT']")
 		'''
-		nested_sbodies = page_tree.sel_css("ol.senses div.SUB-SENSE-CONTENT")
+		''' nested_sbodies = page_tree.sel_css("ol.senses div.SUB-SENSE-CONTENT") '''
 		# tego póki co nie włączamy:
 		'''
 		if USE_SOUP:
@@ -176,9 +179,10 @@ class dict_entry(object):
 			li = el.xpath(".//span[@class!='PART-OF-SPEECH']/text()")
 			return "".join(li)
 			'''
-			li = el.sel_css("span")
-			li = map_get_text(li)
-			return "".join(li)
+			if USE_SOUP:
+				return el.attrs['title']
+			else:
+				return el.attrib['title']
 		self.related = map(mk_related, self.related)
 		#phrases:
 		'''
@@ -197,6 +201,7 @@ class dict_entry(object):
 			sbodies = el.xpath(".//div[@class='SENSE-BODY']")
 			'''
 			sbodies = el.sel_css("div.SENSE-BODY")
+			sbodies += el.sel_css("div.SUB-SENSE-CONTENT")
 			phr_senses = map(lambda a: word_sense(a, phr_names) , sbodies)
 			self.phrases = self.phrases + phr_senses
 		map(mk_phrase, phr_list)
@@ -218,7 +223,7 @@ class dict_entry(object):
 		print len(self.phrases)
 
 def main():
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/throw-off'
+	page_url = 'http://www.macmillandictionary.com/dictionary/british/Yours'
 	dict_entry(page_url).write()
 
 main()
