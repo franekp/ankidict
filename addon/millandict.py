@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 # Macmillan dictionary plugin
 # Supports [TODO]:
@@ -11,16 +11,17 @@
 # main window object
 from aqt import mw
 
-# message box if you really want to pass some info to user
-from aqt.utils import showInfo
-
 # PyQt library
 from aqt.qt import *
+import aqt.qt as QtGui
+from PyQt4 import QtCore
 
 # with this you can eg. get current module object
 import sys
 
 turn_on_global_shortcut_routine = True
+
+deck = 'MillanDict'
 
 initialized = False
 
@@ -30,9 +31,13 @@ def init():
   Loads some files, etc.
   If called before, does nothing.
   """
+  global initialized
   if initialized: return True
   # here can be some initialization
   # return False to say: "Initialization failed"
+  mw.dwnd = DictWindow()
+  # MORE
+  initialized = True
   return True
 
 def dictionary():
@@ -40,6 +45,7 @@ def dictionary():
   Opens dictionary main window.
   """
   if not init(): return
+  mw.dwnd.show()
   pass
 
 def snippet():
@@ -74,9 +80,36 @@ def global_call():
   Does something on global shortcut...
   """
   # Global shortcuts are NOW WORKING
-  showInfo("Global Shortcut call succeeded!")
+  #showInfo("Global Shortcut call succeeded!")
   pass
 
+def add_card(q, a):
+  # adds card to collection
+  # creates deck if not existing and return id
+  global deck
+  did = mw.col.decks.id(deck)
+  # selects deck - why? [TODO]
+  mw.col.decks.select(did)
+  # gets deck object
+  dck = mw.col.decks.get(did)
+
+  card = get_card(q)
+  if card != None:
+    # [TODO] modify answer
+    pass
+  else:
+    # [TODO] add card
+    pass
+
+def get_card(q):
+  # returns card with selected question
+  # [TODO] all
+  return None
+
+def is_card(q, a):
+  # checks if the question is in collection
+  # [TODO] check if q is in collection and a in it's answers
+  return False
 
 # place where we want to place our buttons
 basep = mw.form.menuTools.actions()[6]
@@ -92,7 +125,7 @@ acminim = QAction("Hide window", mw)
 acminim.setShortcut("Ctrl+M")
 mw.connect(acminim, SIGNAL("triggered()"), minimize)
 mw.form.menuTools.insertAction(basep, acminim)
- 
+
 
 action2 = QAction("Debug", mw)
 mw.connect(action2, SIGNAL("triggered()"), debugger)
@@ -105,3 +138,56 @@ if turn_on_global_shortcut_routine:
   mw.anki_global.setShortcut("Ctrl+Shift+E")
   mw.anki_global.enable()
 
+
+# windows utilities...
+
+# main dictionary window
+class DictWindow(QtGui.QWidget):
+
+	def __init__(self):
+		super(DictWindow, self).__init__()
+		self.initUI()
+
+	def initUI(self):
+		# QLineEdit
+		# QWebView
+		search_input = QLineEdit()
+		search_button = QtGui.QPushButton("SEARCH")
+		search_input.returnPressed.connect(self.dictSearchEvent)
+		search_button.clicked.connect(self.dictSearchEvent)
+
+		self.search_input = search_input
+
+		hbox_head = QtGui.QHBoxLayout()
+		#hbox.addStretch(1)
+		hbox_head.addWidget(search_input)
+		hbox_head.addWidget(search_button)
+
+		vbox = QtGui.QVBoxLayout()
+		vbox.addLayout(hbox_head)
+		vbox.addStretch(1)
+		self.setLayout(vbox)
+		#self.setGeometry(300, 300, 300, 150)
+		self.resize(800,600)
+		self.setWindowTitle('Macmillan Dictionary')
+		self.show()
+
+	def closeEvent(self, event):
+		event.ignore()
+		self.hide()
+
+	def keyPressEvent(self, e):
+		if e.key() == QtCore.Qt.Key_Escape:
+			# Selecting the search input field
+			print "ESC key pressed!"
+			self.search_input.setFocus()
+			pass
+
+	def dictSearchEvent(self):
+		# TODO - working with MacMillan wrapper
+		print "dictSearchEvent() called!"
+		pass
+
+class MeaningWidget(QtGui.QWidget):
+    # [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
+    pass
