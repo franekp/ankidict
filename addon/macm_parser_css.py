@@ -7,6 +7,7 @@ import json
 
 USE_SOUP = True
 
+__all__ = ["DictEntry", "DictEntrySense", "dict_query"]
 
 def parse_func(txt):
 	if(USE_SOUP):
@@ -23,8 +24,15 @@ def select_func(self,query):
 	#3 [DONE] przepisać i sprawdzić cały kod, żeby się zgadzał z xpathem
 	#  [DONE] dodać obsługę senses typu yours, z jakimś ogólnym akapitem na początku
 	#  [DONE] dodać support dla dopisków typu infml, fml, etc
+	#  [DONE] ogar wyników wyszukiwania
 	#  [TODO] ogar innych dopisków (offensive, american, british, vulgar,
 	#			abbr, euph, etc.)
+	#  [TODO] ogar czegoś, co pozwoli robić łatwe linki z tekstu w tych głupich
+	#				kontrolkach Qt - do related i SearchResults
+	#  [TODO] kontrolki Qt
+	#  [TODO] generowanie jakiegoś prostego html z DictEntrySense
+	#  [TODO] komunikacja z anki
+	#	[TODO] tryb testing - podzielone okienko w Qt na nasze oraz na stronę ściągniętą żywcem (do porównywania)
 	id_obscure = "asdfgh1234"
 	while query[0] == ' ':
 		query = query[1:]
@@ -88,6 +96,8 @@ class DictEntrySense(object):
 		"span[@class='DEFINITION']//text()")
 		'''
 		self.definition = "".join(map_get_text(element.sel_css(" > span.DEFINITION")))
+		self.definition += "".join(map_get_text(
+			element.sel_css(" > span.QUICK-DEFINITION")))
 		
 		'''
 		self.keys = element.xpath("./strong/text() | \
@@ -131,15 +141,17 @@ class DictEntrySense(object):
 		print self.definition
 		print self.examples
 		print "___________________\n"
+	
+	def get_html():
+		# TODO TODO TODO
+		pass
 
 
 
 class DictEntry(object):
 	
-	def from_url(self,url):
+	def __from_html(self, page_tree):
 		self.senses = []
-		page_text = requests.get(url).text
-		page_tree = parse_func(page_text)
 		#senses:
 		'''
 		sense_bodies = page_tree.xpath("//ol[@class='senses']//div[@class='SENSE-BODY'] |\
@@ -199,8 +211,8 @@ class DictEntry(object):
 			self.phrases = self.phrases + phr_senses
 		map(mk_phrase, phr_list)
 	
-	def __init__(self,url):
-		self.from_url(url)
+	def __init__(self, node):
+		self.__from_html(node)
 	
 	def print_txt(self):
 		print "	[[[ self.intro_paragraph ]]]"
@@ -217,6 +229,36 @@ class DictEntry(object):
 			i.print_txt()
 		print len(self.phrases)
 
+
+class SearchResults(object):
+	
+	def __from_html(self, node):
+		self.results = map_get_text(node.sel_css("div#search-results > ul > li > a"))
+	
+	def __init__(self, node):
+		self.__from_html(node)
+	
+	def print_txt(self):
+		print "[[[ did you mean ]]]"
+		for i in self.results:
+			print i
+			print "_______"
+
+
+def dict_query(query):
+	# do normalnego wyszukiwania
+	normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
+	# do wyszukiwania listy podobnych (jak trafisz, to i tak masz 'did you mean')
+	search_prefix = "http://www.macmillandictionary.com/spellcheck/british/?q="
+	url = normal_prefix + query
+	root = parse_func(requests.get(url).text)
+	print root.sel_css("div#didyoumean")
+	if root.sel_css("div#didyoumean") == [] :
+		return DictEntry(root)
+	else:
+		return SearchResults(root)
+
+
 def main():
 	words = [
 		'take-on', # multiple keys in last sense
@@ -226,9 +268,10 @@ def main():
 		'reference', # american nested, [only before noun] nested, cntable, uncntable,
 						# formal phrase
 		'my', # intro_paragraph
+		'then', # multiple phrases one sense
 	]
-	page_url = 'http://www.macmillandictionary.com/dictionary/british/yours'
-	DictEntry(page_url).print_txt()
+	q = "since when"
+	dict_query(q).print_txt()
 
 main()
 
@@ -241,7 +284,7 @@ class DictEntrySense
 		dodatkowe uszczegółowienia słowa: np. yours -> Sincerely yours
 	
 	style_level :: string
-		'formal' albo 'informal' albo ''
+		'formal' | 'informal' | 'literary' | 'spoken' | ''
 	
 	definition :: string
 		definicja słowa w stringu
@@ -265,9 +308,16 @@ class DictEntry
 	related :: [string]
 		slowa/frazy powiązane z danym słowem
 	
-	intro_paragraph ":: string
-		
-	
+	intro_paragraph :: string
+		to, co jest czasem na początku napisane,
+		zwykle jakieś uwagi gramatyczne
+
+
+class SearchResults
+
+	results :: [string]
+		lista 'czy chodziło Ci o ...'
+
 '''
 
 
