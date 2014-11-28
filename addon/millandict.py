@@ -188,6 +188,6 @@ class DictWindow(QtGui.QWidget):
 		print "dictSearchEvent() called!"
 		pass
 
-class MeaningWidget(QtGui.QWidget):
+class SenseWidget(QtGui.QWidget):
     # [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
     pass
