@@ -159,6 +159,18 @@ class DictEntrySense(object):
 		wyn += "</i></font>"
 		return wyn
 	
+	def get_word_html(self):
+		return "<strong>"+("</strong><i> or </i><strong>".join(self.keys))+"</strong>"
+	
+	def get_def_html(self):
+		wyn = ""
+		if self.style_level != "":
+			wyn += "<i>"+self.style_level+"</i>"
+		tmp_def = self.definition
+		for i in self.keys:
+			tmp_def = "".join(tmp_def.split(i))
+		return wyn + tmp_def
+	
 	def set_key_if_needed(self, k):
 		if self.keys == []:
 			self.keys = [k]
