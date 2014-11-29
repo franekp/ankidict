@@ -136,15 +136,28 @@ class DictEntrySense(object):
 			self.__from_html(inp,ks,style_lvl)
 	
 	def print_txt(self):
+		'''
 		print self.keys
 		print self.style_level
 		print self.definition
 		print self.examples
+		'''
+		print self.get_html()
 		print "___________________\n"
 	
 	def get_html(self):
 		# TODO TODO TODO
-		pass
+		wyn = ""
+		wyn += "<strong>"+("</strong><i> or </i><strong>".join(self.keys))+"</strong>"
+		wyn += " --- "
+		if self.style_level != "":
+			wyn += "<i>"+self.style_level+"</i>"
+		wyn += self.definition
+		wyn += "<br />"
+		wyn += '<font color="blue"><i>'
+		wyn += "<br />".join(map(lambda (a,b): "<strong>"+a+"</strong>"+b, self.examples))
+		wyn += "</i></font>"
+		return wyn
 	
 	def set_key_if_needed(self, k):
 		if self.keys == []:
@@ -286,7 +299,8 @@ def main():
 	q = "take on"
 	dict_query(q).print_txt()
 
-main()
+if __name__ == "__main__":
+	main()
 
 '''
 interfejs:

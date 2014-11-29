@@ -4,7 +4,8 @@
 from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
-
+from PyQt4 import QtWebKit
+import macm_parser_css
 
 # windows utilities...
 
@@ -41,11 +42,12 @@ class DictWindow(QtGui.QWidget):
 		scroll_area.setWidget(vbox_senses_widget)
 		scroll_area.setWidgetResizable(True)
 		self.scroll_area = scroll_area
+		scroll_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		
 		vbox = QtGui.QVBoxLayout()
 		vbox.addLayout(hbox_head)
 		vbox.addWidget(scroll_area)
-		vbox.addStretch(1)
+		# vbox.addStretch(1)
 		self.setLayout(vbox)
 		#self.setGeometry(300, 300, 300, 150)
 		self.resize(800,600)
@@ -66,8 +68,21 @@ class DictWindow(QtGui.QWidget):
 	def dictSearchEvent(self):
 		# TODO - working with MacMillan wrapper
 		print "dictSearchEvent() called!"
-		self.addSomeTestContent()
-		pass
+		# self.addSomeTestContent()
+		dict_entry = macm_parser_css.dict_query(self.search_input.text())
+		if isinstance(dict_entry,macm_parser_css.SearchResults):
+			# FIXME FIXME FIXME
+			self.addSomeTestContent()
+			return
+		flayout_senses = QtGui.QVBoxLayout()
+		for i in dict_entry.senses:
+			wk = QtWebKit.QWebView()
+			wk.setHtml(i.get_html())
+			flayout_senses.addWidget(wk) #, QtGui.QPushButton("ADD"))
+			wk.show()
+		senses_widget = QWidget()
+		senses_widget.setLayout(flayout_senses)
+		self.scroll_area.setWidget(senses_widget)
 	
 	def addSomeTestContent(self):
 		vbox_senses = QtGui.QVBoxLayout()
