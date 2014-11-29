@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # PyQt library
 from aqt.qt import *
 import aqt.qt as QtGui
@@ -28,9 +30,21 @@ class DictWindow(QtGui.QWidget):
 		#hbox.addStretch(1)
 		hbox_head.addWidget(search_input)
 		hbox_head.addWidget(search_button)
-
+		
+		vbox_senses = QtGui.QVBoxLayout()
+		vbox_senses.addWidget(QtGui.QLabel("Welcome to our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("Try to use it :p"))
+		vbox_senses_widget = QWidget()
+		vbox_senses_widget.setLayout(vbox_senses)
+		
+		scroll_area = QtGui.QScrollArea()
+		scroll_area.setWidget(vbox_senses_widget)
+		scroll_area.setWidgetResizable(True)
+		self.scroll_area = scroll_area
+		
 		vbox = QtGui.QVBoxLayout()
 		vbox.addLayout(hbox_head)
+		vbox.addWidget(scroll_area)
 		vbox.addStretch(1)
 		self.setLayout(vbox)
 		#self.setGeometry(300, 300, 300, 150)
@@ -52,7 +66,55 @@ class DictWindow(QtGui.QWidget):
 	def dictSearchEvent(self):
 		# TODO - working with MacMillan wrapper
 		print "dictSearchEvent() called!"
+		self.addSomeTestContent()
 		pass
+	
+	def addSomeTestContent(self):
+		vbox_senses = QtGui.QVBoxLayout()
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
+		vbox_senses.addWidget(QtGui.QLabel("very good!"))
+		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
+		vbox_senses.addWidget(QtGui.QLabel("________________________"))
+		
+		vbox_senses_widget = QWidget()
+		vbox_senses_widget.setLayout(vbox_senses)
+		self.scroll_area.setWidget(vbox_senses_widget)
 
 class SenseWidget(QtGui.QWidget):
     # [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie

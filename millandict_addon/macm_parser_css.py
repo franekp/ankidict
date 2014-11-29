@@ -142,9 +142,15 @@ class DictEntrySense(object):
 		print self.examples
 		print "___________________\n"
 	
-	def get_html():
+	def get_html(self):
 		# TODO TODO TODO
 		pass
+	
+	def set_key_if_needed(self, k):
+		if self.keys == []:
+			self.keys = [k]
+		else:
+			pass
 
 
 
@@ -210,6 +216,12 @@ class DictEntry(object):
 				, sbodies)
 			self.phrases = self.phrases + phr_senses
 		map(mk_phrase, phr_list)
+		
+		global_key = "".join(map_get_text(page_tree.sel_css("div#headword div#headwordleft span.BASE")))
+		
+		# setting keys for senses that don't have one 
+		for i in self.senses:
+			i.set_key_if_needed(global_key)
 	
 	def __init__(self, node):
 		self.__from_html(node)
@@ -269,8 +281,9 @@ def main():
 						# formal phrase
 		'my', # intro_paragraph
 		'then', # multiple phrases one sense
+		'since when', # phrase finding in entry for 'since'
 	]
-	q = "since when"
+	q = "take on"
 	dict_query(q).print_txt()
 
 main()
