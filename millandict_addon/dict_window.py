@@ -17,6 +17,7 @@ import macm_parser_css
 # - ('remove' button / edit mode) in the word list
 
 # - some word list management (e.g. shuffle or save to file)
+# - add better key phrase removal from the definitions (e.g. remove also words with 's' at the end) 
 
 # windows utilities...
 
@@ -62,7 +63,15 @@ class DictWindow(QtGui.QWidget):
 		
 		vbox = QtGui.QVBoxLayout()
 		vbox.addLayout(hbox_head)
-		vbox.addWidget(scroll_area)
+		
+		self.related_defs_scroll_area = QScrollArea()
+		self.related_defs_scroll_area.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+		
+		hbox_tail = QHBoxLayout()
+		hbox_tail.addWidget(scroll_area)
+		hbox_tail.addWidget(self.related_defs_scroll_area)
+		
+		vbox.addLayout(hbox_tail)
 		# vbox.addStretch(1)
 		self.setLayout(vbox)
 		#self.setGeometry(300, 300, 300, 150)
@@ -89,15 +98,29 @@ class DictWindow(QtGui.QWidget):
 		dict_entry = macm_parser_css.dict_query(self.search_input.text())
 		self.dict_entry = dict_entry
 		if isinstance(dict_entry,macm_parser_css.SearchResults):
-			# FIXME FIXME FIXME
-			self.addSomeTestContent()
+			vbox_results = QVBoxLayout()
+			def results_element_clicked(i):
+				def func():
+					self.search_input.setText(i)
+					self.dictSearchEvent()
+				return func
+			for i in dict_entry.results:
+				btn = QPushButton(i)
+				vbox_results.addWidget(btn)
+				btn.clicked.connect(results_element_clicked(i))
+			widget_results = QWidget()
+			widget_results.setLayout(vbox_results)
+			self.scroll_area.setWidget(widget_results)
 			return
+		
+		# senses definitions and phrases:
 		flayout_senses = QtGui.QVBoxLayout()
 		def save_sense(i):
 			def tmp():
 				self.saved_senses += [i]
 			return tmp
-		for i in dict_entry.senses:
+		d_entry_all = dict_entry.senses + dict_entry.phrases
+		for i in d_entry_all:
 			wk = QtWebKit.QWebView()
 			wk.setHtml(i.get_html())
 			btn = QtGui.QPushButton("ADD")
@@ -134,6 +157,23 @@ class DictWindow(QtGui.QWidget):
 		senses_widget = QWidget()
 		senses_widget.setLayout(flayout_senses)
 		self.scroll_area.setWidget(senses_widget)
+		
+		# related defs:
+		vbox_related = QVBoxLayout()
+		def related_clicked(href):
+			def func():
+				self.search_input.setText(href)
+				self.dictSearchEvent()
+			return func
+		for (title, href) in dict_entry.related:
+			btn = QPushButton(title)
+			vbox_related.addWidget(btn)
+			btn.clicked.connect(related_clicked(href))
+			btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+		widget_related = QWidget()
+		widget_related.setLayout(vbox_related)
+		widget_related.setMaximumWidth(240)
+		self.related_defs_scroll_area.setWidget(widget_related)
 	
 	def viewSavedSenses(self):
 		table = '<table border="1">'

@@ -148,10 +148,10 @@ class DictEntrySense(object):
 	def get_html(self):
 		# TODO TODO TODO
 		wyn = ""
-		wyn += "<strong>"+("</strong><i> or </i><strong>".join(self.keys))+"</strong>"
+		wyn += "<strong>"+("</strong> <i> or  </i> <strong>".join(self.keys))+"</strong>"
 		wyn += " --- "
 		if self.style_level != "":
-			wyn += "<i>"+self.style_level+"</i>"
+			wyn += "<i> "+self.style_level+" </i>"
 		wyn += self.definition
 		wyn += "<br />"
 		wyn += '<font color="blue"><i>'
@@ -160,7 +160,7 @@ class DictEntrySense(object):
 		return wyn
 	
 	def get_word_html(self):
-		return "<strong>"+("</strong><i> or </i><strong>".join(self.keys))+"</strong>"
+		return "<strong>"+(" </strong ><i> or </i> <strong> ".join(self.keys))+"</strong>"
 	
 	def get_def_html(self):
 		wyn = ""
@@ -210,9 +210,9 @@ class DictEntry(object):
 			return "".join(li)
 			'''
 			if USE_SOUP:
-				return el.attrs['title']
+				return (el.attrs['title'], el.attrs['href'])
 			else:
-				return el.attrib['title']
+				return (el.attrib['title'], el.attrib['href'])
 		self.related = map(mk_related, self.related)
 		#intro_paragraph:
 		self.intro_paragraph = "\n".join(map_get_text(
@@ -287,7 +287,11 @@ def dict_query(query):
 	normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
 	# do wyszukiwania listy podobnych (jak trafisz, to i tak masz 'did you mean')
 	search_prefix = "http://www.macmillandictionary.com/spellcheck/british/?q="
-	url = normal_prefix + query
+	url = ""
+	if query[:7] == "http://":
+		url = query
+	else:
+		url = normal_prefix + query
 	root = parse_func(requests.get(url).text)
 	print root.sel_css("div#didyoumean")
 	if root.sel_css("div#didyoumean") == [] :
@@ -344,7 +348,7 @@ class DictEntry
 		(jak jakaś fraza ma kilka znaczeń, to każde z
 		nich jest na tej liście)
 	
-	related :: [string]
+	related :: [(title::string, href::string)]
 		slowa/frazy powiązane z danym słowem
 	
 	intro_paragraph :: string
