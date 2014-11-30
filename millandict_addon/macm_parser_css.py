@@ -1,11 +1,17 @@
-# -*- coding: utf-8 -*- 
-import bs4
-import lxml
-import lxml.html
-import requests
-import json
+# -*- coding: utf-8 -*-
 
 USE_SOUP = True
+
+if USE_SOUP:
+	import bs4
+else:
+	import lxml
+	import lxml.html
+
+# import requests
+import urllib2
+
+
 
 __all__ = ["DictEntry", "DictEntrySense", "dict_query"]
 
@@ -292,7 +298,15 @@ def dict_query(query):
 		url = query
 	else:
 		url = normal_prefix + query
-	root = parse_func(requests.get(url).text)
+	
+	def fetch_webpage(addr):
+		response = urllib2.urlopen(addr)
+		return response.read()
+		
+	def fetch_webpage_old(addr):
+		return requests.get(addr).text
+	
+	root = parse_func(fetch_webpage(url))
 	print root.sel_css("div#didyoumean")
 	if root.sel_css("div#didyoumean") == [] :
 		return DictEntry(root)

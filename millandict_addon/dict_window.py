@@ -180,11 +180,22 @@ class DictWindow(QtGui.QWidget):
 		for i in self.saved_senses:
 			table += "<tr><td>" + i.get_word_html() + "</td><td>" + i.get_def_html() + "</td></tr>"
 		table += "</table>"
-		pg = QWebPage()
-		pg.mainFrame().setHtml(table)
-		wk = QWebView()
-		wk.setPage(pg)
+		# pg = QWebPage()
+		# pg.mainFrame().setHtml(table)
+		wk = QTextEdit()
+		wk.setHtml(table)
+		print wk.focusPolicy()
+		wk.setFocusPolicy(Qt.ClickFocus)
 		self.scroll_area.setWidget(wk)
+		# right panel:
+		right_panel_l = QVBoxLayout()
+		edit_btn = QPushButton("EDIT (UNIMPLEMENTED)")
+		def edit_button_pressed():
+			pass #TODO
+		right_panel_l.addWidget(edit_btn)
+		right_panel = QWidget()
+		right_panel.setLayout(right_panel_l)
+		self.related_defs_scroll_area.setWidget(right_panel)
 	
 	def addSomeTestContent(self):
 		vbox_senses = QtGui.QVBoxLayout()
