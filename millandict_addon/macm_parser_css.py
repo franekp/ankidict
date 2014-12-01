@@ -278,11 +278,18 @@ class SearchResults(object):
 	def __from_html(self, node):
 		self.results = map_get_text(node.sel_css("div#search-results > ul > li > a"))
 		def make_addr(el):
+			a = ""
 			if USE_SOUP:
-				return (el.attrs['href'])
+				a = (el.attrs['href'])
 			else:
-				return (el.attrib['href'])
-		self.links = map(make_addr, node.sel_css("div#search-results > ul > li > a"))
+				a = (el.attrib['href'])
+		def make_addr2(a):
+			a = a.replace(" ","-")
+			a = a.replace("/","-")
+			a = "http://www.macmillandictionary.com/dictionary/british/" + a
+			return a
+		#self.links = map(make_addr, node.sel_css("div#search-results > ul > li > a"))
+		self.links = map(make_addr2, self.results)
 		self.links = zip(self.results, self.links)
 	
 	def __init__(self, node):
