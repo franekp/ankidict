@@ -8,7 +8,7 @@ print "uisdfhvgljikhgiouyahbkljgsdguhsdfrjbdhgb"
 
 from . import HTMLParser
 
-from HTMLParser import (
+from .HTMLParser import (
     HTMLParser,
     HTMLParseError,
     )
