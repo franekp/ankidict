@@ -104,10 +104,10 @@ class DictWindow(QtGui.QWidget):
 					self.search_input.setText(i)
 					self.dictSearchEvent()
 				return func
-			for i in dict_entry.results:
-				btn = QPushButton(i)
+			for (title, href) in dict_entry.links:
+				btn = QPushButton(title)
 				vbox_results.addWidget(btn)
-				btn.clicked.connect(results_element_clicked(i))
+				btn.clicked.connect(results_element_clicked(href))
 			widget_results = QWidget()
 			widget_results.setLayout(vbox_results)
 			self.scroll_area.setWidget(widget_results)
