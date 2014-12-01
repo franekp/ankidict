@@ -35,9 +35,9 @@ from ..element import (
     Doctype,
     ProcessingInstruction,
     )
-from bs4.dammit import EntitySubstitution, UnicodeDammit
+from ..dammit import EntitySubstitution, UnicodeDammit
 
-from bs4.builder import (
+from ..builder import (
     HTML,
     HTMLTreeBuilder,
     STRICT,
