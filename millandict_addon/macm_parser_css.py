@@ -311,6 +311,7 @@ def dict_query(query):
 	if query[:7] == "http://":
 		url = query
 	else:
+		query = query.replace(" ","+")
 		url = normal_prefix + query
 	
 	def fetch_webpage(addr):

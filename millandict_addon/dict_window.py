@@ -107,7 +107,7 @@ class DictWindow(QtGui.QWidget):
 			for (title, href) in dict_entry.links:
 				btn = QPushButton(title)
 				vbox_results.addWidget(btn)
-				btn.clicked.connect(results_element_clicked(href))
+				btn.clicked.connect(results_element_clicked(title))
 			widget_results = QWidget()
 			widget_results.setLayout(vbox_results)
 			self.scroll_area.setWidget(widget_results)
