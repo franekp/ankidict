@@ -307,6 +307,7 @@ class ParserRejectedMarkup(Exception):
 # builder registrations will take precedence. In general, we want lxml
 # to take precedence over html5lib, because it's faster. And we only
 # want to use HTMLParser as a last result.
+'''
 from . import _htmlparser
 register_treebuilders_from(_htmlparser)
 try:
@@ -321,3 +322,4 @@ try:
 except ImportError:
     # They don't have lxml installed.
     pass
+'''
