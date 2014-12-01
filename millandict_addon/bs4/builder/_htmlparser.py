@@ -28,7 +28,7 @@ CONSTRUCTOR_TAKES_STRICT = (
     or (major == 3 and minor > 2)
     or (major == 3 and minor == 2 and release >= 3))
 
-from bs4.element import (
+from ..element import (
     CData,
     Comment,
     Declaration,
