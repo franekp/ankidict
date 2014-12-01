@@ -145,7 +145,8 @@ class BeautifulSoup(Tag):
                 features = [features]
             if features is None or len(features) == 0:
                 features = self.DEFAULT_BUILDER_FEATURES
-            builder_class = builder_registry.lookup(*features)
+            # removed following line:
+            # builder_class = builder_registry.lookup(*features)
             builder_class = _htmlparser.HTMLParserTreeBuilder# TODO
             if builder_class is None:
                 raise FeatureNotFound(
