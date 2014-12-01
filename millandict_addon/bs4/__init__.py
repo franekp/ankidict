@@ -27,7 +27,7 @@ import os
 import re
 import warnings
 
-from .builder import builder_registry, ParserRejectedMarkup
+# from .builder import builder_registry, ParserRejectedMarkup
 from .builder import _htmlparser
 from .dammit import UnicodeDammit
 from .element import (
