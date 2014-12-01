@@ -277,6 +277,12 @@ class SearchResults(object):
 	
 	def __from_html(self, node):
 		self.results = map_get_text(node.sel_css("div#search-results > ul > li > a"))
+		def make_addr(el):
+			if USE_SOUP:
+				return (el.attrs['title'], el.attrs['href'])
+			else:
+				return (el.attrib['title'], el.attrib['href'])
+		self.links = map(make_addr, node.sel_css("div#search-results > ul > li > a"))
 	
 	def __init__(self, node):
 		self.__from_html(node)
