@@ -18,6 +18,9 @@ import sys
 # window and gui of our addon
 import dict_window
 
+def get_plugin():
+  return mw.millan
+
 class Config:
   def __init__(self):
     self.enable_global_shortcut = False
@@ -112,4 +115,5 @@ class MillanDict:
     """
     # Global shortcuts are NOW WORKING
     #showInfo("Global Shortcut call succeeded!")
+    print "[ global shortcut handled ]"
     pass
