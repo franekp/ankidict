@@ -14,13 +14,14 @@ def select_deck():
   # maby we can only add notes to selected deck...
   mw.col.decks.select(deckid)
   # gets deck object - why?
-  #deck = mw.col.decks.get(deckid)
+  deck = mw.col.decks.get(deckid)
+  return deck
 
 
 def add_note(q, a):
   # adds card to collection
   # [TODO] test
-  select_deck()
+  deck = select_deck()
 
   note = get_note(q)
   if note != None:
@@ -32,6 +33,7 @@ def add_note(q, a):
     note['Front'] = q
     note['Back'] = a
     mw.col.addNote(note)
+    #deck.addNote(note)
 
 def add_tag(q, t):
   # adds tag to note

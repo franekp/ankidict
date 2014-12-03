@@ -6,6 +6,7 @@ import aqt.qt as QtGui
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 import macm_parser_css
+import collection
 
 # TODO LIST:
 
@@ -118,6 +119,7 @@ class DictWindow(QtGui.QWidget):
 		def save_sense(i):
 			def tmp():
 				self.saved_senses += [i]
+				collection.add_note(i.get_def_html(), i.get_word_html())
 			return tmp
 		d_entry_all = dict_entry.senses + dict_entry.phrases
 		for i in d_entry_all:
@@ -125,8 +127,6 @@ class DictWindow(QtGui.QWidget):
 			wk.setHtml(i.get_html())
 			btn = QtGui.QPushButton("ADD")
 			
-			def save_sense_old():
-				self.saved_senses += [i]
 			btn.clicked.connect(save_sense(i))
 			
 			btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding)

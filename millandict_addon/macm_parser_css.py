@@ -174,7 +174,7 @@ class DictEntrySense(object):
 			wyn += "<i>"+self.style_level+"</i>"
 		tmp_def = self.definition
 		for i in self.keys:
-			tmp_def = "".join(tmp_def.split(i))
+			tmp_def = " ____ ".join(tmp_def.split(i))
 		return wyn + tmp_def
 	
 	def set_key_if_needed(self, k):
@@ -322,7 +322,7 @@ def dict_query(query):
 		return requests.get(addr).text
 	
 	root = parse_func(fetch_webpage(url))
-	print root.sel_css("div#didyoumean")
+	
 	if root.sel_css("div#didyoumean") == [] :
 		return DictEntry(root)
 	else:
