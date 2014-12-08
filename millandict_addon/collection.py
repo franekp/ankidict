@@ -57,8 +57,12 @@ def select_model():
     mw.col.models.addField(mod, mw.col.models.newField(self.config.note_info))
     # simple template for the model
     tmp = mw.col.models.newTemplate(self.config.template)
-    tmp['qfmt'] = '{{'+self.config.note_question+'}}'
-    tmp['afmt'] = '{{'+self.config.note_answer+'}}<hr/>{{'+self.config.note_info+'}}'
+    if self.config.type_answer:
+      tmp['qfmt'] = '{{'+self.config.note_question+'}}<hr/>{{type:'+self.config.note_answer+'}}'
+      tmp['afmt'] = '{{FrontSide}}<hr/>{{'+self.config.note_info+'}}'
+    else:
+      tmp['qfmt'] = '{{'+self.config.note_question+'}}'
+      tmp['afmt'] = '{{FrontSide}}<hr/>{{'+self.config.note_answer+'}}<hr/>{{'+self.config.note_info+'}}'
     mw.col.models.addTemplate(mod, tmp)
     # [TODO] Maby should I here move deck selecting?
     mw.col.models.add(mod)

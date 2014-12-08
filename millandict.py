@@ -32,6 +32,7 @@ conf = addon.Config()
 
 conf.enable_global_shortcut = False
 conf.enable_debug_menu = True
+conf.type_answer = True
 
 #                                              #
 ################################################

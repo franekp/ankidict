@@ -52,9 +52,12 @@ class Config:
     self.model = 'MillanNote'
     self.template = 'MillanTemplate'
     self.shortcut = 'Ctrl+Shift+E'
+    # only works at first time!
+    # when model is created
     self.note_question = 'Front'
     self.note_answer = 'Back'
     self.note_info = 'Info'
+    self.type_answer = True
 
 class MillanDict:
   def __init__(self, config):
