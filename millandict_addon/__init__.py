@@ -1,5 +1,28 @@
 # -*- coding: utf-8 -*-
 
+####
+# Copyright (c) 2014 Wojciech Kordalski
+# Copyright (c) 2014 Franciszek Piszcz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+####
+
 # Macmillan dictionary plugin
 # Supports [TODO]:
 # * querying Macmillan site
@@ -26,6 +49,12 @@ class Config:
     self.enable_global_shortcut = False
     self.enable_debug_menu = False
     self.deck = 'MillanDict'
+    self.model = 'MillanNote'
+    self.template = 'MillanTemplate'
+    self.shortcut = 'Ctrl+Shift+E'
+    self.note_question = 'Front'
+    self.note_answer = 'Back'
+    self.note_info = 'Info'
 
 class MillanDict:
   def __init__(self, config):
@@ -57,7 +86,7 @@ class MillanDict:
       import pyqxtgs as gs
       self.globact = gs.PyGlobalShortcutHandler()
       mw.connect(self.globact, SIGNAL('onGlobalShortcut()'), self.global_call)
-      self.globact.setShortcut("Ctrl+Shift+E")
+      self.globact.setShortcut(self.config.shortcut)
       self.globact.enable()
 
   def init(self):
