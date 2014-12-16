@@ -94,8 +94,6 @@ class DictWindow(QtGui.QWidget):
 
 	def dictSearchEvent(self):
 		# TODO - working with MacMillan wrapper
-		print "dictSearchEvent() called!"
-		# self.addSomeTestContent()
 		dict_entry = macm_parser_css.dict_query(self.search_input.text())
 		self.dict_entry = dict_entry
 		if isinstance(dict_entry,macm_parser_css.SearchResults):
@@ -196,54 +194,22 @@ class DictWindow(QtGui.QWidget):
 		right_panel = QWidget()
 		right_panel.setLayout(right_panel_l)
 		self.related_defs_scroll_area.setWidget(right_panel)
-	
-	def addSomeTestContent(self):
-		vbox_senses = QtGui.QVBoxLayout()
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		vbox_senses.addWidget(QtGui.QLabel("Oh, you pressed return key or the button!"))
-		vbox_senses.addWidget(QtGui.QLabel("very good!"))
-		vbox_senses.addWidget(QtGui.QLabel("than you for using our addon!"))
-		vbox_senses.addWidget(QtGui.QLabel("________________________"))
-		
-		vbox_senses_widget = QWidget()
-		vbox_senses_widget.setLayout(vbox_senses)
-		self.scroll_area.setWidget(vbox_senses_widget)
+
+class DictWindowNew(QtGui.QWidget):
+	pass
+
+class WelcomeView(QtGui.QWidget):
+	pass
+
+class DictEntryView(QtGui.QWidget):
+	pass
+
+class SearchResultsView(QtGui.QWidget):
+	pass
+
+class WordListView(QtGui.QWidget):
+	pass
 
 class SenseWidget(QtGui.QWidget):
-    # [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
-    pass
+	# [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
+	pass
