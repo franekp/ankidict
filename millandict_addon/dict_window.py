@@ -23,7 +23,7 @@ import collection
 # windows utilities...
 
 # main dictionary window
-class DictWindow(QtGui.QWidget):
+class DictWindowOld(QtGui.QWidget):
 
 	def __init__(self):
 		super(DictWindow, self).__init__()
@@ -195,21 +195,170 @@ class DictWindow(QtGui.QWidget):
 		right_panel.setLayout(right_panel_l)
 		self.related_defs_scroll_area.setWidget(right_panel)
 
-class DictWindowNew(QtGui.QWidget):
+
+class DictWindow(QtGui.QWidget):
+	
+	def __init__(self):
+		super(DictWindow, self).__init__()
+		self.search_input = QLineEdit(":welcome")
+		self.search_button = QPushButton("SEARCH")
+		self.prev_button = QPushButton("<|")
+		self.next_button = QPushButton("|>")
+		self.prev_button.setEnabled(False)
+		self.next_button.setEnabled(False)
+		self.wordlist_button = QPushButton("LIST")
+		self.settings_button = QPushButton("=C")
+		
+		self.search_input.returnPressed.connect(self.dictSearchEvent)
+		self.search_button.clicked.connect(self.dictSearchEvent)
+		self.prev_button.clicked.connect(self.prevView)
+		self.next_button.clicked.connect(self.nextView)
+		self.wordlist_button.clicked.connect(lambda (): self.setView(self.wordlist_view))
+		self.settings_button.clicked.connect(lambda (): self.setView(self.settings_view))
+		
+		self.welcome_view = WelcomeView()
+		self.wordlist_view = WordListView()
+		self.settings_view = SettingsView()
+		# after pressing prev_button:
+		self.prev_views = []
+		# after pressing next_button:
+		self.next_views = []
+		# what is now displayed:
+		self.current_view = self.welcome_view
+		self.head_hbox = QHBoxLayout()
+		head_hbox.addWidget(self.prev_button)
+		head_hbox.addWidget(self.next_button)
+		head_hbox.addWidget(self.search_input)
+		head_hbox.addWidget(self.search_button)
+		head_hbox.addWidget(self.wordlist_button)
+		head_hbox.addWidget(self.settings_button)
+		self.main_vbox = QVBoxLayout()
+		self.main_vbox.addLayout(head_hbox)
+		self.main_vbox.addWidget(self.current_view)
+		self.setLayout(self.main_vbox)
+		self.resize(800,600)
+		self.setWindowTitle('Macmillan Dictionary')
+		
+		self.view_factory = ViewFactory(self)
+	
+	def __updatePrevNextBtns(self):
+		self.prev_button.setEnabled(self.prev_views != [])
+		self.next_button.setEnabled(self.next_views != [])
+	
+	def setView(self, v):
+		if v == None:
+			return
+		self.search_input.setText(v.getTitle())
+		if self.current_view.isHistRecorded():
+			self.prev_views.append(self.current_view)
+		self.current_view.hide()
+		self.current_view = v
+		self.main_vbox.addWidget(v)
+		v.show()
+		self.__updatePrevNextBtns()
+	
+	def prevView(self):
+		if self.prev_views == []:
+			print "ERROR: no more prev_views!"
+			return
+		self.next_views.append(self.current_view)
+		self.current_view.hide()
+		self.current_view = self.prev_views[-1]
+		self.prev_views = self.prev_views[0:-2]
+		self.current_view.show()
+		self.search_input.setText(self.current_view.getTitle())
+		self.__updatePrevNextBtns()
+	
+	def nextView(self):
+		if self.next_views == []:
+			print "ERROR: no more next_views!"
+			return
+		self.prev_views.append(self.current_view)
+		self.current_view.hide()
+		self.current_view = self.next_views[-1]
+		self.next_views = self.next_views[0:-2]
+		self.current_view.show()
+		self.search_input.setText(self.current_view.getTitle())
+		self.__updatePrevNextBtns()
+	
+	def closeEvent(self, event):
+		event.ignore()
+		self.hide()
+	
+	def keyPressEvent(self, e):
+		if e.key() == QtCore.Qt.Key_Escape:
+			# Selecting the search input field
+			self.search_input.setFocus()
+			self.search_input.setText("")
+	
+	def dictSearchEvent(self):
+		self.setView(self.view_factory.makeView(self.search_input.text()))
+
+
+class ViewFactory(object):
+	''' here goes caching of dict entries, interpreting user commands, etc. '''
+	def __init__(self, dwnd):
+		self.dwnd = dwnd
+	
+	def makeView(self, s):
+		#TODO
+		return WelcomeView()
+
+class BaseView(QWidget):
+	
+	# returns what should be placed in the search_input textbox
+	def getTitle():
+		raise "BaseView is an abstract class!"
+	# if True, then every appearance of it will be saved into the history of searches
+	def isHistRecorded():
+		raise "BaseView is an abstract class!"
+	
 	pass
 
-class WelcomeView(QtGui.QWidget):
+class WelcomeView(BaseView):
+	def __init__(self):
+		self.main_vbox = QVBoxLayout()
+		self.main_vbox.addWidget(QLabel("Welcome to our addon!"))
+		self.setLayout(self.main_vbox)
+	# returns what should be placed in the search_input textbox
+	def getTitle():
+		return ":welcome"
+	# if True, then every appearance of it will be saved into the history of searches
+	def isHistRecorded():
+		return True
+
+class DictEntryView(BaseView):
 	pass
 
-class DictEntryView(QtGui.QWidget):
+class SearchResultsView(BaseView):
 	pass
 
-class SearchResultsView(QtGui.QWidget):
-	pass
+class WordListView(BaseView):
+	def __init__(self):
+		self.main_vbox = QVBoxLayout()
+		self.main_vbox.addWidget(QLabel("WordListView"))
+		self.setLayout(self.main_vbox)
+		pass
+	# returns what should be placed in the search_input textbox
+	def getTitle():
+		return ":l"
+	# if True, then every appearance of it will be saved into the history of searches
+	def isHistRecorded():
+		return True
 
-class WordListView(QtGui.QWidget):
-	pass
+class SettingsView(BaseView):
+	def __init__(self):
+		self.main_vbox = QVBoxLayout()
+		self.main_vbox.addWidget(QLabel("SettingsView"))
+		self.setLayout(self.main_vbox)
+		pass
+	# returns what should be placed in the search_input textbox
+	def getTitle():
+		return ":s"
+	# if True, then every appearance of it will be saved into the history of searches
+	def isHistRecorded():
+		return True
 
-class SenseWidget(QtGui.QWidget):
+class SenseWidget(QWidget):
 	# [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
 	pass
