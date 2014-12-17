@@ -255,7 +255,7 @@ class DictEntry(object):
 		map(mk_phrase, phr_list)
 		
 		global_key = "".join(map_get_text(page_tree.sel_css("div#headword div#headwordleft span.BASE")))
-		
+		self.word = global_key
 		# setting keys for senses that don't have one 
 		for i in self.senses:
 			i.set_key_if_needed(global_key)
@@ -298,8 +298,9 @@ class SearchResults(object):
 		self.links = map(make_addr2, self.results)
 		self.links = zip(self.results, self.links)
 	
-	def __init__(self, node):
+	def __init__(self, node, q):
 		self.__from_html(node)
+		self.word = q
 	
 	def print_txt(self):
 		print "[[[ did you mean ]]]"
@@ -317,8 +318,7 @@ def dict_query(query):
 	if query[:7] == "http://":
 		url = query
 	else:
-		query = query.replace(" ","+")
-		url = normal_prefix + query
+		url = normal_prefix + query.replace(" ","+")
 	
 	def fetch_webpage(addr):
 		response = urllib2.urlopen(addr)
@@ -332,7 +332,7 @@ def dict_query(query):
 	if root.sel_css("div#didyoumean") == [] :
 		return DictEntry(root)
 	else:
-		return SearchResults(root)
+		return SearchResults(root, query)
 
 
 def main():
@@ -375,6 +375,9 @@ class DictEntrySense
 
 class DictEntry
 	
+	word :: string
+		dane słowo
+	
 	senses :: [DictEntrySense]
 		znaczenia słowa (bez fraz)
 	
@@ -392,7 +395,9 @@ class DictEntry
 
 
 class SearchResults
-
+	
+	word :: string
+	
 	results :: [string]
 		lista 'czy chodziło Ci o ...'
 
