@@ -8,6 +8,7 @@ from PyQt4 import QtWebKit
 import macm_parser_css
 import collection
 import re
+from __init__ import get_plugin
 
 # TODO LIST:
 
@@ -275,7 +276,8 @@ class DictWindow(QtGui.QWidget):
 		if self.prev_views == []:
 			print "ERROR: no more prev_views!"
 			return
-		self.next_views.append(self.current_view)
+		if self.current_view.isHistRecorded():
+			self.next_views.append(self.current_view)
 		self.current_view.hide()
 		self.current_view = self.prev_views[-1]
 		self.prev_views = self.prev_views[:-1]
@@ -429,7 +431,7 @@ class DictEntryView(BaseView):
 		self.left_vbox = QVBoxLayout()
 		self.right_vbox = QVBoxLayout()
 		self.main_hbox = QHBoxLayout()
-		
+		self.examples_widget = ExamplesWidget(self)
 		entry_all = entry.senses + entry.phrases
 		for i in entry_all:
 			self.left_vbox.addWidget(SenseWidget(i, self))
@@ -440,8 +442,6 @@ class DictEntryView(BaseView):
 			btn.clicked.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
 			self.right_vbox.addWidget(btn)
 		
-		#left_scroll.setLayout(self.left_vbox)
-		#right_scroll.setLayout(self.right_vbox)
 		left_scroll.setWidgetResizable(True)
 		right_scroll.setWidgetResizable(True)
 		left_widget.setLayout(self.left_vbox)
@@ -451,7 +451,12 @@ class DictEntryView(BaseView):
 		left_scroll.setWidget(left_widget)
 		right_scroll.setWidget(right_widget)
 		right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-		self.main_hbox.addWidget(left_scroll)
+		#FIXME: (dać to do configa, czy coś):    // potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
+		right_scroll.setMaximumWidth(250)
+		left_column = QVBoxLayout()
+		left_column.addWidget(left_scroll)
+		left_column.addWidget(self.examples_widget)
+		self.main_hbox.addLayout(left_column)
 		self.main_hbox.addWidget(right_scroll)
 		self.setLayout(self.main_hbox)
 		
@@ -488,16 +493,20 @@ class SenseWidget(QWidget):
 		
 		#self.main_vbox.addLayout(self.def_hbox)
 		for (key, ex) in sense.examples:
-			tmp = '<font color="blue"><i>'
+			tmp = '<a href="example"><font color="blue"><i>'
 			if key:
 				tmp += "<b>"+key+" </b>"
 			tmp += ex
-			tmp += "</i></font>"
+			tmp += "</i></font></a>"
 			tmplabel = QLabel(tmp)
 			tmplabel.setWordWrap(True)
 			tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
 			tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-			
+			def add_ex_func(k,e):
+				def f():
+					self.entry_view.examples_widget.addExample(k,e)
+				return f
+			tmplabel.linkActivated.connect(add_ex_func(key,ex))
 			self.main_vbox.addWidget(tmplabel)
 		
 		def make_frame():
@@ -529,8 +538,57 @@ class SenseWidget(QWidget):
 	
 	def saveDef(self):
 		self.dwnd.wordlist_view.addSense(self.sense)
-		pass
+		collection.add_note(self.sense.get_def_html(), self.sense.get_word_html())
+		#TODO: some global history (dla Agi)
+
+class Example(QLabel):
+		def __init__(self, txt):
+			super(Example, self).__init__('<a href="example">'+txt+'</a>')
+			self.txt = txt
+		def mouseReleaseEvent(self, e):
+			self.txt = ""
+			self.hide()
 
 class ExamplesWidget(QWidget):
+	
 	def __init__(self, entry_view):
 		super(ExamplesWidget, self).__init__()
+		self.entry_view = entry_view
+		self.examples = []
+		self.main_hbox = QHBoxLayout()
+		self.list_vbox = QVBoxLayout()
+		self.main_hbox.addLayout(self.list_vbox)
+		self.add_button = QPushButton("ADD")
+		self.add_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+		self.main_hbox.addWidget(self.add_button)
+		self.add_button.hide()
+		self.add_button.clicked.connect(self.addToCollection)
+		self.setLayout(self.main_hbox)
+		#self.addExample("","here should be some examples...")
+		self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+	def addExample(self, k, e):
+		k = "____".join(k.split(self.entry_view.entry.word))
+		e = "____".join(e.split(self.entry_view.entry.word))
+		txt = '<font color="blue"><i>'
+		if k:
+			txt += "<b>"+k+" </b>"
+		txt += e
+		txt += "</i></font>"
+		ex = Example(txt)
+		self.examples.append(ex)
+		self.list_vbox.addWidget(ex)
+		self.setLayout(self.main_hbox)
+		self.add_button.show()
+	def mouseReleaseEvent(self, e):
+		self.examples = filter((lambda a: a.txt != ""), self.examples)
+		if self.examples == []:
+			self.add_button.hide()
+	def addToCollection(self):
+		self.mouseReleaseEvent(None)
+		q = "<br />".join(map((lambda a: a.txt), self.examples))
+		collection.add_note(q, "<strong>"+self.entry_view.entry.word+"</strong>")
+		for i in self.examples:
+			i.hide()
+		self.examples = []
+		self.add_button.hide()
+		
