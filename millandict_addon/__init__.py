@@ -58,6 +58,7 @@ class Config:
     self.note_answer = 'Back'
     self.note_info = 'Info'
     self.type_answer = True
+    self.max_examples_per_sense = 2
 
 class MillanDict:
   def __init__(self, config):
