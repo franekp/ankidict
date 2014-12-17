@@ -177,6 +177,12 @@ class DictEntrySense(object):
 			tmp_def = " ____ ".join(tmp_def.split(i))
 		return wyn + tmp_def
 	
+	def get_full_def_html(self):
+		wyn = ""
+		if self.style_level != "":
+			wyn += "<i>"+self.style_level+"</i>"
+		return wyn + self.definition
+	
 	def set_key_if_needed(self, k):
 		if self.keys == []:
 			self.keys = [k]

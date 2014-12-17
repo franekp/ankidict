@@ -241,6 +241,8 @@ class DictWindow(QtGui.QWidget):
 		self.setWindowTitle('Macmillan Dictionary')
 		
 		self.view_factory = ViewFactory(self)
+		
+		self.dictSearch("make")
 	
 	def __updatePrevNextBtns(self):
 		self.prev_button.setEnabled(self.prev_views != [])
@@ -294,7 +296,9 @@ class DictWindow(QtGui.QWidget):
 	
 	def dictSearchEvent(self):
 		self.setView(self.view_factory.makeView(self.search_input.text()))
-
+	
+	def dictSearch(self, query):
+		self.setView(self.view_factory.makeView(query))
 
 class ViewFactory(object):
 	''' here goes caching of dict entries, interpreting user commands, etc. '''
@@ -302,8 +306,11 @@ class ViewFactory(object):
 		self.dwnd = dwnd
 	
 	def makeView(self, s):
-		#TODO
-		return WelcomeView()
+		res = macm_parser_css.dict_query(s)
+		if isinstance(res, macm_parser_css.DictEntry):
+			return DictEntryView(res, self.dwnd)
+		else:
+			return WelcomeView()
 
 class BaseView(QWidget):
 	def __init__(self):
@@ -323,15 +330,11 @@ class WelcomeView(BaseView):
 		self.main_vbox = QVBoxLayout()
 		self.main_vbox.addWidget(QLabel("Welcome to our addon!"))
 		self.setLayout(self.main_vbox)
-	# returns what should be placed in the search_input textbox
 	def getTitle(self):
 		return ":welcome"
-	# if True, then every appearance of it will be saved into the history of searches
 	def isHistRecorded(self):
 		return True
 
-class DictEntryView(BaseView):
-	pass
 
 class SearchResultsView(BaseView):
 	pass
@@ -343,10 +346,12 @@ class WordListView(BaseView):
 		self.main_vbox.addWidget(QLabel("WordListView"))
 		self.setLayout(self.main_vbox)
 		pass
-	# returns what should be placed in the search_input textbox
+	
+	def addWord(self):
+		pass
+	
 	def getTitle(self):
 		return ":l"
-	# if True, then every appearance of it will be saved into the history of searches
 	def isHistRecorded(self):
 		return True
 
@@ -357,13 +362,100 @@ class SettingsView(BaseView):
 		self.main_vbox.addWidget(QLabel("SettingsView"))
 		self.setLayout(self.main_vbox)
 		pass
-	# returns what should be placed in the search_input textbox
 	def getTitle(self):
 		return ":s"
-	# if True, then every appearance of it will be saved into the history of searches
+	def isHistRecorded(self):
+		return True
+
+
+class DictEntryView(BaseView):
+	def __init__(self, entry, dwnd):
+		super(DictEntryView, self).__init__()
+		self.entry = entry
+		self.dwnd = dwnd
+		left_scroll = QScrollArea()
+		right_scroll = QScrollArea()
+		left_widget = QWidget()
+		right_widget = QWidget()
+		self.left_vbox = QVBoxLayout()
+		self.right_vbox = QVBoxLayout()
+		self.main_hbox = QHBoxLayout()
+		
+		entry_all = entry.senses + entry.phrases
+		for i in entry_all:
+			self.left_vbox.addWidget(SenseWidget(i, self))
+		for (title, href) in entry.related:
+			btn = QPushButton(title)
+			# tej lambdy NIE można uprościć, bo inaczej się zbuguje:
+			btn.clicked.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
+			self.right_vbox.addWidget(btn)
+		
+		#left_scroll.setLayout(self.left_vbox)
+		#right_scroll.setLayout(self.right_vbox)
+		left_scroll.setWidgetResizable(True)
+		right_scroll.setWidgetResizable(True)
+		left_widget.setLayout(self.left_vbox)
+		right_widget.setLayout(self.right_vbox)
+		left_widget.show()
+		right_widget.show()
+		left_scroll.setWidget(left_widget)
+		right_scroll.setWidget(right_widget)
+		right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+		self.main_hbox.addWidget(left_scroll)
+		self.main_hbox.addWidget(right_scroll)
+		self.setLayout(self.main_hbox)
+		
+	def getTitle(self):
+		#FIXME
+		return "sth"
 	def isHistRecorded(self):
 		return True
 
 class SenseWidget(QWidget):
-	# [TODO] stworzyć widget, który będzie wyświetlany w VBoxLayout pokazujący znaczenie
-	pass
+	def __init__(self, sense, entry_view):
+		super(SenseWidget, self).__init__()
+		self.sense = sense
+		self.entry_view = entry_view
+		self.dwnd = entry_view.dwnd
+		self.main_vbox = QVBoxLayout()
+		self.def_hbox = QHBoxLayout()
+		
+		self.main_vbox.setMargin(0)
+		self.def_hbox.setMargin(0)
+		self.main_vbox.setSpacing(0)
+		self.def_hbox.setSpacing(0)
+		
+		tmplabel = QLabel(sense.get_word_html() + "  ---  " + sense.get_full_def_html())
+		tmplabel.setWordWrap(True)
+		tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+		#tmplabel.setScaledContents(True)
+		tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+		
+		self.def_hbox.addWidget(tmplabel)
+		btn = QPushButton("ADD")
+		btn.clicked.connect(self.save_def)
+		self.def_hbox.addWidget(btn)
+		self.main_vbox.addLayout(self.def_hbox)
+		for (key, ex) in sense.examples:
+			tmp = '<font color="blue"><i>'
+			if key:
+				tmp += "<b>"+key+" </b>"
+			tmp += ex
+			tmp += "</i></font>"
+			tmplabel = QLabel(tmp)
+			tmplabel.setWordWrap(True)
+			tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+			tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+			
+			self.main_vbox.addWidget(tmplabel)
+		self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+		
+		
+		self.setLayout(self.main_vbox)
+		#self.setStyleSheet("background-color:white;")
+		self.setStyleSheet("#sense-widget{border-color:black; border-width: 3px; border-style: double;}")
+		self.setObjectName("sense-widget")
+		
+	def save_def(self):
+		pass
+	
