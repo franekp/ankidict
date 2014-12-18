@@ -8,20 +8,24 @@ from PyQt4 import QtWebKit
 import macm_parser_css
 import collection
 import re
+import datetime
 from __init__ import get_plugin
 
 # TODO LIST:
+
 # - (edit mode) in the word list [DONE]
 # - add senses folding to UI [DONE]
 # - adding examples to the wordlist (and appropriate config entry for it)  [DONE]
+# - add intro_paragraph to UI [DONE]
+# - global word list to files (named by each month) [DONE]
 
+# TODO:
 
 # - add proper special searches handling (:welcome, :l, etc.)
-# - add intro_paragraph to UI
+
 # - change "related" stuff from buttons to labels (for proper word wrap and space saving)
 
-
-# - global word list to files (named by each month)
+# - add proper closing of file with word list log
 
 # - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)
 #		encapsulate it in separate class/module/whatever and replace existing code with it
@@ -201,12 +205,18 @@ class WordListView(BaseView):
 					self.reloadTable()
 			return wyn
 		self.text_edit.keyPressEvent = func_constr(self.text_edit.keyPressEvent)
+		
+		today = datetime.date.today()
+		filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
+		self.logfile = open(filename, "a+")
+		
 	
 	def addSense(self, sense):
 		tr = "<tr><td>" + sense.get_word_html() + "</td><td>" + sense.get_def_html() + "</td></tr>"
 		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
 		text = 'border="2"'.join(text.split('border="0"'))
 		self.text_edit.setHtml(text)
+		self.logfile.write(tr.encode("ascii","ignore") + "\n")
 		#print self.text_edit.toHtml()
 	
 	def addExample(self, k, e, word):
@@ -218,6 +228,7 @@ class WordListView(BaseView):
 		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
 		text = 'border="2"'.join(text.split('border="0"'))
 		self.text_edit.setHtml(text)
+		self.logfile.write(tr.encode("ascii","ignore") + "\n")
 	
 	def reloadTable(self):
 		text = self.text_edit.toHtml()
@@ -234,6 +245,7 @@ class WordListView(BaseView):
 		return ":l"
 	def isHistRecorded(self):
 		return False
+		
 
 class SettingsView(BaseView):
 	def __init__(self):
