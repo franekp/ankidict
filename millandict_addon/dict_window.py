@@ -13,13 +13,19 @@ from __init__ import get_plugin
 # TODO LIST:
 # - (edit mode) in the word list [DONE]
 
+# - add proper special searches handling (:welcome, :l, etc.)
 # - add senses folding to UI
 # - add intro_paragraph to UI
+# - change "related" stuff from buttons to labels (for proper word wrap and space saving)
+
 
 # - global word list to files (named by each month)
+# - adding examples to the wordlist (and appropriate config entry for it)
+
 # - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)
-# - add many behavior specifiers to config (and maybe settings and config...)
-# - add the additional textbox to paste currently studied text and textbox with link to it (for additional field in note)
+# - add special handling of cases where there is only one example added (some list of possible answers)
+# - add many behavior specifiers to config (and maybe settings view to change the config)
+# - add the additional textbox to paste currently studied text (for examples) and textbox with link to it (for additional field in note)
 
 # windows utilities...
 
