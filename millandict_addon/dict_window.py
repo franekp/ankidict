@@ -123,7 +123,8 @@ class DictWindow(QtGui.QWidget):
 		if self.next_views == []:
 			print "ERROR: no more next_views!"
 			return
-		self.prev_views.append(self.current_view)
+		if self.current_view.isHistRecorded():
+			self.prev_views.append(self.current_view)
 		self.current_view.hide()
 		self.current_view = self.next_views[-1]
 		self.next_views = self.next_views[:-1]
@@ -325,6 +326,8 @@ class SenseWidget(QWidget):
 		btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 		btn.clicked.connect(self.saveDef)
 		
+		self.examples_to_hide = []
+		
 		#self.main_vbox.addLayout(self.def_hbox)
 		for (key, ex) in sense.examples:
 			tmp = '<a href="example"><font color="blue"><i>'
@@ -340,17 +343,59 @@ class SenseWidget(QWidget):
 				def f():
 					self.entry_view.examples_widget.addExample(k,e)
 				return f
-			tmplabel.linkActivated.connect(add_ex_func(key,ex))
-			self.main_vbox.addWidget(tmplabel)
+			tmplabel.linkActivated.connect(add_ex_func(key, ex))
+			self.examples_to_hide.append(tmplabel)
+		self.examples_all = self.examples_to_hide
+		self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
 		
 		def make_frame():
-			line = QFrame()
-			line.setStyleSheet("background-color: white;");
-			line.setFrameShape(QFrame.Box)
-			line.setFrameShadow(QFrame.Raised)
-			line.setLineWidth(2)
-			line.setMidLineWidth(2)
-			return line
+			fr = QFrame()
+			fr.setStyleSheet("background-color: white;");
+			fr.setFrameShape(QFrame.Box)
+			fr.setFrameShadow(QFrame.Raised)
+			fr.setLineWidth(2)
+			fr.setMidLineWidth(2)
+			return fr
+		def make_hidden_examples():
+			w = QWidget()
+			w.onLeaveEvent = lambda e: None
+			if self.examples_all == []:
+				return w
+			w.setMouseTracking(True)
+			lab = QLabel('<a href="example"><font color="blue"><b> ... ... ... </b></font></a>')
+			lab.hide()
+			layout = QVBoxLayout()
+			for i in self.examples_all:
+				layout.addWidget(i)
+			layout.setMargin(2)
+			layout.addWidget(lab)
+			w.setLayout(layout)
+			def onEnterEvent(event):
+				# here showing examples (takie onHover)
+				for i in self.examples_to_hide:
+					i.show()
+				lab.hide()
+			def onLeaveEvent(event):
+				# here hiding examples (takie onUnHover)
+				for i in self.examples_to_hide:
+					i.hide()
+				if self.examples_to_hide != []:
+					lab.show()
+			def mouseMoveEvent(event):
+				if event.x() < get_plugin().config.examples_hover_area_width :
+					onEnterEvent(event)
+				else:
+					onLeaveEvent(event)
+			#w.enterEvent = onEnterEvent
+			#w.leaveEvent = onLeaveEvent
+			w.mouseMoveEvent = mouseMoveEvent
+			w.onLeaveEvent = onLeaveEvent
+			w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+			onLeaveEvent(None)
+			w.show()
+			return w
+		self.hidden_examples = make_hidden_examples()
+		self.main_vbox.addWidget(self.hidden_examples)
 		frame = make_frame()
 		frame.setLayout(self.main_vbox)
 		self.def_hbox.addWidget(frame)
@@ -362,13 +407,8 @@ class SenseWidget(QWidget):
 		self.setLayout(self.def_hbox)
 	
 	# in the settings should be whether to hide the examples or not
-	def enterEvent(self, event):
-		# here showing examples
-		pass
-	
 	def leaveEvent(self, event):
-		# here hiding examples
-		pass
+		self.hidden_examples.onLeaveEvent(event)
 	
 	def saveDef(self):
 		self.dwnd.wordlist_view.addSense(self.sense)

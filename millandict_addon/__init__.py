@@ -59,6 +59,7 @@ class Config:
     self.note_info = 'Info'
     self.type_answer = True
     self.max_examples_per_sense = 2
+    self.examples_hover_area_width = 450
 
 class MillanDict:
   def __init__(self, config):
