@@ -205,10 +205,10 @@ class WordListView(BaseView):
 					self.reloadTable()
 			return wyn
 		self.text_edit.keyPressEvent = func_constr(self.text_edit.keyPressEvent)
-		
-		today = datetime.date.today()
-		filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
-		self.logfile = open(filename, "a+")
+		if get_plugin().config.log_wordlist:
+			today = datetime.date.today()
+			filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
+			self.logfile = open(filename, "a+")
 		
 	
 	def addSense(self, sense):
@@ -216,7 +216,8 @@ class WordListView(BaseView):
 		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
 		text = 'border="2"'.join(text.split('border="0"'))
 		self.text_edit.setHtml(text)
-		self.logfile.write(tr.encode("ascii","ignore") + "\n")
+		if get_plugin().config.log_wordlist:
+			self.logfile.write(tr.encode("ascii","ignore") + "\n")
 		#print self.text_edit.toHtml()
 	
 	def addExample(self, k, e, word):
@@ -228,7 +229,8 @@ class WordListView(BaseView):
 		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
 		text = 'border="2"'.join(text.split('border="0"'))
 		self.text_edit.setHtml(text)
-		self.logfile.write(tr.encode("ascii","ignore") + "\n")
+		if get_plugin().config.log_wordlist:
+			self.logfile.write(tr.encode("ascii","ignore") + "\n")
 	
 	def reloadTable(self):
 		text = self.text_edit.toHtml()

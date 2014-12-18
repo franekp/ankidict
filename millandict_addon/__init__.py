@@ -62,6 +62,7 @@ class Config:
     self.examples_hover_area_width = 450
     self.related_defs_panel_width = 250
     self.add_examples_to_list = True
+    self.log_wordlist = True
 
 class MillanDict:
   def __init__(self, config):
