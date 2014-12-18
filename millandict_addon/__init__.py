@@ -60,6 +60,8 @@ class Config:
     self.type_answer = True
     self.max_examples_per_sense = 2
     self.examples_hover_area_width = 450
+    self.related_defs_panel_width = 250
+    self.add_examples_to_list = True
 
 class MillanDict:
   def __init__(self, config):

@@ -34,6 +34,7 @@ conf.enable_global_shortcut = False
 conf.enable_debug_menu = True
 conf.type_answer = True
 conf.max_examples_per_sense = 0
+conf.add_examples_to_list = True
 
 #                                              #
 ################################################

@@ -12,18 +12,21 @@ from __init__ import get_plugin
 
 # TODO LIST:
 # - (edit mode) in the word list [DONE]
+# - add senses folding to UI [DONE]
+# - adding examples to the wordlist (and appropriate config entry for it)  [DONE]
+
 
 # - add proper special searches handling (:welcome, :l, etc.)
-# - add senses folding to UI
 # - add intro_paragraph to UI
 # - change "related" stuff from buttons to labels (for proper word wrap and space saving)
 
 
 # - global word list to files (named by each month)
-# - adding examples to the wordlist (and appropriate config entry for it)
 
 # - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)
+#		encapsulate it in separate class/module/whatever and replace existing code with it
 # - add special handling of cases where there is only one example added (some list of possible answers)
+#		put this in the same module/class that the above
 # - add many behavior specifiers to config (and maybe settings view to change the config)
 # - add the additional textbox to paste currently studied text (for examples) and textbox with link to it (for additional field in note)
 
@@ -206,11 +209,21 @@ class WordListView(BaseView):
 		self.text_edit.setHtml(text)
 		#print self.text_edit.toHtml()
 	
+	def addExample(self, k, e, word):
+		if not (get_plugin().config.add_examples_to_list):
+			return
+		if k == "":
+			k = word
+		tr = "<tr><td>" + k + "</td><td>" + "____".join(e.split(word)) + "</td></tr>"
+		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
+		text = 'border="2"'.join(text.split('border="0"'))
+		self.text_edit.setHtml(text)
+	
 	def reloadTable(self):
 		text = self.text_edit.toHtml()
 		text = 'border="2"'.join(text.split('border="0"'))
-		text = ''.join(text.split('<td></td>'))
-		text = ''.join(re.split(r'<tr>\s*</tr>',text))
+		#text = ''.join(text.split('<td></td>'))
+		text = ''.join(re.split(r'<tr>\s*<td>\s*</td>\s*<td>\s*</td>\s*</tr>',text))
 		print text
 		cursor = self.text_edit.textCursor()
 		c_pos = self.text_edit.cursorRect().center()
@@ -267,7 +280,7 @@ class DictEntryView(BaseView):
 		self.right_vbox = QVBoxLayout()
 		self.main_hbox = QHBoxLayout()
 		self.examples_widget = ExamplesWidget(self)
-		entry_all = entry.senses + entry.phrases
+		entry_all = entry.intro_paragraph_sense_l + entry.senses + entry.phrases
 		for i in entry_all:
 			self.left_vbox.addWidget(SenseWidget(i, self))
 		
@@ -286,8 +299,8 @@ class DictEntryView(BaseView):
 		left_scroll.setWidget(left_widget)
 		right_scroll.setWidget(right_widget)
 		right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-		#FIXME: (dać to do configa, czy coś):    // potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
-		right_scroll.setMaximumWidth(250)
+		# TODO: potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
+		right_scroll.setMaximumWidth(get_plugin().config.related_defs_panel_width)
 		left_column = QVBoxLayout()
 		left_column.addWidget(left_scroll)
 		left_column.addWidget(self.examples_widget)
@@ -341,7 +354,8 @@ class SenseWidget(QWidget):
 			tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 			def add_ex_func(k,e):
 				def f():
-					self.entry_view.examples_widget.addExample(k,e)
+					self.entry_view.examples_widget.addExample(k, e)
+					self.entry_view.dwnd.wordlist_view.addExample(k, e, entry_view.entry.word)
 				return f
 			tmplabel.linkActivated.connect(add_ex_func(key, ex))
 			self.examples_to_hide.append(tmplabel)

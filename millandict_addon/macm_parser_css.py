@@ -137,7 +137,15 @@ class DictEntrySense(object):
 		'''
 		self.examples = map(mk_example, element.sel_css(" > div.EXAMPLES"))
 	
-	def __init__(self,inp=None,ks=[],style_lvl=""):
+	def __from_intro_paragraph(self, intro):
+		self.keys = []
+		self.style_level = ""
+		self.definition = intro
+		self.examples = []
+	
+	def __init__(self,inp=None,ks=[],style_lvl="",intro=None):
+		if intro is not None:
+			self.__from_intro_paragraph(intro)
 		if inp is not None:
 			self.__from_html(inp,ks,style_lvl)
 	
@@ -152,7 +160,6 @@ class DictEntrySense(object):
 		print "___________________\n"
 	
 	def get_html(self):
-		# TODO TODO TODO
 		wyn = ""
 		wyn += "<strong>"+("</strong> <i> or  </i> <strong>".join(self.keys))+"</strong>"
 		wyn += " --- "
@@ -226,9 +233,6 @@ class DictEntry(object):
 			else:
 				return (el.attrib['title'], el.attrib['href'])
 		self.related = map(mk_related, self.related)
-		#intro_paragraph:
-		self.intro_paragraph = "\n".join(map_get_text(
-			page_tree.sel_css("div.SUMMARY div.p")))
 		#div.HEAD-INFO - też spis treści
 		#phrases:
 		'''
@@ -259,6 +263,15 @@ class DictEntry(object):
 		# setting keys for senses that don't have one 
 		for i in self.senses:
 			i.set_key_if_needed(global_key)
+		#intro_paragraph:
+		self.intro_paragraph = "\n".join(map_get_text(
+			page_tree.sel_css("div.SUMMARY div.p")))
+		if self.intro_paragraph != "":
+			self.intro_paragraph_sense_l = [DictEntrySense(intro=self.intro_paragraph)]
+			self.intro_paragraph_sense_l[0].set_key_if_needed(global_key)
+		else:
+			self.intro_paragraph_sense_l = []
+		
 	
 	def __init__(self, node):
 		self.__from_html(node)
@@ -392,6 +405,10 @@ class DictEntry
 	intro_paragraph :: string
 		to, co jest czasem na początku napisane,
 		zwykle jakieś uwagi gramatyczne
+	
+	intro_paragraph_sense_l :: [DictEntrySense]
+		j. w. (dodane, żeby było mniej kodu w dict_window.py)
+		zawsze zachodzi: len(intro_paragraph_sense_l) in {0,1}
 
 
 class SearchResults
