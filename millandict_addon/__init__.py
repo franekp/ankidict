@@ -63,6 +63,7 @@ class Config:
     self.related_defs_panel_width = 250
     self.add_examples_to_list = True
     self.log_wordlist = True
+    self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
 
 class MillanDict:
   def __init__(self, config):

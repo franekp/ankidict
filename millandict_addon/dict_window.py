@@ -18,14 +18,13 @@ from __init__ import get_plugin
 # - adding examples to the wordlist (and appropriate config entry for it)  [DONE]
 # - add intro_paragraph to UI [DONE]
 # - global word list to files (named by each month) [DONE]
+# - change "related" stuff from buttons to labels (for proper word wrap and space saving) [DONE]
+# - add proper special searches handling (:start, :l, etc.)
+
 
 # TODO:
 
-# - add proper special searches handling (:welcome, :l, etc.)
-
-# - change "related" stuff from buttons to labels (for proper word wrap and space saving)
-
-# - add proper closing of file with word list log
+# - add proper closing of word list log file
 
 # - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)
 #		encapsulate it in separate class/module/whatever and replace existing code with it
@@ -161,6 +160,12 @@ class ViewFactory(object):
 		self.dwnd = dwnd
 	
 	def makeView(self, s):
+		if s == ":start" or s == ":help" or s == ":h":
+			return self.dwnd.welcome_view
+		if s == ":l":
+			return self.dwnd.wordlist_view
+		if s == ":s":
+			return self.dwnd.settings_view
 		res = macm_parser_css.dict_query(s)
 		if isinstance(res, macm_parser_css.DictEntry):
 			return DictEntryView(res, self.dwnd)
@@ -186,7 +191,7 @@ class WelcomeView(BaseView):
 		self.main_vbox.addWidget(QLabel("Welcome to our addon!"))
 		self.setLayout(self.main_vbox)
 	def getTitle(self):
-		return ":welcome"
+		return ":start"
 	def isHistRecorded(self):
 		return True
 
@@ -299,10 +304,21 @@ class DictEntryView(BaseView):
 			self.left_vbox.addWidget(SenseWidget(i, self))
 		
 		for (title, href) in entry.related:
-			btn = QPushButton(title)
+			btn = QLabel('<a href="related" style="text-decoration: none; color: black;"><strong>' + title + "</strong></a>")
 			# tej lambdy NIE można uprościć, bo inaczej się zbuguje:
-			btn.clicked.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
+			btn.linkActivated.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
+			btn.show()
+			btn.setWordWrap(True)
+			def make_line():
+				fr = QFrame()
+				#fr.setStyleSheet("background-color: white;");
+				fr.setFrameShape(QFrame.HLine)
+				fr.setFrameShadow(QFrame.Sunken)
+				fr.setLineWidth(2)
+				#fr.setMidLineWidth(1)
+				return fr
 			self.right_vbox.addWidget(btn)
+			self.right_vbox.addWidget(make_line())
 		
 		left_scroll.setWidgetResizable(True)
 		right_scroll.setWidgetResizable(True)
@@ -357,11 +373,11 @@ class SenseWidget(QWidget):
 		
 		#self.main_vbox.addLayout(self.def_hbox)
 		for (key, ex) in sense.examples:
-			tmp = '<a href="example"><font color="blue"><i>'
+			tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
 			if key:
 				tmp += "<b>"+key+" </b>"
 			tmp += ex
-			tmp += "</i></font></a>"
+			tmp += "</i></a>"
 			tmplabel = QLabel(tmp)
 			tmplabel.setWordWrap(True)
 			tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
@@ -390,7 +406,7 @@ class SenseWidget(QWidget):
 			if self.examples_all == []:
 				return w
 			w.setMouseTracking(True)
-			lab = QLabel('<a href="example"><font color="blue"><b> ... ... ... </b></font></a>')
+			lab = QLabel('<a href="example" style="'+get_plugin().config.example_style+'"><b> ... ... ... </b></a>')
 			lab.hide()
 			layout = QVBoxLayout()
 			for i in self.examples_all:
@@ -441,11 +457,10 @@ class SenseWidget(QWidget):
 	def saveDef(self):
 		self.dwnd.wordlist_view.addSense(self.sense)
 		collection.add_note(self.sense.get_def_html(), self.sense.get_word_html())
-		#TODO: some global history (dla Agi)
 
 class Example(QLabel):
 		def __init__(self, txt):
-			super(Example, self).__init__('<a href="example">'+txt+'</a>')
+			super(Example, self).__init__('<a href="example" style="'+get_plugin().config.example_style+'">'+txt+'</a>')
 			self.txt = txt
 		def mouseReleaseEvent(self, e):
 			self.txt = ""
@@ -471,11 +486,11 @@ class ExamplesWidget(QWidget):
 	def addExample(self, k, e):
 		k = "____".join(k.split(self.entry_view.entry.word))
 		e = "____".join(e.split(self.entry_view.entry.word))
-		txt = '<font color="blue"><i>'
+		txt = '<i>'
 		if k:
 			txt += "<b>"+k+" </b>"
 		txt += e
-		txt += "</i></font>"
+		txt += "</i>"
 		ex = Example(txt)
 		self.examples.append(ex)
 		self.list_vbox.addWidget(ex)
