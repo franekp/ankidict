@@ -94,7 +94,7 @@ class DictWindow(QtGui.QWidget):
 		
 		self.view_factory = ViewFactory(self)
 		
-		self.dictSearch("make")
+		#self.dictSearch("make")
 	
 	def __updatePrevNextBtns(self):
 		self.prev_button.setEnabled(self.prev_views != [])
