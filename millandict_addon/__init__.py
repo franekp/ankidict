@@ -58,6 +58,12 @@ class Config:
     self.note_answer = 'Back'
     self.note_info = 'Info'
     self.type_answer = True
+    self.max_examples_per_sense = 2
+    self.examples_hover_area_width = 450
+    self.related_defs_panel_width = 250
+    self.add_examples_to_list = True
+    self.log_wordlist = True
+    self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
 
 class MillanDict:
   def __init__(self, config):

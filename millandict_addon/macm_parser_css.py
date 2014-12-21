@@ -137,7 +137,15 @@ class DictEntrySense(object):
 		'''
 		self.examples = map(mk_example, element.sel_css(" > div.EXAMPLES"))
 	
-	def __init__(self,inp=None,ks=[],style_lvl=""):
+	def __from_intro_paragraph(self, intro):
+		self.keys = []
+		self.style_level = ""
+		self.definition = intro
+		self.examples = []
+	
+	def __init__(self,inp=None,ks=[],style_lvl="",intro=None):
+		if intro is not None:
+			self.__from_intro_paragraph(intro)
 		if inp is not None:
 			self.__from_html(inp,ks,style_lvl)
 	
@@ -152,7 +160,6 @@ class DictEntrySense(object):
 		print "___________________\n"
 	
 	def get_html(self):
-		# TODO TODO TODO
 		wyn = ""
 		wyn += "<strong>"+("</strong> <i> or  </i> <strong>".join(self.keys))+"</strong>"
 		wyn += " --- "
@@ -176,6 +183,12 @@ class DictEntrySense(object):
 		for i in self.keys:
 			tmp_def = " ____ ".join(tmp_def.split(i))
 		return wyn + tmp_def
+	
+	def get_full_def_html(self):
+		wyn = ""
+		if self.style_level != "":
+			wyn += "<i>"+self.style_level+"</i>"
+		return wyn + self.definition
 	
 	def set_key_if_needed(self, k):
 		if self.keys == []:
@@ -220,9 +233,6 @@ class DictEntry(object):
 			else:
 				return (el.attrib['title'], el.attrib['href'])
 		self.related = map(mk_related, self.related)
-		#intro_paragraph:
-		self.intro_paragraph = "\n".join(map_get_text(
-			page_tree.sel_css("div.SUMMARY div.p")))
 		#div.HEAD-INFO - też spis treści
 		#phrases:
 		'''
@@ -249,10 +259,19 @@ class DictEntry(object):
 		map(mk_phrase, phr_list)
 		
 		global_key = "".join(map_get_text(page_tree.sel_css("div#headword div#headwordleft span.BASE")))
-		
+		self.word = global_key
 		# setting keys for senses that don't have one 
 		for i in self.senses:
 			i.set_key_if_needed(global_key)
+		#intro_paragraph:
+		self.intro_paragraph = "\n".join(map_get_text(
+			page_tree.sel_css("div.SUMMARY div.p")))
+		if self.intro_paragraph != "":
+			self.intro_paragraph_sense_l = [DictEntrySense(intro=self.intro_paragraph)]
+			self.intro_paragraph_sense_l[0].set_key_if_needed(global_key)
+		else:
+			self.intro_paragraph_sense_l = []
+		
 	
 	def __init__(self, node):
 		self.__from_html(node)
@@ -292,8 +311,9 @@ class SearchResults(object):
 		self.links = map(make_addr2, self.results)
 		self.links = zip(self.results, self.links)
 	
-	def __init__(self, node):
+	def __init__(self, node, q):
 		self.__from_html(node)
+		self.word = q
 	
 	def print_txt(self):
 		print "[[[ did you mean ]]]"
@@ -311,8 +331,7 @@ def dict_query(query):
 	if query[:7] == "http://":
 		url = query
 	else:
-		query = query.replace(" ","+")
-		url = normal_prefix + query
+		url = normal_prefix + query.replace(" ","+")
 	
 	def fetch_webpage(addr):
 		response = urllib2.urlopen(addr)
@@ -326,7 +345,7 @@ def dict_query(query):
 	if root.sel_css("div#didyoumean") == [] :
 		return DictEntry(root)
 	else:
-		return SearchResults(root)
+		return SearchResults(root, query)
 
 
 def main():
@@ -369,6 +388,9 @@ class DictEntrySense
 
 class DictEntry
 	
+	word :: string
+		dane słowo
+	
 	senses :: [DictEntrySense]
 		znaczenia słowa (bez fraz)
 	
@@ -383,10 +405,16 @@ class DictEntry
 	intro_paragraph :: string
 		to, co jest czasem na początku napisane,
 		zwykle jakieś uwagi gramatyczne
+	
+	intro_paragraph_sense_l :: [DictEntrySense]
+		j. w. (dodane, żeby było mniej kodu w dict_window.py)
+		zawsze zachodzi: len(intro_paragraph_sense_l) in {0,1}
 
 
 class SearchResults
-
+	
+	word :: string
+	
 	results :: [string]
 		lista 'czy chodziło Ci o ...'
 
