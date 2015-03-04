@@ -369,7 +369,7 @@ def main():
 		'then', # multiple phrases one sense
 		'since when', # phrase finding in entry for 'since'
 	]
-	q = "take on"
+	q = "make"
 	dict_query(q).print_txt()
 
 if __name__ == "__main__":
@@ -399,6 +399,9 @@ class DictEntry
 	
 	word :: string
 		dane słowo
+	
+	pron :: string
+		jak wymawiac słowo
 	
 	senses :: [DictEntrySense]
 		znaczenia słowa (bez fraz)
