@@ -13,7 +13,7 @@ import urllib2
 
 
 
-__all__ = ["DictEntry", "DictEntrySense", "dict_query"]
+__all__ = ["DictEntry", "DictEntrySense", "dict_query", "dict_object_from_txt"]
 
 def parse_func(txt):
 	if(USE_SOUP):
@@ -129,7 +129,7 @@ class DictEntrySense(object):
 			'''
 			snd = "".join(el.xpath(".//p//text()"))
 			'''
-			snd = map_get_text(el.sel_css("p"))
+			snd = map_get_text(el.sel_css(" > span.EXAMPLE"))
 			snd = "".join(snd)
 			return (fst,snd)
 		'''
