@@ -32,6 +32,13 @@ from __init__ import get_plugin
 #		put this in the same module/class that the above
 # - add many behavior specifiers to config (and maybe settings view to change the config)
 # - add the additional textbox to paste currently studied text (for examples) and textbox with link to it (for additional field in note)
+# - add option to add to deck two/more senses as one sense (and think how to do it sensibly in the UI)
+#   (or maybe do it at the deck level - utility to merge the cards with the same key)
+# - utility for learning synonyms - some form of grouping thgs.
+# - make usable distribution so that people can install it easily (best option - through Anki addon-manager)
+# - POSSIBLE IDEA : maybe write something such as a 'scraper generator' - generating scrapers from unit tests for them - this can be interesting thing...
+#    (this is good as long as content is not changing, but website code may change)
+# - scraping unit tests... - launched automatically for ex. every month
 
 # windows utilities...
 
@@ -242,7 +249,7 @@ class WordListView(BaseView):
 		text = 'border="2"'.join(text.split('border="0"'))
 		#text = ''.join(text.split('<td></td>'))
 		text = ''.join(re.split(r'<tr>\s*<td>\s*</td>\s*<td>\s*</td>\s*</tr>',text))
-		print text
+		#print text
 		cursor = self.text_edit.textCursor()
 		c_pos = self.text_edit.cursorRect().center()
 		self.text_edit.setHtml(text)
