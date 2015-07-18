@@ -222,6 +222,7 @@ class DictEntry(object):
 		self.related = page_tree.xpath( \
 		"//div[@class='entrylist']//ul//a[@title]")
 		'''
+		# a[title] just means that attribute 'title' exists, does not select it
 		self.related = page_tree.sel_css("div.entrylist ul a[title]")
 		def mk_related(el):
 			'''
