@@ -1,79 +1,35 @@
+from model import Model, ThisClass
 
 
 class Example(Model)
-    class Fields:
-        key = Str
-        content = Str
-
-    # the use of lambda is crucial for readable error messages of nonexistent fields
-    # when it will be moved swhr else, lambdas should stay the same
-    page_tree = lambda f: StrictHtml(
-        El("strong")(
-            Text(f.key)
-        ),
-        Ignore("div.SEP"),
-        El("p.EXAMPLE")(
-            Text(f.content)
-        ),
-    )
+    key = Str
+    content = Str
 
 
 class Sense(Model):
-    class Fields:
-        keys = List(Str)
-        style_level = Str
-        definition = Str
-        examples = List(Example)
-        sub_senses = List(Sense)
-
-    page_tree = lambda f: StrictHtml(
-        Ignore("div.SENSE-NUM", "span.SYNTAX-CODING"),
-        Either("span.DEFINITION", "span.QUICK-DEFINITION")(
-            Text(f.definition)
-        ),
-        List(Either("strong", "span.SENSE-VARIANT span.BASE", "span.MULTIWORD span.BASE")(
-            Text(f.keys)
-        )),
-        List(El("div.EXAMPLES")(
-            f.examples
-        )),
-        Ignore("div.THES"),
-        El("ol.SUB-SENSES")(
-            List(El("div.SUB-SENSE-CONTENT")
-                f.sub_senses
-            )
-        ),
-    )
+    keys = List(Str)
+    style_level = Str
+    definition = Str
+    examples = List(Example)
+    sub_senses = List(ThisClass)
 
 
-class Link(Model):
+class RelatedLink(Model):
     pass
 
 
-class Entry(Model):
-    class Fields:
-        word = Str
-        pron = Str
-        senses = List(Sense)
-        phrases = List(Sense)
-        related = List(Link)
-        intro_paragraph = Opt(Str)
+class LazyDictEntry(Model):
+    pass
 
-    page_tree = lambda f: Html(
-        El("ol.SENSES")(
-            List(El("div.SENSE-BODY")(
-                f.senses
-            ))
-        ),
-        El("div#phrases_container > ul")(
-            List(
-                # here code from macm_parser_css is outdated,
-                # and now they are links to separate dictionary definitions
-                # so this is TODO 
-            )
-        ),
-        # TODO
-    )
+
+class DictEntry(Model):
+    word = Str
+    pron = Str
+    senses = List(Sense)
+    phrases = List(LazyDictEntry)
+    phrasal_verbs = List(LazyDictEntry)
+    related = List(RelatedLink)
+    intro_paragraph = Opt(Str)
 
 
 class SearchResults(Model):
@@ -134,3 +90,5 @@ class SearchResults
         lista 'czy chodziło Ci o ...'
 
 '''
+
+

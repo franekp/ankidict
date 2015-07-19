@@ -216,7 +216,7 @@ class DictEntry(object):
 		nsense_bodies = [ [i]+get_nested(i) for i in sense_bodies]
 		# flatten sense_bodies
 		sense_bodies = [item for sublist in nsense_bodies for item in sublist]
-		self.senses = map(lambda a: DictEntrySense(a) , sense_bodies)
+		self.senses = [DictEntrySense(a) for a in sense_bodies]
 		#related:
 		'''
 		self.related = page_tree.xpath( \
