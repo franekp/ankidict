@@ -1,8 +1,15 @@
 from . import models
-from pagemodel import (Node, StrictNode, Text, List, Opt,
+from pagemodel import (Node, StrictNode, Text, NodeList, Opt,
                        Html, StrictHtml, ThisClass)
+# ShallowText, 
+# important: Text should have some subset of string methods available
 from pagemodel.bs import PageModel
-
+# na razie robimy tylko to, co jest w tym przykładzie użycia:
+# nie robimy jeszcze żadnego Reduce ani join, bo mogą się nie przydać
+# natomiast przydadzą się Text.{various string methods} oraz ShallowText
+# zmiana: List(Node( .. )) -> NodeList(..) - łatwiejsza w implementacji i bardziej
+# naturalne to jest i czytelne. Ponadto, keyword args to mogą być albo Text, 
+# albo NestedModel. NIE MOŻNA: keyword=NodeList(Node(..)), etc.
 
 class Example(PageModel):
     model_class = models.Example
@@ -24,23 +31,23 @@ class Sense(PageModel):
     page_tree = StrictHtml(
         Node("div.SENSE-NUM", "span.SYNTAX-CODING", opt=True),
         Node("span.STYLE-LEVEL", opt=True)(
-            style_level=Text()
+            style_level=Text.replace("$", "").lower()
         ),
         Node("span.DEFINITION", "span.QUICK-DEFINITION")(
             definition=Text()
         ),
-        List(Node("strong", "span.SENSE-VARIANT span.BASE",
+        NodeList("strong", "span.SENSE-VARIANT span.BASE",
                   "span.MULTIWORD span.BASE")(
-            keys=Text()
-        )),
-        List(Node("div.EXAMPLES")(
+            keys=Text.strip()
+        ),
+        NodeList("div.EXAMPLES")(
             examples=Example()
-        )),
+        ),
         Node("div.THES")(),
         Node("ol.SUB-SENSES", opt=True)(
-            sub_senses=List(Node("div.SUB-SENSE-CONTENT")(
-                ThisClass()
-            ))
+            NodeList("div.SUB-SENSE-CONTENT")(
+                sub_senses=ThisClass()
+            )
         ),
     )
 
@@ -62,12 +69,12 @@ class DictEntry(PageModel):
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(
-            word=Text()
+            word=Text.strip()
         ),
         
         Node("div#headbar")(
             Node("span.STYLE-LEVEL", opt=True)(
-                style_level=Text()
+                style_level=Text.lower()
             ),
             Node("span.PRON", opt=True)(
                 pron=Text()
@@ -75,26 +82,26 @@ class DictEntry(PageModel):
             Node("span.PART-OF-SPEECH", opt=True)
         )
         Node("ol.SENSES")(
-            senses=List(Node("div.SENSE-BODY")(
-                Sense()
-            ))
+            NodeList("div.SENSE-BODY")(
+                senses=Sense()
+            )
         ),
         Node("div#phrases_container > ul")(
-            phrases=List(Node("li")(
+            NodeList("li")(
                 # here code from macm_parser_css is outdated,
                 # and now they are links to separate dictionary definitions
                 # so this is TODO
-                PhraseLink()
+                phrases=PhraseLink()
             ))
         ),
         Node("div#phrasal_verbs_container > ul")(
-            phrasal_verbs=List(Node("li")(
-                PhraseLink()
+            NodeList("li")(
+                phrasal_verbs=PhraseLink()
             ))
         ),
         Node("div.entrylist > ul")(
-            related=List(Node("li")(
-                RelatedLink()
+            NodeList("li")(
+                related=RelatedLink()
             ))
         )
         # TODO
