@@ -1,59 +1,154 @@
+from collections import Counter
 
 
 class Base(object):
+    def extract(self, selector):
+        """Always return a dict with (possibly partial) results."""
+        raise NotImplementedError
+
+
+class BaseNode(Base):
     def __init__(self, *args, **kwargs):
         self.child_nodes = []
-        self.fieldlabel = None
         for i in args + kwargs.values():
             if isinstance(i, Base):
                 self.child_nodes.append(i)
             else:
-                raise TypeError("Invalid argument of type: '%s'" % str(type(i)))
+                raise TypeError(
+                    "Invalid argument of type: '%s'" % str(type(i)))
         for i in kwargs:
             kwargs[i].set_fieldlabel(i)
         for i in self.child_nodes:
             i.parent_node = self
+        super(BaseNode, self).__init__()
 
-    def set_fieldlabel(name):
+    def set_fieldlabel(self, name):
+        raise TypeError("You cannot store a node-like"
+            "object '{}' in model's field. You can only store leaf-like things"
+            "such as Text, ShallowText and instances of other models.".format(
+                type(self).__name__))
+
+    def get_fieldlabels(self):
+        """Return a Counter of field labels. This method is only for validation
+        that no fieldlabel is written twice in page_tree.
+        """
+        res = Counter()
+        for node in self.child_nodes:
+            res.update(node.get_fieldlabels())
+        for label in res:
+            if res[label] >= 2:
+                raise NameError("Duplicate field label: '{}'".format(label))
+        return res
+
+    def extract(self, selector):
+        res = {}
+        for node in self.child_nodes:
+            res.update(node.extract(selector))
+        return res
+
+
+class BaseLeaf(Base):
+    def __init__(self):
+        self.fieldlabel = None
+        super(BaseLeaf, self).__init__()
+
+    def set_fieldlabel(self, name):
         if self.fieldlabel is not None:
             self.fieldlabel = name
         else:
-            raise ValueError("Conflict of field names in page_tree")
+            raise NameError("Conflict of field names in page_tree")
 
-    def acquire_ancestor_fieldlabels(self):
-        res = []
-        if self.fieldlabel is not None:
-            tmp = self.fieldlabel
-            self.fieldlabel = None
-            return [tmp]
-        else:
-            for i in self.child_nodes:
-                
-
-    def accept(self, visitor):
-        pass
+    def get_fieldlabels(self):
+        if self.fieldlabel is None:
+            raise NameError("A leaf-like node without field label exists.")
+        return Counter([self.fieldlabel])
 
 
-class Html(Base):
+class Html(BaseNode):
     pass
 
 
-class Node(Base):
-    def __init__(self, *args, opt=False, child_args=[], child_kwargs={}):
+class FullNode(BaseNode):
+    @staticmethod
+    def reduce_dict_list(dlist):
+        res = {}
+        for dic in dlist:
+            res.update(dic)
+        for k in res:
+            res[k] = [dic[k] for dic in dlist if k in dic]
+        return res
+
+    def extract(self, selector):
+        sel_list = selector.css(*self.node.alts)
+        self.node.validate_sel_list_len(len(sel_list))
+        res_list = [super(FullNode, self).extract(sel) for sel in sel_list]
+        if self.node.is_list:
+            return self.reduce_dict_list(res_list)
+        else:
+            try:
+                return res_list[0]
+            except:
+                return {}
+
+
+class Node(BaseNode):
+    def __init__(self, *args):
         self.alts = []
-        self.opt = opt
+        self.is_opt = False
+        self.is_list = False
         for i in args:
             if isinstance(i, str):
                 self.alts.append(i)
             else:
-                raise TypeError("Invalid argument of type: '%s'" % str(type(i)))
-        super(Node, self).__init__(*child_args, **child_kwargs)
+                raise TypeError("Invalid argument of type: '%s'.
+                    Expected a string with css path here." % str(type(i)))
+        super(Node, self).__init__()
 
     def __call__(self, *args, **kwargs):
-        return Node(*self.alts, opt=self.opt, child_args=args, child_kwargs=kwargs)
+        res = FullNode(*args, **kwargs)
+        res.node = self
+        return res
+
+    @classmethod
+    def list(cls, *args):
+        res = cls(*args)
+        res.is_list = True
+        return res
+
+    @classmethod
+    def optional(cls, *args):
+        res = cls(*args)
+        res.is_opt = True
+
+    def validate_sel_list_len(self, size):
+        if self.is_list:
+            pass
+        else:
+            if size > 1:
+                raise ValueError("Multiple html tags for a non-list node.")
+            if len(sel_list) == 0 and (not self.is_opt):
+                raise ValueError("Missing html tag for a non-optional node.")
+
+    def extract(self, selector):
+        """Only check if the data is correct."""
+        size = len(selector.css(*self.alts))
+        self.validate_sel_list_len(size)
+        return {}
 
 
-class List(Base):
-    def __init__(self, arg):
-        super(List, self).__init__(arg)
+class Text(BaseLeaf):
+    def __init__(self):
+        self.strip = False
+        super(BaseLeaf, self).__init__()
 
+    def extract(self, selector):
+        res = selector.text()
+        if self.strip:
+            res = res.strip()
+        return {self.fieldlabel: res}
+
+    @classmethod
+    def strip(cls):
+        res = cls()
+        res.strip = True
+        return res
