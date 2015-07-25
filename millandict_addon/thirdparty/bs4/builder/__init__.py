@@ -1,8 +1,7 @@
 from collections import defaultdict
 import itertools
 import sys
-#from bs4.element import (
-from ..element import (
+from bs4.element import (
     CharsetMetaAttributeValue,
     ContentMetaAttributeValue,
     whitespace_re
@@ -81,9 +80,12 @@ builder_registry = TreeBuilderRegistry()
 class TreeBuilder(object):
     """Turn a document into a Beautiful Soup object tree."""
 
+    NAME = "[Unknown tree builder]"
+    ALTERNATE_NAMES = []
     features = []
 
     is_xml = False
+    picklable = False
     preserve_whitespace_tags = set()
     empty_element_tags = None # A tag will be considered an empty-element
                               # tag when and only when it has no contents.
@@ -290,7 +292,6 @@ def register_treebuilders_from(module):
     """Copy TreeBuilders from the given module into this module."""
     # I'm fairly sure this is not the best way to do this.
     this_module = sys.modules['bs4.builder']
-    # print this_module
     for name in module.__all__:
         obj = getattr(module, name)
 
@@ -307,7 +308,6 @@ class ParserRejectedMarkup(Exception):
 # builder registrations will take precedence. In general, we want lxml
 # to take precedence over html5lib, because it's faster. And we only
 # want to use HTMLParser as a last result.
-'''
 from . import _htmlparser
 register_treebuilders_from(_htmlparser)
 try:
@@ -322,4 +322,3 @@ try:
 except ImportError:
     # They don't have lxml installed.
     pass
-'''

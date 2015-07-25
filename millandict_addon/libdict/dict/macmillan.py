@@ -1,9 +1,9 @@
 from . import models
-from pagemodel import (Node, StrictNode, Text, ShallowText
+from libdict.pagemodel import (Node, StrictNode, Text, ShallowText
                        Html, StrictHtml, ThisClass)
 # ShallowText, 
 # important: Text should have some subset of string methods available
-from pagemodel.bs import PageModel
+from libdict.pagemodel.bsoup import PageModel
 # na razie robimy tylko to, co jest w tym przykładzie użycia:
 # nie robimy jeszcze żadnego Reduce ani join, bo mogą się nie przydać
 # natomiast przydadzą się Text.{various string methods} oraz ShallowText
@@ -41,7 +41,7 @@ class Sense(PageModel):
             examples=Example()
         ),
         Node("div.THES")(),
-        Node("ol.SUB-SENSES", opt=True)(
+        Node.optional("ol.SUB-SENSES")(
             Node.list("div.SUB-SENSE-CONTENT")(
                 sub_senses=ThisClass()
             )

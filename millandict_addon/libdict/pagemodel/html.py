@@ -16,7 +16,7 @@ class Base(object):
 class BaseNode(Base):
     def __init__(self, *args, **kwargs):
         self.child_nodes = []
-        for i in args + kwargs.values():
+        for i in list(args) + kwargs.values():
             if isinstance(i, Base):
                 self.child_nodes.append(i)
             else:
@@ -62,7 +62,7 @@ class BaseLeaf(Base):
         super(BaseLeaf, self).__init__()
 
     def set_fieldlabel(self, name):
-        if self.fieldlabel is not None:
+        if self.fieldlabel is None:
             self.fieldlabel = name
         else:
             raise NameError("Conflict of field labels in page_tree.")
@@ -139,7 +139,7 @@ class Node(BaseNode):
             if size > 1:
                 raise ValueError("Multiple html tags for a non-list node "
                     "'{}'.".format(" | ".join(self.alts)))
-            if len(sel_list) == 0 and (not self.is_opt):
+            if size == 0 and (not self.is_opt):
                 raise ValueError("Missing html tag for a non-optional node "
                     "'{}'.".format(" | ".join(self.alts)))
 
@@ -153,7 +153,7 @@ class Node(BaseNode):
 class Text(BaseLeaf):
     def __init__(self):
         self.strip = False
-        super(BaseLeaf, self).__init__()
+        super(Text, self).__init__()
 
     def extract(self, selector):
         res = selector.text()
@@ -170,3 +170,8 @@ class Text(BaseLeaf):
 
 class ThisClass(BaseLeaf):
     pass
+
+# not implemented:
+StrictNode = Node
+StrictHtml = Html
+ShallowText = Text

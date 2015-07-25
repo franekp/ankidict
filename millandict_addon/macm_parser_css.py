@@ -3,7 +3,7 @@
 USE_SOUP = True
 
 if USE_SOUP:
-	import bs4
+	from thirdparty import bs4
 else:
 	import lxml
 	import lxml.html

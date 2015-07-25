@@ -41,6 +41,9 @@ import sys
 # window and gui of our addon
 import dict_window
 
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'thirdparty'))
+
 def get_plugin():
   return mw.millan
 
