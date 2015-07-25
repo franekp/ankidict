@@ -6,6 +6,12 @@ class Base(object):
         """Always return a dict with (possibly partial) results."""
         raise NotImplementedError
 
+    def set_fieldlabel(self, lab):
+        raise NotImplementedError
+
+    def get_fieldlabels(self):
+        raise NotImplementedError
+
 
 class BaseNode(Base):
     def __init__(self, *args, **kwargs):
@@ -35,10 +41,13 @@ class BaseNode(Base):
         res = Counter()
         for node in self.child_nodes:
             res.update(node.get_fieldlabels())
+        return res
+
+    def validate(self):
+        res = self.get_fieldlabels()
         for label in res:
             if res[label] >= 2:
-                raise NameError("Duplicate field label: '{}'".format(label))
-        return res
+                raise NameError("Duplicate field label: '{}'.".format(label))
 
     def extract(self, selector):
         res = {}
@@ -56,7 +65,7 @@ class BaseLeaf(Base):
         if self.fieldlabel is not None:
             self.fieldlabel = name
         else:
-            raise NameError("Conflict of field names in page_tree")
+            raise NameError("Conflict of field labels in page_tree.")
 
     def get_fieldlabels(self):
         if self.fieldlabel is None:
@@ -97,11 +106,14 @@ class Node(BaseNode):
         self.is_opt = False
         self.is_list = False
         for i in args:
-            if isinstance(i, str):
+            if isinstance(i, basestring):
                 self.alts.append(i)
             else:
-                raise TypeError("Invalid argument of type: '%s'.
-                    Expected a string with css path here." % str(type(i)))
+                raise TypeError("Invalid argument '%s' of type: '%s'. "
+                    "Expected a string with a css path here." % (
+                        str(i), type(i).__name__
+                    )
+                )
         super(Node, self).__init__()
 
     def __call__(self, *args, **kwargs):
@@ -125,9 +137,11 @@ class Node(BaseNode):
             pass
         else:
             if size > 1:
-                raise ValueError("Multiple html tags for a non-list node.")
+                raise ValueError("Multiple html tags for a non-list node "
+                    "'{}'.".format(" | ".join(self.alts)))
             if len(sel_list) == 0 and (not self.is_opt):
-                raise ValueError("Missing html tag for a non-optional node.")
+                raise ValueError("Missing html tag for a non-optional node "
+                    "'{}'.".format(" | ".join(self.alts)))
 
     def extract(self, selector):
         """Only check if the data is correct."""
@@ -152,3 +166,7 @@ class Text(BaseLeaf):
         res = cls()
         res.strip = True
         return res
+
+
+class ThisClass(BaseLeaf):
+    pass
