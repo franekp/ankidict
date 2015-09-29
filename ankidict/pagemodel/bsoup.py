@@ -1,8 +1,8 @@
 import six
 
-from libdict.pagemodel.html import BaseNode, BaseLeaf
+from pagemodel.html import BaseNode, BaseLeaf
 
-from thirdparty import bs4
+import bs4
 
 
 class PageModelMetaClass(type):
