@@ -5,11 +5,11 @@ from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
-import macm_parser_css
-import collection
+from addon import macm_parser_css
+from addon import collection
 import re
 import datetime
-from __init__ import get_plugin
+from addon.addon import get_plugin
 
 # TODO LIST:
 

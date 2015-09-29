@@ -39,13 +39,10 @@ from aqt.qt import *
 import sys
 
 # window and gui of our addon
-import dict_window
-
-sys.path.append(os.path.dirname(__file__))
-sys.path.append(os.path.join(os.path.dirname(__file__), 'thirdparty'))
+from addon import dict_window
 
 def get_plugin():
-  return mw.millan
+  return mw.ankidict
 
 class Config:
   def __init__(self):
@@ -68,9 +65,9 @@ class Config:
     self.log_wordlist = True
     self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
 
-class MillanDict:
+class AnkiDict:
   def __init__(self, config):
-    mw.millan = self
+    mw.ankidict = self
     self.config = config
     self.initialized = False
 

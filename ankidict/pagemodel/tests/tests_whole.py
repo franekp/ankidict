@@ -1,10 +1,9 @@
 from unittest import TestCase
 
-from libdict.pagemodel import (Node, StrictNode, Text, ShallowText,
+from pagemodel import (Node, StrictNode, Text,
                        Html, StrictHtml, ThisClass)
-# ShallowText, 
 # important: Text should have some subset of string methods available
-from libdict.pagemodel.bsoup import PageModel
+from pagemodel.bsoup import PageModel
 
 
 class TestPageModel1(PageModel):

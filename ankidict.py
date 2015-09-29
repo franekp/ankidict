@@ -23,7 +23,7 @@
 # SOFTWARE.
 ####
 
-import millandict_addon as addon
+from ankidict.addon import addon
 
 conf = addon.Config()
 
@@ -40,4 +40,4 @@ conf.add_examples_to_list = True
 ################################################
 
 # Initializes plugin
-millan = addon.MillanDict(conf)
+ankidict = addon.AnkiDict(conf)
