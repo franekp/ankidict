@@ -41,8 +41,6 @@ import sys
 # window and gui of our addon
 from addon import dict_window
 
-def get_plugin():
-  return mw.ankidict
 
 class Config:
   def __init__(self):

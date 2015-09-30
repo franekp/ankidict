@@ -17,7 +17,7 @@ __all__ = ["DictEntry", "DictEntrySense", "dict_query", "dict_object_from_txt"]
 
 def parse_func(txt):
 	if(USE_SOUP):
-		return bs4.BeautifulSoup(txt)
+		return bs4.BeautifulSoup(txt, "html.parser")
 	else:
 		return lxml.html.fromstring(txt)
 

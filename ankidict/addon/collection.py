@@ -23,9 +23,14 @@
 # SOFTWARE.
 ####
 
-from __init__ import get_plugin
 from aqt import mw
 import re
+
+
+def get_plugin():
+  return mw.ankidict
+
+
 
 def setup():
   select_deck()

@@ -9,7 +9,7 @@ from addon import macm_parser_css
 from addon import collection
 import re
 import datetime
-from addon.addon import get_plugin
+from addon.collection import get_plugin
 
 # TODO LIST:
 

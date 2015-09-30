@@ -23,9 +23,9 @@
 # SOFTWARE.
 ####
 
-from ankidict.addon import addon
+from ankidict.addon import main
 
-conf = addon.Config()
+conf = main.Config()
 
 ################################################
 #     Plugin configuration should be here      #
@@ -40,4 +40,4 @@ conf.add_examples_to_list = True
 ################################################
 
 # Initializes plugin
-ankidict = addon.AnkiDict(conf)
+ankidict = main.AnkiDict(conf)
