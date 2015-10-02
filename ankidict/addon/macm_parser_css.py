@@ -52,7 +52,7 @@ def select_func(self,query):
 			self.attrs['id'] = id_obscure
 			# tutaj jest "parent", bo wygląda na to, że nie można zaznaczyć samego siebie
 			res = self.parent.select("#"+id_obscure+" "+query)
-			if tmp_id:
+			if tmp_id is not None:
 				self.attrs['id'] = tmp_id
 			else:
 				del self.attrs['id']

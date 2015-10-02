@@ -9,7 +9,7 @@ from libdict.pagemodel.bsoup import PageModel
 # natomiast przydadzą się Text.{various string methods} oraz ShallowText
 
 class Example(PageModel):
-    model_class = models.Example
+    model_class = dict
 
     page_tree = StrictHtml(
         Node("strong")(
@@ -23,7 +23,7 @@ class Example(PageModel):
 
 
 class Sense(PageModel):
-    model_class = models.Sense
+    model_class = dict
 
     page_tree = StrictHtml(
         Node.optional("div.SENSE-NUM", "span.SYNTAX-CODING"),
@@ -50,19 +50,19 @@ class Sense(PageModel):
 
 
 class RelatedLink(PageModel):
-    model_class = models.RelatedLink
+    model_class = dict
 
     page_tree = None # TODO
 
 
 class PhraseLink(PageModel):
-    model_class = models.LazyDictEntry
+    model_class = dict
 
     page_tree = None # TODO
 
 
 class DictEntry(PageModel):
-    model_class = models.DictEntry
+    model_class = dict
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(

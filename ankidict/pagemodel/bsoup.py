@@ -1,13 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import six
 
-from pagemodel.html import BaseNode, BaseLeaf
+from pagemodel.html import BaseNode, BaseLeaf, Base
 
 import bs4
 
 
 class PageModelMetaClass(type):
     def __new__(cls, name, bases, attrs):
-        if name == 'PageModel':
+        if name in ['PageModel', 'BasePageModel']:
             return super(PageModelMetaClass, cls).__new__(cls, name, bases, attrs)
         if 'model_class' not in attrs:
             raise TypeError("Subclasses of PageModel must declare "
@@ -22,18 +25,30 @@ class PageModelMetaClass(type):
         return super(PageModelMetaClass, cls).__new__(cls, name, bases, attrs)
 
 
-class BasePageModel(object):
+class BaseBasePageModel(object):
     pass
 
 
-class PageModel(six.with_metaclass(PageModelMetaClass, BasePageModel), BaseLeaf):
+class BasePageModel(six.with_metaclass(PageModelMetaClass, BaseBasePageModel)):
+    pass
+
+
+class PageModel(BasePageModel, BaseLeaf):
     @classmethod
-    def extract(cls, selector):
+    def extract_unboxed(cls, selector):
         res = cls.page_tree.extract(selector)
         return cls.model_class(**res)
 
-    def __new__(cls, page_text):
-        return cls.extract(Selector(page_text))
+    def extract(self, selector):
+        res = self.extract_unboxed(selector)
+        return {self.fieldlabel: res}
+
+    def __new__(cls, page_text=None):
+        if page_text is None:
+            res = super(PageModel, cls).__new__(cls)
+            return res
+        else:
+            return cls.extract_unboxed(Selector(page_text))
 
 
 class Selector(object):
@@ -47,7 +62,11 @@ class Selector(object):
         """Return a list of nodes that satisfy any of provided
         css paths.
         """
-        sel_list = self.sel.select(",".join([path.strip() for path in paths]))
+        # musi być zrobione, że po kolei wywołuje, ponieważ
+        # według BS4 przecinek wiąże silniej niż spacja w
+        # selektorach css.
+        sel_list = [self.sel.select(path.strip()) for path in paths]
+        sel_list = [el for chunk in sel_list for el in chunk]
         return [Selector(sel) for sel in sel_list]
 
     def text(self):

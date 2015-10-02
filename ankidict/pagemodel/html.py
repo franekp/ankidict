@@ -131,6 +131,7 @@ class Node(BaseNode):
     def optional(cls, *args):
         res = cls(*args)
         res.is_opt = True
+        return res
 
     def validate_sel_list_len(self, size):
         if self.is_list:

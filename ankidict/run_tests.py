@@ -5,7 +5,7 @@ from unittest import TestLoader, runner
 
 this_dir = os.path.dirname(__file__)
 
-dirs = ["addon", "libdict", "model", "pagemodel"]
+dirs = ["addon", "libdict", "pagemodel"]
 
 loader = TestLoader()
 
