@@ -43,6 +43,7 @@ def select_func(self,query):
 	while query[0] == ' ':
 		query = query[1:]
 	if(USE_SOUP):
+        # DANGER this is already implemented and working in the version of bs4 we are using now
 		if(query[0] != '>'):
 			return self.select(query)
 		else:

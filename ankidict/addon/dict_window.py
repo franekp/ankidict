@@ -24,6 +24,9 @@ from addon.collection import get_plugin
 
 # TODO:
 
+
+# - caching entries in a db!
+# - autocomplete - lol
 # - add proper closing of word list log file
 
 # - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)

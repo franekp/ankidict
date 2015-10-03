@@ -87,12 +87,24 @@ class FullNode(BaseNode):
             res[k] = [dic[k] for dic in dlist if k in dic]
         return res
 
+    @staticmethod
+    def concat_dict_list(dlist, sep):
+        res = {}
+        for dic in dlist:
+            res.update(dic)
+        for k in res:
+            res[k] = sep.join([dic[k] for dic in dlist if k in dic])
+        return res
+
     def extract(self, selector):
         sel_list = selector.css(*self.node.alts)
         self.node.validate_sel_list_len(len(sel_list))
         res_list = [super(FullNode, self).extract(sel) for sel in sel_list]
         if self.node.is_list:
-            return self.reduce_dict_list(res_list)
+            if self.node.concat_sep is not None:
+                return self.concat_dict_list(res_list, self.node.concat_sep)
+            else:
+                return self.reduce_dict_list(res_list)
         else:
             try:
                 return res_list[0]
@@ -105,6 +117,7 @@ class Node(BaseNode):
         self.alts = []
         self.is_opt = False
         self.is_list = False
+        self.concat_sep = None
         for i in args:
             if isinstance(i, basestring):
                 self.alts.append(i)
@@ -133,6 +146,12 @@ class Node(BaseNode):
         res.is_opt = True
         return res
 
+    def concat(self, s):
+        if not self.is_list:
+            raise TypeError("You can only concat a list of strings")
+        self.concat_sep = s
+        return self
+
     def validate_sel_list_len(self, size):
         if self.is_list:
             pass
@@ -152,21 +171,18 @@ class Node(BaseNode):
 
 
 class Text(BaseLeaf):
+    """Whitespace at the beginning and the end of the text is automatically stripped."""
     def __init__(self):
-        self.strip = False
         super(Text, self).__init__()
 
     def extract(self, selector):
         res = selector.text()
-        if self.strip:
-            res = res.strip()
+        res = res.strip()
         return {self.fieldlabel: res}
 
-    @classmethod
-    def strip(cls):
-        res = cls()
-        res.strip = True
-        return res
+    # TODO
+    # Text.replace("$", "").lower()
+    # Text.not_strip (or Text.with_whitespace or Text.retain_spaces)
 
 
 class ThisClass(BaseLeaf):

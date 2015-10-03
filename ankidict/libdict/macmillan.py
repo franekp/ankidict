@@ -1,21 +1,19 @@
-from . import models
-from libdict.pagemodel import (Node, StrictNode, Text, ShallowText
-                       Html, StrictHtml, ThisClass)
-# ShallowText, 
-# important: Text should have some subset of string methods available
-from libdict.pagemodel.bsoup import PageModel
-# na razie robimy tylko to, co jest w tym przykładzie użycia:
-# nie robimy jeszcze żadnego Reduce ani join, bo mogą się nie przydać
-# natomiast przydadzą się Text.{various string methods} oraz ShallowText
+# from . import models
+from pagemodel import (Node, StrictNode, Text, ShallowText,
+    Html, StrictHtml, ThisClass)
+from pagemodel.bsoup import PageModel
+# from libdict import models
+#from libdict.models import Base, Example, Sense, Entry, RelatedWord
+
 
 class Example(PageModel):
-    model_class = dict
+    model_class = None
 
     page_tree = StrictHtml(
-        Node("strong")(
-            key=Text()
+        Node.optional("strong")(
+            displayed_key=Text()
         ),
-        Node("div.SEP")(),
+        Node.optional("div.SEP")(),
         Node("p.EXAMPLE")(
             content=Text()
         ),
@@ -23,75 +21,75 @@ class Example(PageModel):
 
 
 class Sense(PageModel):
-    model_class = dict
+    model_class = None
 
     page_tree = StrictHtml(
         Node.optional("div.SENSE-NUM", "span.SYNTAX-CODING"),
-        Node.optional("span.STYLE-LEVEL")(
-            style_level=Text.replace("$", "").lower()
+        Node.optional("> span.STYLE-LEVEL")(
+           # style_level=Text()()
         ),
-        Node("span.DEFINITION", "span.QUICK-DEFINITION")(
+        Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
             definition=Text()
         ),
-        Node.list("strong", "span.SENSE-VARIANT span.BASE",
-                  "span.MULTIWORD span.BASE")(
-            keys=Text.strip()
+        Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
+                  "> span.MULTIWORD span.BASE").concat(" | ")(
+            displayed_key=Text()
         ),
-        Node.list("div.EXAMPLES")(
+        Node.list("> div.EXAMPLES")(
             examples=Example()
         ),
         Node("div.THES")(),
         Node.optional("ol.SUB-SENSES")(
             Node.list("div.SUB-SENSE-CONTENT")(
-                sub_senses=ThisClass()
+                sub_senses=Text() # TODO
             )
         ),
     )
 
 
 class RelatedLink(PageModel):
-    model_class = dict
+    model_class = None
 
-    page_tree = None # TODO
+    page_tree = Html() # TODO
 
 
 class PhraseLink(PageModel):
-    model_class = dict
+    model_class = None
 
-    page_tree = None # TODO
+    page_tree = Html() # TODO
 
 
-class DictEntry(PageModel):
-    model_class = dict
+class Entry(PageModel):
+    model_class = None
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(
-            word=Text.strip()
+            word=Text()
         ),
         
         Node("div#headbar")(
             Node.optional("span.STYLE-LEVEL")(
-                style_level=Text.lower()
+                style_level=Text()
             ),
             Node.optional("span.PRON")(
                 pron=Text()
-            )
+            ),
             Node.optional("span.PART-OF-SPEECH")
-        )
-        Node("ol.SENSES")(
+        ),
+        Node("ol.SENSES", "ol.senses")(
             Node.list("div.SENSE-BODY")(
                 senses=Sense()
             )
         ),
-        Node("div#phrases_container > ul")(
+        Node.optional("div#phrases_container > ul")(
             Node.list("li")(
                 # here code from macm_parser_css is outdated,
                 # and now they are links to separate dictionary definitions
                 # so this is TODO
                 phrases=PhraseLink()
-            ))
+            )
         ),
-        Node("div#phrasal_verbs_container > ul")(
+        Node.optional("div#phrasal_verbs_container > ul")(
             Node.list("li")(
                 phrasal_verbs=PhraseLink()
             )

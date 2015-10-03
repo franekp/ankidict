@@ -14,10 +14,10 @@ class SimplePage(PageModel):
                 div1=Text()
             ),
             Node("#div_2", "#asdf")(
-                div2=Text.strip()
+                div2=Text()
             ),
             Node("span"),
-            body=Text.strip(),
+            body=Text(),
         ),
     )
 
@@ -37,7 +37,7 @@ class NestedInnerPage(PageModel):
     model_class = dict
     page_tree = Html(
         Node("span")(
-            innertxt=Text.strip()
+            innertxt=Text()
         )
     )
 
@@ -47,7 +47,7 @@ class NestedOuterPage(PageModel):
     page_tree = Html(
         StrictNode("div.outer")(
             Node("> span")(
-                outertxt=Text.strip()
+                outertxt=Text()
             ),
             Node("div.inner")(
                 nested=NestedInnerPage()
@@ -136,7 +136,7 @@ class ListPage(PageModel):
     page_tree = Html(
         Node(".list")(
             Node.list(".listelem")(
-                mylistfield=Text.strip()
+                mylistfield=Text()
             )
         )
     )
@@ -173,12 +173,40 @@ INVALID_LIST_PAGE = '''
 '''
 
 
+class ConcatPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("div.list")(
+            Node.list("span.elem").concat(", ")(
+                concatenated=Text()
+            )
+        )
+    )
+
+
+CONCAT_PAGE = '''
+<html><body>
+    <div class='list'>
+        <span class='elem'>
+            First element
+        </span>
+        <div class='sthelse'>
+            Irrelevant information
+        </div>
+        <span class='elem'>
+            Second element
+        </span>
+    </div>
+</body></html>
+'''
+
+
 class PagemodelTests(TestCase):
     def test_simple(self):
         res = SimplePage(SIMPLE_PAGE)
         exp = {
             'body': 'Body text.\n\nDiv one text.\n\nDiv two text.',
-            'div1': '\nDiv one text.\n',
+            'div1': 'Div one text.',
             'div2': 'Div two text.'
         }
         self.assertEqual(res, exp)
@@ -234,3 +262,7 @@ class PagemodelTests(TestCase):
                         Text()
                     )
                 )
+
+    def test_concat(self):
+        res = ConcatPage(CONCAT_PAGE)
+        self.assertEqual(res, {'concatenated': 'First element, Second element'})

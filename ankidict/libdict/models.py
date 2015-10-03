@@ -1,39 +1,69 @@
-from model import Model, ThisClass
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
 
 
-class Example(Model)
-    key = Str
-    content = Str
+Base = declarative_base()
 
 
-class Sense(Model):
-    keys = List(Str)
-    style_level = Str
-    definition = Str
-    examples = List(Example)
-    sub_senses = List(ThisClass)
+class Example(Base):
+    __tablename__ = 'example'
+
+    # core:
+    id = Column(Integer, primary_key=True)
+    displayed_key = Column(String)
+    content = Column(String)
+
+    # relations:
+    sense_id = Column(Integer, ForeignKey("sense.id"))
+    sense = relationship("Sense", backref=backref('examples', order_by=id))
+
+    # less relevant:
+    # definition = Column(String)
 
 
-class RelatedLink(Model):
-    pass
+class Sense(Base):
+    __tablename__ = 'sense'
+
+    # core:
+    id = Column(Integer, primary_key=True)
+    displayed_key = Column(String)
+    definition = Column(String)
+
+    # relations:
+    entry_id = Column(Integer, ForeignKey("entry.id"))
+    entry = relationship("Entry", backref=backref('senses', order_by=id))
+
+    # less relevant:
+    # is_formal = Column(Integer)
 
 
-class LazyDictEntry(Model):
-    pass
+class Entry(Base):
+    __tablename__ = 'entry'
+
+    # core:
+    id = Column(Integer, primary_key=True)
+    displayed_key = Column(String)
+
+    # less relevant:
+    pron = Column(String)
+    intro_paragraph = Column(String)
 
 
-class DictEntry(Model):
-    word = Str
-    pron = Str
-    senses = List(Sense)
-    phrases = List(LazyDictEntry)
-    phrasal_verbs = List(LazyDictEntry)
-    related = List(RelatedLink)
-    intro_paragraph = Opt(Str)
+class RelatedWord(Base):
+    __tablename__ = 'relatedword'
 
+    # core:
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    url = Column(String)
 
-class SearchResults(Model):
-    pass
+    # relations:
+    entry_id = Column(Integer, ForeignKey("entry.id"))
+    entry = relationship("Entry", backref=backref('relatedwords', order_by=id))
+
 '''
 interfejs:
 
