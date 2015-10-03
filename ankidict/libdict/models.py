@@ -38,6 +38,8 @@ class Sense(Base):
 
     # less relevant details:
     style_level = Column(String)
+    syntax_coding = Column(String)
+    subject_area = Column(String)
 
 
 class Entry(Base):
@@ -51,6 +53,7 @@ class Entry(Base):
     pron = Column(String)
     intro_paragraph = Column(String)
     style_level = Column(String)
+    part_of_speech = Column(String)
 
 
 class RelatedWord(Base):

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
 import mock
 import json
@@ -54,14 +57,17 @@ Entry:
     len(senses) - 1
     style_level - 1
     intro_paragraph - 1
-    pron - 0
+    pron - 2
+    part_of_speech - 2
     relatedwords - 0
 
 Sense:
     displayed_key - 2
     definition - 1
     len(examples) - 1
-    style_level - 2
+    style_level - 3
+    subject_area - 1
+    syntax_coding - 4
 
 Example:
     displayed_key - 1
@@ -128,6 +134,10 @@ class MacmillanTests(TestCase):
         s = 'It can refer to a singular or plural noun, and it can be the subject,' \
         ' object, or complement of a verb or the object of a preposition'
         self.assertTrue(s in res.intro_paragraph)
+        # Entry.pron
+        self.assertEqual(res.pron, u'/jɔː(r)z/')
+        # Entry.part_of_speech
+        self.assertEqual(res.part_of_speech, 'pronoun')
 
     def test_phrase_take_off(self):
         res = Entry(dict_query("take off"))
@@ -139,4 +149,17 @@ class MacmillanTests(TestCase):
     def test_phrase_air(self):
         res = Entry(dict_query("air"))
         senses = res.senses
-        #res.pprint()
+        # res.pprint()
+        # Sense.style_level
+        self.assertEqual(senses[3].style_level, 'old-fashioned')
+        # Sense.subject_area
+        self.assertEqual(senses[3].subject_area, 'music')
+        # Sense.syntax_coding
+        self.assertEqual(senses[3].syntax_coding, '[countable]')
+        self.assertEqual(senses[2].syntax_coding, '[plural]')
+        self.assertEqual(senses[1].syntax_coding, '[singular]')
+        self.assertEqual(senses[0].syntax_coding, '[uncountable]')
+        # Entry.pron
+        self.assertEqual(res.pron, u'/eə(r)/')
+        # Entry.part_of_speech
+        self.assertEqual(res.part_of_speech, 'noun')

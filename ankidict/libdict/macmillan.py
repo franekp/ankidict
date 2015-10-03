@@ -29,6 +29,12 @@ class Sense(PageModel):
         Node.optional("> span.STYLE-LEVEL")(
            style_level=Text()
         ),
+        Node.optional("> span.SUBJECT-AREA")(
+            subject_area=Text()
+        ),
+        Node.optional("> span.SYNTAX-CODING")(
+            syntax_coding=Text()
+        ),
         Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
             definition=Text()
         ),
@@ -40,11 +46,7 @@ class Sense(PageModel):
             examples=Example()
         ),
         Node("> div.THES"),
-        Node.optional("ol.SUB-SENSES")(
-            Node.list("div.SUB-SENSE-CONTENT")(
-                sub_senses=Text() # TODO
-            )
-        ),
+        Node.optional("> ol.SUB-SENSES"),
     )
 
 
@@ -75,15 +77,15 @@ class Entry(PageModel):
             Node.optional("span.PRON")(
                 pron=Text()
             ),
-            Node.optional("span.PART-OF-SPEECH")
+            Node.optional("span.PART-OF-SPEECH")(
+                part_of_speech=Text()
+            )
         ),
         Node.optional("div.SUMMARY div.p")(
             intro_paragraph=Text()
         ),
-        Node("ol.SENSES", "ol.senses")(
-            Node.list("div.SENSE-BODY")(
-                senses=Sense()
-            )
+        Node.list("div.SENSE-BODY, div.SUB-SENSE-CONTENT")(
+            senses=Sense()
         ),
         Node.optional("div#phrases_container > ul")(
             Node.list("li")(
