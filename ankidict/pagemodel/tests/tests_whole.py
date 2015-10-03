@@ -201,6 +201,48 @@ CONCAT_PAGE = '''
 '''
 
 
+class ThisClassElem(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("> div.head")(
+            head=Text()
+        ),
+        Node.optional("> div.tail")(
+            tail=ThisClass()
+        ),
+    )
+
+
+class ThisClassPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("div.list")(
+            li=ThisClassElem()
+        )
+    )
+
+
+THISCLASS_PAGE = '''
+<html><body>
+<div class='list'>
+    <div class='head'>
+        1
+    </div>
+    <div class='tail'>
+        <div class='head'>
+            2
+        </div>
+        <div class='tail'>
+            <div class='head'>
+                3
+            </div>
+        </div>
+    </div>
+</div>
+</body></html>
+'''
+
+
 class PagemodelTests(TestCase):
     def test_simple(self):
         res = SimplePage(SIMPLE_PAGE)
@@ -266,3 +308,18 @@ class PagemodelTests(TestCase):
     def test_concat(self):
         res = ConcatPage(CONCAT_PAGE)
         self.assertEqual(res, {'concatenated': 'First element, Second element'})
+
+    def test_thisclass(self):
+        res = ThisClassPage(THISCLASS_PAGE)
+        exp = {
+            'li': {
+                'head': '1',
+                'tail': {
+                    'head': '2',
+                    'tail': {
+                        'head': '3'
+                    }
+                }
+            }
+        }
+        self.assertEqual(res, exp)

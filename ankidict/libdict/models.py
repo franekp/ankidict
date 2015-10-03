@@ -20,8 +20,8 @@ class Example(Base):
     sense_id = Column(Integer, ForeignKey("sense.id"))
     sense = relationship("Sense", backref=backref('examples', order_by=id))
 
-    # less relevant:
-    # definition = Column(String)
+    # less relevant details:
+    # none
 
 
 class Sense(Base):
@@ -36,8 +36,8 @@ class Sense(Base):
     entry_id = Column(Integer, ForeignKey("entry.id"))
     entry = relationship("Entry", backref=backref('senses', order_by=id))
 
-    # less relevant:
-    # is_formal = Column(Integer)
+    # less relevant details:
+    style_level = Column(String)
 
 
 class Entry(Base):
@@ -47,9 +47,10 @@ class Entry(Base):
     id = Column(Integer, primary_key=True)
     displayed_key = Column(String)
 
-    # less relevant:
+    # less relevant details:
     pron = Column(String)
     intro_paragraph = Column(String)
+    style_level = Column(String)
 
 
 class RelatedWord(Base):

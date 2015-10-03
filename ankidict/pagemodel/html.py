@@ -12,6 +12,9 @@ class Base(object):
     def get_fieldlabels(self):
         raise NotImplementedError
 
+    def fill_thisclass_attr(self, cls):
+        raise NotImplementedError
+
 
 class BaseNode(Base):
     def __init__(self, *args, **kwargs):
@@ -43,6 +46,11 @@ class BaseNode(Base):
             res.update(node.get_fieldlabels())
         return res
 
+    def fill_thisclass_attr(self, cls):
+        """Needed for the recursive ThisClass leaf nodes."""
+        for node in self.child_nodes:
+            node.fill_thisclass_attr(cls)
+
     def validate(self):
         res = self.get_fieldlabels()
         for label in res:
@@ -71,6 +79,11 @@ class BaseLeaf(Base):
         if self.fieldlabel is None:
             raise NameError("A leaf-like node without field label exists.")
         return Counter([self.fieldlabel])
+
+    def fill_thisclass_attr(self, cls):
+        """Needed for the recursive ThisClass leaf nodes."""
+        pass
+
 
 
 class Html(BaseNode):
@@ -186,7 +199,19 @@ class Text(BaseLeaf):
 
 
 class ThisClass(BaseLeaf):
-    pass
+    def __init__(self):
+        self.this_class = None
+        super(ThisClass, self).__init__()
+
+    def extract(self, selector):
+        res = self.this_class.extract_unboxed(selector)
+        return {self.fieldlabel: res}
+
+    def fill_thisclass_attr(self, cls):
+        """Needed for the recursive ThisClass leaf nodes."""
+        self.this_class = cls
+
+
 
 # not implemented:
 StrictNode = Node

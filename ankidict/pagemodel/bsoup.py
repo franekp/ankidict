@@ -22,7 +22,9 @@ class PageModelMetaClass(type):
         if not isinstance(page_tree, BaseNode):
             raise TypeError("Invalid type of 'page_tree' attribute.")
         page_tree.validate()
-        return super(PageModelMetaClass, cls).__new__(cls, name, bases, attrs)
+        res = super(PageModelMetaClass, cls).__new__(cls, name, bases, attrs)
+        page_tree.fill_thisclass_attr(res)
+        return res
 
 
 class BaseBasePageModel(object):

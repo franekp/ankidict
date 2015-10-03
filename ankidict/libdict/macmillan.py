@@ -24,9 +24,10 @@ class Sense(PageModel):
     model_class = None
 
     page_tree = StrictHtml(
-        Node.optional("div.SENSE-NUM", "span.SYNTAX-CODING"),
+        Node.optional("> div.SENSE-NUM"),
+        Node.optional("> span.SYNTAX-CODING"),
         Node.optional("> span.STYLE-LEVEL")(
-           # style_level=Text()()
+           style_level=Text()
         ),
         Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
             definition=Text()
@@ -38,7 +39,7 @@ class Sense(PageModel):
         Node.list("> div.EXAMPLES")(
             examples=Example()
         ),
-        Node("div.THES")(),
+        Node("> div.THES"),
         Node.optional("ol.SUB-SENSES")(
             Node.list("div.SUB-SENSE-CONTENT")(
                 sub_senses=Text() # TODO
@@ -64,7 +65,7 @@ class Entry(PageModel):
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(
-            word=Text()
+            displayed_key=Text()
         ),
         
         Node("div#headbar")(
@@ -76,6 +77,9 @@ class Entry(PageModel):
             ),
             Node.optional("span.PART-OF-SPEECH")
         ),
+        Node.optional("div.SUMMARY div.p")(
+            intro_paragraph=Text()
+        ),
         Node("ol.SENSES", "ol.senses")(
             Node.list("div.SENSE-BODY")(
                 senses=Sense()
@@ -86,17 +90,17 @@ class Entry(PageModel):
                 # here code from macm_parser_css is outdated,
                 # and now they are links to separate dictionary definitions
                 # so this is TODO
-                phrases=PhraseLink()
+                # phrases=PhraseLink()
             )
         ),
         Node.optional("div#phrasal_verbs_container > ul")(
             Node.list("li")(
-                phrasal_verbs=PhraseLink()
+                # phrasal_verbs=PhraseLink()
             )
         ),
-        Node("div.entrylist > ul")(
+        Node.optional("div.entrylist > ul")(
             Node.list("li")(
-                related=RelatedLink()
+                # related=RelatedLink()
             )
         )
         # TODO
