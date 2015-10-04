@@ -7,12 +7,9 @@ import json
 
 import urllib2
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-#from libdict.models import Base #, Example, Sense, Entry, RelatedWord
-from libdict.macmillan import Entry
-
-
-
+from libdict.macmillan import Entry, models
 
 
 words = [
@@ -26,6 +23,8 @@ words = [
     'my', # intro_paragraph
     'then', # multiple phrases one sense
     'since when', # phrase finding in entry for 'since'
+    # some crazy h2.VARIANT
+    'http://www.macmillandictionary.com/dictionary/british/yours_2',
 ]
 
 
@@ -79,26 +78,10 @@ RelatedWord:
 '''
 
 
-@mock.patch("libdict.macmillan.Entry.model_class", new=AttrDict)
-@mock.patch("libdict.macmillan.Sense.model_class", new=AttrDict)
-@mock.patch("libdict.macmillan.Example.model_class", new=AttrDict)
-@mock.patch("libdict.macmillan.RelatedLink.model_class", new=AttrDict)
-@mock.patch("libdict.macmillan.PhraseLink.model_class", new=AttrDict)
-class MacmillanTests(TestCase):
-    @classmethod
-    def setUpClass_asdf(cls):
-        engine = create_engine('sqlite:///:memory:', echo=False)
-        Base.metadata.create_all(engine)
-        self.engine = engine
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
-
-    @classmethod
-    def tearDownClass_adsf(cls):
-        self.session.commit()
-
+class BaseTests(object):
+    """Subclasses must implement result_hook."""
     def test_phrase_take_on(self):
-        res = Entry(dict_query("take on"))
+        res = self.result_hook(Entry(dict_query("take on")))
         # res.pprint()
         senses = res.senses
 
@@ -122,13 +105,13 @@ class MacmillanTests(TestCase):
         self.assertEqual(senses[4].examples[0].displayed_key, 'take it on/upon yourself (to do something)')
 
     def test_phrase_yours_truly(self):
-        res = Entry(dict_query("yours truly"))
+        res = self.result_hook(Entry(dict_query("yours truly")))
         
         # Entry.style_level
         self.assertEqual(res.style_level, 'informal')
 
     def test_phrase_yours(self):
-        res = Entry(dict_query("yours"))
+        res = self.result_hook(Entry(dict_query("yours")))
         # Entry.intro_paragraph
         self.assertTrue('Her eyes are darker than yours are.' in res.intro_paragraph)
         s = 'It can refer to a singular or plural noun, and it can be the subject,' \
@@ -140,14 +123,14 @@ class MacmillanTests(TestCase):
         self.assertEqual(res.part_of_speech, 'pronoun')
 
     def test_phrase_take_off(self):
-        res = Entry(dict_query("take off"))
+        res = self.result_hook(Entry(dict_query("take off")))
         senses = res.senses
         # Sense.style_level
         self.assertEqual(senses[4].style_level, 'informal')
         self.assertEqual(senses[5].style_level, 'informal')
 
     def test_phrase_air(self):
-        res = Entry(dict_query("air"))
+        res = self.result_hook(Entry(dict_query("air")))
         senses = res.senses
         # res.pprint()
         # Sense.style_level
@@ -163,3 +146,38 @@ class MacmillanTests(TestCase):
         self.assertEqual(res.pron, u'/eə(r)/')
         # Entry.part_of_speech
         self.assertEqual(res.part_of_speech, 'noun')
+
+
+@mock.patch("libdict.macmillan.Entry.model_class", new=AttrDict)
+@mock.patch("libdict.macmillan.SubSense.model_class", new=AttrDict)
+@mock.patch("libdict.macmillan.Sense.model_class", new=AttrDict)
+@mock.patch("libdict.macmillan.Example.model_class", new=AttrDict)
+@mock.patch("libdict.macmillan.RelatedLink.model_class", new=AttrDict)
+@mock.patch("libdict.macmillan.PhraseLink.model_class", new=AttrDict)
+class MacmillanScrapeTests(TestCase):
+# class MacmillanScrapeTests(TestCase, BaseTests):
+    def result_hook(self, res):
+        return res
+
+
+class MacmillanDBTests(TestCase, BaseTests):
+    @classmethod
+    def setUpClass(cls):
+        engine = create_engine('sqlite:///:memory:', echo=False)
+        models.Base.metadata.create_all(engine)
+        cls.engine = engine
+        Session = sessionmaker(bind=engine)
+        cls.session = Session()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.session.commit()
+
+    def result_hook(self, res):
+        self.session.add(res)
+        self.session.commit()
+        id_ = res.id
+        res = None
+        return self.session.query(models.Entry).filter_by(id=id_).first()
+
+    

@@ -2,32 +2,34 @@
 from pagemodel import (Node, StrictNode, Text, ShallowText,
     Html, StrictHtml, ThisClass)
 from pagemodel.bsoup import PageModel
-# from libdict import models
-#from libdict.models import Base, Example, Sense, Entry, RelatedWord
+from libdict.models import Models
+
+
+models = Models("macmillan")
 
 
 class Example(PageModel):
-    model_class = None
+    model_class = models.Example
 
     page_tree = StrictHtml(
         Node.optional("strong")(
             displayed_key=Text()
         ),
-        Node.optional("div.SEP")(),
+        Node.optional("div.SEP"),
         Node("p.EXAMPLE")(
             content=Text()
         ),
     )
 
 
-class Sense(PageModel):
-    model_class = None
+class SubSense(PageModel):
+    model_class = models.SubSense
 
     page_tree = StrictHtml(
         Node.optional("> div.SENSE-NUM"),
         Node.optional("> span.SYNTAX-CODING"),
         Node.optional("> span.STYLE-LEVEL")(
-           style_level=Text()
+            style_level=Text()
         ),
         Node.optional("> span.SUBJECT-AREA")(
             subject_area=Text()
@@ -46,7 +48,40 @@ class Sense(PageModel):
             examples=Example()
         ),
         Node("> div.THES"),
-        Node.optional("> ol.SUB-SENSES"),
+    )
+
+
+class Sense(PageModel):
+    model_class = models.Sense
+
+    page_tree = StrictHtml(
+        Node.optional("> div.SENSE-NUM"),
+        Node.optional("> span.SYNTAX-CODING"),
+        Node.optional("> span.STYLE-LEVEL")(
+            style_level=Text()
+        ),
+        Node.optional("> span.SUBJECT-AREA")(
+            subject_area=Text()
+        ),
+        Node.optional("> span.SYNTAX-CODING")(
+            syntax_coding=Text()
+        ),
+        Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
+            definition=Text()
+        ),
+        Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
+                  "> span.MULTIWORD span.BASE").concat(" | ")(
+            displayed_key=Text()
+        ),
+        Node.list("> div.EXAMPLES")(
+            examples=Example()
+        ),
+        Node("> div.THES"),
+        Node.optional("> ol.SUB-SENSES")(
+            Node.list("div.SUB-SENSE-CONTENT")(
+                subsenses=SubSense()
+            )
+        ),
     )
 
 
@@ -63,7 +98,7 @@ class PhraseLink(PageModel):
 
 
 class Entry(PageModel):
-    model_class = None
+    model_class = models.Entry
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(
@@ -84,7 +119,7 @@ class Entry(PageModel):
         Node.optional("div.SUMMARY div.p")(
             intro_paragraph=Text()
         ),
-        Node.list("div.SENSE-BODY, div.SUB-SENSE-CONTENT")(
+        Node.list("div.SENSE-BODY")(
             senses=Sense()
         ),
         Node.optional("div#phrases_container > ul")(
@@ -97,13 +132,14 @@ class Entry(PageModel):
         ),
         Node.optional("div#phrasal_verbs_container > ul")(
             Node.list("li")(
+                # TODO
                 # phrasal_verbs=PhraseLink()
             )
         ),
         Node.optional("div.entrylist > ul")(
             Node.list("li")(
+                # TODO
                 # related=RelatedLink()
             )
         )
-        # TODO
     )

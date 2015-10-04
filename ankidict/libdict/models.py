@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
@@ -5,68 +8,129 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 
 
-Base = declarative_base()
+def make_models(self):
+    """
+    IMPORTANT: use distinct declarative_base for each dictionary
+    Attributes of 'self' required:
+     - Base
+     - dictname
+     - enable_translations
+    """
+    Base = self.Base
+    dictname = self.dictname
 
 
-class Example(Base):
-    __tablename__ = 'example'
+    class Example(Base):
+        __tablename__ = dictname + '_example'
 
-    # core:
-    id = Column(Integer, primary_key=True)
-    displayed_key = Column(String)
-    content = Column(String)
+        # core:
+        id = Column(Integer, primary_key=True)
+        displayed_key = Column(String)
+        content = Column(String)
 
-    # relations:
-    sense_id = Column(Integer, ForeignKey("sense.id"))
-    sense = relationship("Sense", backref=backref('examples', order_by=id))
-
-    # less relevant details:
-    # none
+        # foreign keys:
+        sense_id = Column(Integer, ForeignKey(dictname + '_sense.id'))
+        subsense_id = Column(Integer, ForeignKey(dictname + '_subsense.id'))
 
 
-class Sense(Base):
-    __tablename__ = 'sense'
+    class SubSense(Base):
+        __tablename__ = dictname + '_subsense'
+        
+        # core:
+        id = Column(Integer, primary_key=True)
+        displayed_key = Column(String)
+        definition = Column(String)
 
-    # core:
-    id = Column(Integer, primary_key=True)
-    displayed_key = Column(String)
-    definition = Column(String)
+        # relations:
+        examples = relationship("Example",
+            backref=backref("subsense"), order_by=Example.id)
 
-    # relations:
-    entry_id = Column(Integer, ForeignKey("entry.id"))
-    entry = relationship("Entry", backref=backref('senses', order_by=id))
+        # details:
+        style_level = Column(String)
+        syntax_coding = Column(String)
+        subject_area = Column(String)
+        shortened_def = Column(String) # only in Longman
 
-    # less relevant details:
-    style_level = Column(String)
-    syntax_coding = Column(String)
-    subject_area = Column(String)
-
-
-class Entry(Base):
-    __tablename__ = 'entry'
-
-    # core:
-    id = Column(Integer, primary_key=True)
-    displayed_key = Column(String)
-
-    # less relevant details:
-    pron = Column(String)
-    intro_paragraph = Column(String)
-    style_level = Column(String)
-    part_of_speech = Column(String)
+        # foreign keys:
+        sense_id = Column(Integer, ForeignKey(dictname + '_sense.id'))
 
 
-class RelatedWord(Base):
-    __tablename__ = 'relatedword'
+    class Sense(Base):
+        __tablename__ = dictname + '_sense'
 
-    # core:
-    id = Column(Integer, primary_key=True)
-    title = Column(String)
-    url = Column(String)
+        # core:
+        id = Column(Integer, primary_key=True)
+        displayed_key = Column(String)
+        definition = Column(String)
 
-    # relations:
-    entry_id = Column(Integer, ForeignKey("entry.id"))
-    entry = relationship("Entry", backref=backref('relatedwords', order_by=id))
+        # relations:
+        examples = relationship("Example",
+            backref=backref("sense"), order_by=Example.id)
+        subsenses = relationship("SubSense",
+            backref=backref("sense"), order_by=SubSense.id)
+
+        # details:
+        style_level = Column(String)
+        syntax_coding = Column(String)
+        subject_area = Column(String)
+        shortened_def = Column(String) # only in Longman
+
+        # foreign keys:
+        entry_id = Column(Integer, ForeignKey(dictname + '_entry.id'))
+
+
+    ''' TODO
+    if self.enable_translations:
+        class Translation(Base):
+            pass
+    '''
+
+
+    class Entry(Base):
+        __tablename__ = dictname + '_entry'
+
+        # core:
+        id = Column(Integer, primary_key=True)
+        displayed_key = Column(String)
+
+        # relations:
+        senses = relationship("Sense",
+            backref=backref("entry"), order_by=Sense.id)
+
+        # details:
+        pron = Column(String)
+        intro_paragraph = Column(String)
+        style_level = Column(String)
+        part_of_speech = Column(String)
+
+    ''' TODO
+    class RelatedEntry(Base):
+        __tablename__ = 'relatedentry'
+
+        # core:
+        id = Column(Integer, primary_key=True)
+        title = Column(String)
+        url = Column(String)
+        part_of_speech = Column(String)
+        rel_type = Column(String) # 'related', 'phrase' or 'phrasal verb'
+
+        # relations:
+        entry_id = Column(Integer, ForeignKey("entry.id"))
+        entry = relationship("Entry", backref=backref('relatedwords', order_by=id))
+    '''
+    self.Example = Example
+    self.SubSense = SubSense
+    self.Sense = Sense
+    self.Entry = Entry
+
+
+class Models(object):
+    def __init__(self, dictname, enable_translations=False):
+        self.Base = declarative_base()
+        self.dictname = dictname
+        self.enable_translations = enable_translations
+        make_models(self)
+
 
 '''
 interfejs:

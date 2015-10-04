@@ -26,6 +26,7 @@ from addon.collection import get_plugin
 
 
 # - caching entries in a db!
+# - downloading related links ahead of time when entry was loaded IMPORTANT!!!
 # - autocomplete - lol
 # - add proper closing of word list log file
 
