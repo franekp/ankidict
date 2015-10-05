@@ -18,9 +18,10 @@ def make_models(self):
     """
     Base = self.Base
     dictname = self.dictname
+    mixins = self.mixins
 
 
-    class Example(Base):
+    class Example(mixins.Example, Base):
         __tablename__ = dictname + '_example'
 
         # core:
@@ -33,7 +34,7 @@ def make_models(self):
         subsense_id = Column(Integer, ForeignKey(dictname + '_subsense.id'))
 
 
-    class SubSense(Base):
+    class SubSense(mixins.SubSense, Base):
         __tablename__ = dictname + '_subsense'
         
         # core:
@@ -55,7 +56,7 @@ def make_models(self):
         sense_id = Column(Integer, ForeignKey(dictname + '_sense.id'))
 
 
-    class Sense(Base):
+    class Sense(mixins.Sense, Base):
         __tablename__ = dictname + '_sense'
 
         # core:
@@ -86,7 +87,7 @@ def make_models(self):
     '''
 
 
-    class Entry(Base):
+    class Entry(mixins.Entry, Base):
         __tablename__ = dictname + '_entry'
 
         # core:
@@ -125,10 +126,11 @@ def make_models(self):
 
 
 class Models(object):
-    def __init__(self, dictname, enable_translations=False):
+    def __init__(self, dictname, mixins, enable_translations=False):
         self.Base = declarative_base()
         self.dictname = dictname
         self.enable_translations = enable_translations
+        self.mixins = mixins
         make_models(self)
 
 

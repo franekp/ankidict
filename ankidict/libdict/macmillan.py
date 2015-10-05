@@ -3,9 +3,23 @@ from pagemodel import (Node, StrictNode, Text, ShallowText,
     Html, StrictHtml, ThisClass)
 from pagemodel.bsoup import PageModel
 from libdict.models import Models
+from libdict.cache import Cache
 
 
-models = Models("macmillan")
+# mixins will be needed for proper handling of dictionary links
+# like relatedwords
+class Mixins(object):
+    class Example(object):
+        pass
+    class SubSense(object):
+        pass
+    class Sense(object):
+        pass
+    class Entry(object):
+        pass
+
+
+models = Models("macmillan", mixins=Mixins)
 
 
 class Example(PageModel):
@@ -143,3 +157,21 @@ class Entry(PageModel):
             )
         )
     )
+
+
+def dict_query(query):
+    # do normalnego wyszukiwania
+    normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
+    # do wyszukiwania listy podobnych (jak trafisz, to i tak masz 'did you mean')
+    search_prefix = "http://www.macmillandictionary.com/spellcheck/british/?q="
+    url = ""
+    if query[:7] == "http://":
+        url = query
+    else:
+        url = normal_prefix + query.replace(" ","+")
+    response = urllib2.urlopen(url)
+    return response.read()
+
+
+class MacmillanCache(Cache):
+    pass

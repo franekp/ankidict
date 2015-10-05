@@ -42,7 +42,7 @@ import sys
 from addon import dict_window
 
 
-class Config:
+class Config(object):
   def __init__(self):
     self.enable_global_shortcut = False
     self.enable_debug_menu = False
@@ -62,8 +62,10 @@ class Config:
     self.add_examples_to_list = True
     self.log_wordlist = True
     self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
+    self.enable_old_unused_actions = False
 
-class AnkiDict:
+
+class AnkiDict(object):
   def __init__(self, config):
     mw.ankidict = self
     self.config = config
@@ -76,9 +78,35 @@ class AnkiDict:
 
     self.dictact = QAction("Macmillan dictionary", mw)
     self.dictact.setShortcut("Ctrl+D")
-    mw.connect(self.dictact, SIGNAL("triggered()"), self.dictionary)
+    mw.connect(self.dictact, SIGNAL("triggered()"), self.show_dictionary)
     mw.form.menuTools.insertAction(basep, self.dictact)
 
+    
+  def init(self):
+    """
+    Initializes the dictionary engine if needed.
+    Loads some files, etc.
+    If called before, does nothing.
+    """
+    if self.initialized: return True
+    # here can be some initialization
+    # return False to say: "Initialization failed"
+    self.dwnd = dict_window.DictWindow()
+    # MORE
+    self.initialized = True
+    return True
+
+  def show_dictionary(self):
+    """
+    Opens dictionary main window.
+    """
+    if not self.init(): return
+    self.dwnd.show()
+
+  
+
+class OldUnusedActions(object):
+  def __init__(self, config):
     self.hideact = QAction("Hide window", mw)
     self.hideact.setShortcut("Ctrl+M")
     mw.connect(self.hideact, SIGNAL("triggered()"), self.minimize)
@@ -95,28 +123,6 @@ class AnkiDict:
       mw.connect(self.globact, SIGNAL('onGlobalShortcut()'), self.global_call)
       self.globact.setShortcut(self.config.shortcut)
       self.globact.enable()
-
-  def init(self):
-    """
-    Initializes the dictionary engine if needed.
-    Loads some files, etc.
-    If called before, does nothing.
-    """
-    if self.initialized: return True
-    # here can be some initialization
-    # return False to say: "Initialization failed"
-    self.dwnd = dict_window.DictWindow()
-    # MORE
-    self.initialized = True
-    return True
-
-  def dictionary(self):
-    """
-    Opens dictionary main window.
-    """
-    if not self.init(): return
-    self.dwnd.show()
-    pass
 
   def snippet(self):
     """
