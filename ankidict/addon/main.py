@@ -103,6 +103,11 @@ class AnkiDict(object):
     if not self.init(): return
     self.dwnd.show()
 
+  def open_destination(self, dest):
+      """Take destinaation that is defined in libdict.models, start loading
+      it to caches and finally display it in dictionary view.
+      """
+      pass
   
 
 class OldUnusedActions(object):

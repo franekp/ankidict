@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pagemodel import (Node, StrictNode, Text,
+from pagemodel.html import (Node, StrictNode, Text, Constant,
                        Html, StrictHtml, ThisClass)
 # important: Text should have some subset of string methods available
 from pagemodel.bsoup import PageModel
@@ -243,6 +243,24 @@ THISCLASS_PAGE = '''
 '''
 
 
+class ConstantPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("div.doesnotmatter")(
+            const=Constant("myconstant")
+        )
+    )
+
+
+CONSTANT_PAGE = '''
+<html><body>
+<div class='doesnotmatter'>
+    irrelevant data
+</div>
+</html></body>
+'''
+
+
 class PagemodelTests(TestCase):
     def test_simple(self):
         res = SimplePage(SIMPLE_PAGE)
@@ -323,3 +341,7 @@ class PagemodelTests(TestCase):
             }
         }
         self.assertEqual(res, exp)
+
+    def test_constant(self):
+        res = ConstantPage(CONSTANT_PAGE)
+        self.assertEqual(res, {'const': 'myconstant'})

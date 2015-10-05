@@ -8,6 +8,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 
 
+class Destination(object):
+    def __init__(self, query=None, link=None):
+        """Accept either a string with user-entered query or a link model
+        instance.
+        """
+        assert query is not None or link is not None
+        assert query is None or link is None
+
+
 def make_models(self):
     """
     IMPORTANT: use distinct declarative_base for each dictionary
@@ -80,11 +89,20 @@ def make_models(self):
         entry_id = Column(Integer, ForeignKey(dictname + '_entry.id'))
 
 
-    ''' TODO
-    if self.enable_translations:
-        class Translation(Base):
-            pass
-    '''
+    class Link(mixins.Link, Base):
+        __tablename__ = dictname + '_link'
+
+        # core:
+        id = Column(Integer, primary_key=True)
+        key = Column(String)
+        url = Column(String)
+        link_type = Column(String) # 'related', 'phrase' or 'phrasal verb'
+
+        # foreign keys:
+        entry_id = Column(Integer, ForeignKey(dictname + '_entry.id'))
+
+        # details:
+        part_of_speech = Column(String)
 
 
     class Entry(mixins.Entry, Base):
@@ -93,10 +111,13 @@ def make_models(self):
         # core:
         id = Column(Integer, primary_key=True)
         displayed_key = Column(String)
+        url = Column(String)
 
         # relations:
         senses = relationship("Sense",
             backref=backref("entry"), order_by=Sense.id)
+        links = relationship("Link", 
+            backref=backref("entry"), order_by=Link.id)
 
         # details:
         pron = Column(String)
@@ -104,32 +125,30 @@ def make_models(self):
         style_level = Column(String)
         part_of_speech = Column(String)
 
-    ''' TODO
-    class RelatedEntry(Base):
-        __tablename__ = 'relatedentry'
 
-        # core:
-        id = Column(Integer, primary_key=True)
-        title = Column(String)
-        url = Column(String)
-        part_of_speech = Column(String)
-        rel_type = Column(String) # 'related', 'phrase' or 'phrasal verb'
-
-        # relations:
-        entry_id = Column(Integer, ForeignKey("entry.id"))
-        entry = relationship("Entry", backref=backref('relatedwords', order_by=id))
-    '''
     self.Example = Example
     self.SubSense = SubSense
     self.Sense = Sense
     self.Entry = Entry
 
 
+class DefaultMixins(object):
+    class Example(object):
+        pass
+    class SubSense(object):
+        pass
+    class Sense(object):
+        pass
+    class Entry(object):
+        pass
+    class Link(object):
+        pass
+
+
 class Models(object):
-    def __init__(self, dictname, mixins, enable_translations=False):
+    def __init__(self, dictname, mixins=DefaultMixins):
         self.Base = declarative_base()
         self.dictname = dictname
-        self.enable_translations = enable_translations
         self.mixins = mixins
         make_models(self)
 

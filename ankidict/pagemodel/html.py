@@ -198,6 +198,15 @@ class Text(BaseLeaf):
     # Text.not_strip (or Text.with_whitespace or Text.retain_spaces)
 
 
+class Constant(BaseLeaf):
+    def __init__(self, val):
+        self.val = val
+        super(Constant, self).__init__()
+
+    def extract(self, selector):
+        return {self.fieldlabel: self.val}
+
+
 class ThisClass(BaseLeaf):
     def __init__(self):
         self.this_class = None

@@ -9,7 +9,7 @@ import urllib2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from libdict.macmillan import Entry, models
+from libdict.macmillan import models, query_site
 
 
 words = [
@@ -28,26 +28,11 @@ words = [
 ]
 
 
-def dict_query(query):
-    # do normalnego wyszukiwania
-    normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
-    # do wyszukiwania listy podobnych (jak trafisz, to i tak masz 'did you mean')
-    search_prefix = "http://www.macmillandictionary.com/spellcheck/british/?q="
-    url = ""
-    if query[:7] == "http://":
-        url = query
-    else:
-        url = normal_prefix + query.replace(" ","+")
-    response = urllib2.urlopen(url)
-    return response.read()
-
-
 class AttrDict(dict):
     def __getattr__(self, attr):
         return self[attr]
     def pprint(self):
         print(json.dumps(self, sort_keys=True, indent=2))
-
 
 
 '''
@@ -59,6 +44,7 @@ Entry:
     pron - 2
     part_of_speech - 2
     relatedwords - 0
+    url - 2
 
 Sense:
     displayed_key - 2
@@ -81,7 +67,7 @@ RelatedWord:
 class BaseTests(object):
     """Subclasses must implement result_hook."""
     def test_phrase_take_on(self):
-        res = self.result_hook(Entry(dict_query("take on")))
+        res = self.result_hook(query_site("take on"))
         # res.pprint()
         senses = res.senses
 
@@ -105,13 +91,13 @@ class BaseTests(object):
         self.assertEqual(senses[4].examples[0].displayed_key, 'take it on/upon yourself (to do something)')
 
     def test_phrase_yours_truly(self):
-        res = self.result_hook(Entry(dict_query("yours truly")))
+        res = self.result_hook(query_site("yours truly"))
         
         # Entry.style_level
         self.assertEqual(res.style_level, 'informal')
 
     def test_phrase_yours(self):
-        res = self.result_hook(Entry(dict_query("yours")))
+        res = self.result_hook(query_site("yours"))
         # Entry.intro_paragraph
         self.assertTrue('Her eyes are darker than yours are.' in res.intro_paragraph)
         s = 'It can refer to a singular or plural noun, and it can be the subject,' \
@@ -121,16 +107,22 @@ class BaseTests(object):
         self.assertEqual(res.pron, u'/jɔː(r)z/')
         # Entry.part_of_speech
         self.assertEqual(res.part_of_speech, 'pronoun')
+        # Entry.url
+        self.assertEqual(res.url,
+            'http://www.macmillandictionary.com/dictionary/british/yours_1')
 
     def test_phrase_take_off(self):
-        res = self.result_hook(Entry(dict_query("take off")))
+        res = self.result_hook(query_site("take off"))
         senses = res.senses
         # Sense.style_level
         self.assertEqual(senses[4].style_level, 'informal')
         self.assertEqual(senses[5].style_level, 'informal')
+        # Entry.url
+        self.assertEqual(res.url,
+            'http://www.macmillandictionary.com/dictionary/british/take-off_1')
 
     def test_phrase_air(self):
-        res = self.result_hook(Entry(dict_query("air")))
+        res = self.result_hook(query_site("air"))
         senses = res.senses
         # res.pprint()
         # Sense.style_level
@@ -180,4 +172,3 @@ class MacmillanDBTests(TestCase, BaseTests):
         res = None
         return self.session.query(models.Entry).filter_by(id=id_).first()
 
-    

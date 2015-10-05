@@ -1,4 +1,5 @@
-# from . import models
+import urllib2
+
 from pagemodel import (Node, StrictNode, Text, ShallowText,
     Html, StrictHtml, ThisClass)
 from pagemodel.bsoup import PageModel
@@ -6,20 +7,10 @@ from libdict.models import Models
 from libdict.cache import Cache
 
 
-# mixins will be needed for proper handling of dictionary links
-# like relatedwords
-class Mixins(object):
-    class Example(object):
-        pass
-    class SubSense(object):
-        pass
-    class Sense(object):
-        pass
-    class Entry(object):
-        pass
+__all__ = ["models", "MacmillanCache"]
 
 
-models = Models("macmillan", mixins=Mixins)
+models = Models("macmillan")
 
 
 class Example(PageModel):
@@ -159,18 +150,18 @@ class Entry(PageModel):
     )
 
 
-def dict_query(query):
+def query_site(query):
     # do normalnego wyszukiwania
     normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
-    # do wyszukiwania listy podobnych (jak trafisz, to i tak masz 'did you mean')
-    search_prefix = "http://www.macmillandictionary.com/spellcheck/british/?q="
     url = ""
     if query[:7] == "http://":
         url = query
     else:
         url = normal_prefix + query.replace(" ","+")
     response = urllib2.urlopen(url)
-    return response.read()
+    res = Entry(response.read())
+    res.url = response.geturl()
+    return res
 
 
 class MacmillanCache(Cache):
