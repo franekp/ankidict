@@ -37,7 +37,7 @@ class AttrDict(dict):
 
 '''
 Entry:
-    displayed_key - 1
+    original_key - 1
     len(senses) - 1
     style_level - 1
     intro_paragraph - 1
@@ -47,7 +47,7 @@ Entry:
     url - 2
 
 Sense:
-    displayed_key - 2
+    original_key - 2
     definition - 1
     len(examples) - 1
     style_level - 3
@@ -55,7 +55,7 @@ Sense:
     syntax_coding - 4
 
 Example:
-    displayed_key - 1
+    original_key - 1
     content - 2
 
 RelatedWord:
@@ -71,24 +71,24 @@ class BaseTests(object):
         # res.pprint()
         senses = res.senses
 
-        # Entry.displayed_key
-        self.assertEqual(res.displayed_key, 'take on')
+        # Entry.original_key
+        self.assertEqual(res.original_key, 'take on')
         # len(Entry.senses)
         self.assertEqual(len(senses), 5)
         
         # Sense.definition
         self.assertEqual(senses[0].definition, 'to start to employ someone')
-        # Sense.displayed_key
-        self.assertEqual(senses[4].displayed_key, 'take on | take upon')
-        self.assertEqual(senses[1].displayed_key, 'take on something')
+        # Sense.original_key
+        self.assertEqual(senses[4].original_key, 'take on | take upon')
+        self.assertEqual(senses[1].original_key, 'take on something')
         # len(Sense.examples)
         self.assertEqual(len(senses[1].examples), 2)
 
         # Example.content
         self.assertEqual(senses[1].examples[0].content, 'Our website is taking on a new look.')
         self.assertEqual(senses[4].examples[0].content, 'My mother took it on herself to invite them.')
-        # Example.displayed_key
-        self.assertEqual(senses[4].examples[0].displayed_key, 'take it on/upon yourself (to do something)')
+        # Example.original_key
+        self.assertEqual(senses[4].examples[0].original_key, 'take it on/upon yourself (to do something)')
 
     def test_phrase_yours_truly(self):
         res = self.result_hook(query_site("yours truly"))

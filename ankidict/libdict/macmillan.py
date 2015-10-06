@@ -18,7 +18,7 @@ class Example(PageModel):
 
     page_tree = StrictHtml(
         Node.optional("strong")(
-            displayed_key=Text()
+            original_key=Text()
         ),
         Node.optional("div.SEP"),
         Node("p.EXAMPLE")(
@@ -47,7 +47,7 @@ class SubSense(PageModel):
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
                   "> span.MULTIWORD span.BASE").concat(" | ")(
-            displayed_key=Text()
+            original_key=Text()
         ),
         Node.list("> div.EXAMPLES")(
             examples=Example()
@@ -76,7 +76,7 @@ class Sense(PageModel):
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
                   "> span.MULTIWORD span.BASE").concat(" | ")(
-            displayed_key=Text()
+            original_key=Text()
         ),
         Node.list("> div.EXAMPLES")(
             examples=Example()
@@ -107,7 +107,7 @@ class Entry(PageModel):
 
     page_tree = Html(
         Node("div#headword div#headwordleft span.BASE")(
-            displayed_key=Text()
+            original_key=Text()
         ),
         
         Node("div#headbar")(

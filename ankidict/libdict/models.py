@@ -35,7 +35,7 @@ def make_models(self):
 
         # core:
         id = Column(Integer, primary_key=True)
-        displayed_key = Column(String)
+        original_key = Column(String)
         content = Column(String)
 
         # foreign keys:
@@ -48,7 +48,7 @@ def make_models(self):
         
         # core:
         id = Column(Integer, primary_key=True)
-        displayed_key = Column(String)
+        original_key = Column(String)
         definition = Column(String)
 
         # relations:
@@ -70,7 +70,7 @@ def make_models(self):
 
         # core:
         id = Column(Integer, primary_key=True)
-        displayed_key = Column(String)
+        original_key = Column(String)
         definition = Column(String)
 
         # relations:
@@ -110,7 +110,7 @@ def make_models(self):
 
         # core:
         id = Column(Integer, primary_key=True)
-        displayed_key = Column(String)
+        original_key = Column(String)
         url = Column(String)
 
         # relations:

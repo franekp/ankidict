@@ -228,7 +228,7 @@ class WordListView(BaseView):
 		
 	
 	def addSense(self, sense):
-		tr = "<tr><td>" + sense.get_word_html() + "</td><td>" + sense.get_def_html() + "</td></tr>"
+		tr = "<tr><td>" + sense.original_key + "</td><td>" + sense.definition + "</td></tr>"
 		text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
 		text = 'border="2"'.join(text.split('border="0"'))
 		self.text_edit.setHtml(text)
@@ -297,7 +297,7 @@ class SearchResultsView(BaseView):
 		return True
 
 
-class DictEntryView(BaseView):
+class OldDictEntryView(BaseView):
 	def __init__(self, entry, dwnd):
 		super(DictEntryView, self).__init__()
 		self.entry = entry
@@ -355,7 +355,70 @@ class DictEntryView(BaseView):
 		return True
 
 
-class SenseWidget(QWidget):
+class DictEntryView(BaseView):
+	def __init__(self, entry):
+		dwnd = get_plugin().dwnd
+		super(DictEntryView, self).__init__()
+		self.entry = entry
+		self.dwnd = dwnd
+		left_scroll = QScrollArea()
+		right_scroll = QScrollArea()
+		left_widget = QWidget()
+		right_widget = QWidget()
+		self.left_vbox = QVBoxLayout()
+		self.right_vbox = QVBoxLayout()
+		self.main_hbox = QHBoxLayout()
+		self.examples_widget = ExamplesWidget(self)
+		entry_all = entry.senses
+		for i in entry_all:
+			self.left_vbox.addWidget(SenseWidget(i, self))
+		
+		for link in entry.links:
+			title = link.key
+			href = link.url
+			btn = QLabel('<a href="related" style="text-decoration: none; color: black;"><strong>' + title + "</strong></a>")
+			# TODO change it to use 'Destination' object
+			# tej lambdy NIE można uprościć, bo inaczej się zbuguje:
+			btn.linkActivated.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
+			btn.show()
+			btn.setWordWrap(True)
+			def make_line():
+				fr = QFrame()
+				#fr.setStyleSheet("background-color: white;");
+				fr.setFrameShape(QFrame.HLine)
+				fr.setFrameShadow(QFrame.Sunken)
+				fr.setLineWidth(2)
+				#fr.setMidLineWidth(1)
+				return fr
+			self.right_vbox.addWidget(btn)
+			self.right_vbox.addWidget(make_line())
+		
+		left_scroll.setWidgetResizable(True)
+		right_scroll.setWidgetResizable(True)
+		left_widget.setLayout(self.left_vbox)
+		right_widget.setLayout(self.right_vbox)
+		left_widget.show()
+		right_widget.show()
+		left_scroll.setWidget(left_widget)
+		right_scroll.setWidget(right_widget)
+		right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+		# TODO: potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
+		right_scroll.setMaximumWidth(get_plugin().config.related_defs_panel_width)
+		left_column = QVBoxLayout()
+		left_column.addWidget(left_scroll)
+		left_column.addWidget(self.examples_widget)
+		self.main_hbox.addLayout(left_column)
+		self.main_hbox.addWidget(right_scroll)
+		self.setLayout(self.main_hbox)
+		
+	def getTitle(self):
+		return self.entry.original_key
+	def isHistRecorded(self):
+		return True
+
+
+
+class OldSenseWidget(QWidget):
 	def __init__(self, sense, entry_view):
 		super(SenseWidget, self).__init__()
 		self.sense = sense
@@ -469,6 +532,144 @@ class SenseWidget(QWidget):
 		self.dwnd.wordlist_view.addSense(self.sense)
 		collection.add_note(self.sense.get_def_html(), self.sense.get_word_html())
 
+
+class SenseWidget(QWidget):
+	def format_definition_html(self):
+		wyn = ""
+		if self.sense.style_level != "":
+			wyn += "<i>"+self.sense.style_level+"</i>"
+		return wyn + self.sense.definition
+
+	def format_key_html(self):
+		keys = [s.strip() for s in self.sense.original_key.split("|")]
+		return "<strong>"+(" </strong ><i> or </i><strong> ".join(keys))+"</strong>"
+
+	def format_erased_definition_html(self):
+		wyn = ""
+		if self.sense.style_level != "":
+			wyn += "<i>"+self.sense.style_level+"</i>"
+		tmp_def = self.sense.definition
+		keys = [s.strip() for s in self.sense.original_key.split("|")]
+		for i in keys:
+			tmp_def = " ____ ".join(tmp_def.split(i))
+		return wyn + tmp_def
+
+	def __init__(self, sense, entry_view):
+		super(SenseWidget, self).__init__()
+		self.sense = sense
+		self.entry_view = entry_view
+		self.dwnd = get_plugin().dwnd
+		self.main_vbox = QVBoxLayout()
+		self.def_hbox = QHBoxLayout()
+		
+		self.main_vbox.setMargin(0)
+		self.def_hbox.setMargin(0)
+		self.main_vbox.setSpacing(0)
+		self.def_hbox.setSpacing(0)
+		
+		tmplabel = QLabel(self.format_key_html() + "  ---  " + self.format_definition_html())
+		tmplabel.setWordWrap(True)
+		tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+		#tmplabel.setScaledContents(True)
+		tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+		
+		self.main_vbox.addWidget(tmplabel)
+		btn = QPushButton("ADD")
+		btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+		btn.clicked.connect(self.saveDef)
+		
+		self.examples_to_hide = []
+		
+		#self.main_vbox.addLayout(self.def_hbox)
+		for e in sense.examples:
+			key = e.original_key
+			ex = e.content
+			tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
+			if key:
+				tmp += "<b> "+key+" </b>"
+			tmp += ex
+			tmp += "</i></a>"
+			tmplabel = QLabel(tmp)
+			tmplabel.setWordWrap(True)
+			tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+			tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+			def add_ex_func(k,e):
+				def f():
+					self.entry_view.examples_widget.addExample(k, e)
+					self.entry_view.dwnd.wordlist_view.addExample(k, e, entry_view.entry.original_key)
+				return f
+			tmplabel.linkActivated.connect(add_ex_func(key, ex))
+			self.examples_to_hide.append(tmplabel)
+		self.examples_all = self.examples_to_hide
+		self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
+		
+		def make_frame():
+			fr = QFrame()
+			fr.setStyleSheet("background-color: white;");
+			fr.setFrameShape(QFrame.Box)
+			fr.setFrameShadow(QFrame.Raised)
+			fr.setLineWidth(2)
+			fr.setMidLineWidth(2)
+			return fr
+		def make_hidden_examples():
+			w = QWidget()
+			w.onLeaveEvent = lambda e: None
+			if self.examples_all == []:
+				return w
+			w.setMouseTracking(True)
+			lab = QLabel('<a href="example" style="'+get_plugin().config.example_style+'"><b> ... ... ... </b></a>')
+			lab.hide()
+			layout = QVBoxLayout()
+			for i in self.examples_all:
+				layout.addWidget(i)
+			layout.setMargin(2)
+			layout.addWidget(lab)
+			w.setLayout(layout)
+			def onEnterEvent(event):
+				# here showing examples (takie onHover)
+				for i in self.examples_to_hide:
+					i.show()
+				lab.hide()
+			def onLeaveEvent(event):
+				# here hiding examples (takie onUnHover)
+				for i in self.examples_to_hide:
+					i.hide()
+				if self.examples_to_hide != []:
+					lab.show()
+			def mouseMoveEvent(event):
+				if event.x() < get_plugin().config.examples_hover_area_width :
+					onEnterEvent(event)
+				else:
+					onLeaveEvent(event)
+			#w.enterEvent = onEnterEvent
+			#w.leaveEvent = onLeaveEvent
+			w.mouseMoveEvent = mouseMoveEvent
+			w.onLeaveEvent = onLeaveEvent
+			w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+			onLeaveEvent(None)
+			w.show()
+			return w
+		self.hidden_examples = make_hidden_examples()
+		self.main_vbox.addWidget(self.hidden_examples)
+		frame = make_frame()
+		frame.setLayout(self.main_vbox)
+		self.def_hbox.addWidget(frame)
+		self.def_hbox.addWidget(btn)
+		
+		
+		self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+		
+		self.setLayout(self.def_hbox)
+	
+	# in the settings should be whether to hide the examples or not
+	def leaveEvent(self, event):
+		self.hidden_examples.onLeaveEvent(event)
+	
+	def saveDef(self):
+		self.dwnd.wordlist_view.addSense(self.sense)
+		collection.add_note(self.format_key_html(), self.format_erased_definition_html())
+
+
 class Example(QLabel):
 		def __init__(self, txt):
 			super(Example, self).__init__('<a href="example" style="'+get_plugin().config.example_style+'">'+txt+'</a>')
@@ -495,8 +696,8 @@ class ExamplesWidget(QWidget):
 		#self.addExample("","here should be some examples...")
 		self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 	def addExample(self, k, e):
-		k = "____".join(k.split(self.entry_view.entry.word))
-		e = "____".join(e.split(self.entry_view.entry.word))
+		k = "____".join(k.split(self.entry_view.entry.original_key))
+		e = "____".join(e.split(self.entry_view.entry.original_key))
 		txt = '<i>'
 		if k:
 			txt += "<b>"+k+" </b>"
@@ -514,7 +715,7 @@ class ExamplesWidget(QWidget):
 	def addToCollection(self):
 		self.mouseReleaseEvent(None)
 		q = "<br />".join(map((lambda a: a.txt), self.examples))
-		collection.add_note(q, "<strong>"+self.entry_view.entry.word+"</strong>")
+		collection.add_note(q, "<strong>"+self.entry_view.entry.original_key+"</strong>")
 		for i in self.examples:
 			i.hide()
 		self.examples = []
