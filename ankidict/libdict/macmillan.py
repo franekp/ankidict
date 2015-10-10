@@ -182,8 +182,8 @@ class Entry(PageModel):
 
     @classmethod
     def postproc(cls, dic):
-        dic['links'] = dic.pop('phrs', [])
-        dic['links'] += dic.pop('phrvbs', []) + dic.pop('relwrds', [])
+        dic['links'] = dic.pop('relwrds', [])
+        dic['links'] += dic.pop('phrvbs', []) + dic.pop('phrs', [])
         return dic
     
     # TODO TODO
