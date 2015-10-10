@@ -52,7 +52,7 @@ class SubSense(PageModel):
         Node.list("> div.EXAMPLES")(
             examples=Example()
         ),
-        Node("> div.THES"),
+        Node.optional("> div.THES"),
     )
 
 
@@ -81,7 +81,7 @@ class Sense(PageModel):
         Node.list("> div.EXAMPLES")(
             examples=Example()
         ),
-        # Node("> div.THES"),
+        Node.optional("> div.THES"),
         Node.optional("> ol.SUB-SENSES")(
             Node.list("div.SUB-SENSE-CONTENT")(
                 subsenses=SubSense()
