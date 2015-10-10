@@ -39,6 +39,7 @@ class PageModel(BasePageModel, BaseLeaf):
     @classmethod
     def extract_unboxed(cls, selector):
         res = cls.page_tree.extract(selector)
+        cls.postproc(res)
         return cls.model_class(**res)
 
     def extract(self, selector):
@@ -51,6 +52,10 @@ class PageModel(BasePageModel, BaseLeaf):
             return res
         else:
             return cls.extract_unboxed(Selector(page_text))
+
+    @classmethod
+    def postproc(cls, dic):
+        return dic
 
 
 class Selector(object):
@@ -77,3 +82,6 @@ class Selector(object):
 
     def textlist(self):
         return list(self.sel.strings)
+
+    def get_attr(self, attr_name):
+        return self.sel[attr_name]

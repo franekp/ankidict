@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from pagemodel.html import (Node, StrictNode, Text, Constant,
-                       Html, StrictHtml, ThisClass)
+                       Html, StrictHtml, ThisClass, Attr)
 # important: Text should have some subset of string methods available
 from pagemodel.bsoup import PageModel
 
@@ -261,6 +261,69 @@ CONSTANT_PAGE = '''
 '''
 
 
+class AttrPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("a.mylink")(
+            href=Attr("href"),
+            title=Attr("title"),
+            text=Text(),
+        )
+    )
+
+
+ATTR_PAGE = '''
+<html><body>
+<a class='mylink' href=' http://address.net' title='  Link Title  '>
+    Link Text
+</div>
+</html></body>
+'''
+
+
+class PostprocPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node("div.lower")(
+            lower=Text()
+        )
+    )
+    @classmethod
+    def postproc(cls, dic):
+        dic['upper'] = dic.pop('lower', '').upper()
+        return dic
+
+
+POSTPROC_PAGE = '''
+<html><body>
+<div class='lower'>
+    some lower case text
+</div>
+</html></body>
+'''
+
+
+class TakefirstPage(PageModel):
+    model_class = dict
+    page_tree = Html(
+        Node.list("div.listelem").take_first()(
+            firstelem=Text()
+        )
+    )
+
+
+TAKEFIRST_PAGE = '''
+<html><body>
+<div class='listelem'>
+    First Elem
+</div>
+<div class='listelem'>
+    Second Elem
+</div>
+</html></body>
+'''
+
+
 class PagemodelTests(TestCase):
     def test_simple(self):
         res = SimplePage(SIMPLE_PAGE)
@@ -345,3 +408,20 @@ class PagemodelTests(TestCase):
     def test_constant(self):
         res = ConstantPage(CONSTANT_PAGE)
         self.assertEqual(res, {'const': 'myconstant'})
+
+    def test_attr(self):
+        res = AttrPage(ATTR_PAGE)
+        exp = {
+            'href': 'http://address.net',
+            'title': 'Link Title',
+            'text': 'Link Text',
+        }
+        self.assertEqual(res, exp)
+
+    def test_postproc(self):
+        res = PostprocPage(POSTPROC_PAGE)
+        self.assertEqual(res, {'upper': 'SOME LOWER CASE TEXT'})
+
+    def test_takefirst(self):
+        res = TakefirstPage(TAKEFIRST_PAGE)
+        self.assertEqual(res, {'firstelem': 'First Elem'})

@@ -29,7 +29,7 @@ class Cache(object):
         """
         pass
 
-    def open_destination(self, dest):
+    def open_destination(self, dest, callback):
         """Interface method for use in main program.
         Each of the subclasses define it. Return a list
         of elements which satisfies type(element) in [Sense, Entry]

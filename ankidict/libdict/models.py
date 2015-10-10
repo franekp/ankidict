@@ -96,7 +96,7 @@ def make_models(self):
         id = Column(Integer, primary_key=True)
         key = Column(String)
         url = Column(String)
-        link_type = Column(String) # 'related', 'phrase' or 'phrasal verb'
+        link_type = Column(String) # 'related words', 'phrases' or 'phrasal verbs'
 
         # foreign keys:
         entry_id = Column(Integer, ForeignKey(dictname + '_entry.id'))
@@ -130,6 +130,7 @@ def make_models(self):
     self.SubSense = SubSense
     self.Sense = Sense
     self.Entry = Entry
+    self.Link = Link
 
 
 class DefaultMixins(object):

@@ -25,6 +25,7 @@ words = [
     'since when', # phrase finding in entry for 'since'
     # some crazy h2.VARIANT
     'http://www.macmillandictionary.com/dictionary/british/yours_2',
+    'make a difference', # missing div.THES element
 ]
 
 
@@ -43,7 +44,7 @@ Entry:
     intro_paragraph - 1
     pron - 2
     part_of_speech - 2
-    relatedwords - 0
+    links - 0
     url - 2
 
 Sense:
@@ -58,8 +59,8 @@ Example:
     original_key - 1
     content - 2
 
-RelatedWord:
-    ...
+Link:
+    TODO
 
 '''
 

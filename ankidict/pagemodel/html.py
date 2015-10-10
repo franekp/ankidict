@@ -91,8 +91,8 @@ class Html(BaseNode):
 
 
 class FullNode(BaseNode):
-    @staticmethod
-    def reduce_dict_list(dlist):
+    @classmethod
+    def reduce_dict_list(cls, dlist):
         res = {}
         for dic in dlist:
             res.update(dic)
@@ -100,13 +100,21 @@ class FullNode(BaseNode):
             res[k] = [dic[k] for dic in dlist if k in dic]
         return res
 
-    @staticmethod
-    def concat_dict_list(dlist, sep):
-        res = {}
-        for dic in dlist:
-            res.update(dic)
+    @classmethod
+    def concat_dict_list(cls, dlist, sep):
+        res = cls.reduce_dict_list(dlist)
         for k in res:
-            res[k] = sep.join([dic[k] for dic in dlist if k in dic])
+            res[k] = sep.join(res[k])
+        return res
+
+    @classmethod
+    def takefirst_dict_list(cls, dlist):
+        res = cls.reduce_dict_list(dlist)
+        try:
+            for k in res:
+                res[k] = res[k][0]
+        except IndexError:
+            raise ValueError("take_first applied to an empty list!")
         return res
 
     def extract(self, selector):
@@ -116,6 +124,8 @@ class FullNode(BaseNode):
         if self.node.is_list:
             if self.node.concat_sep is not None:
                 return self.concat_dict_list(res_list, self.node.concat_sep)
+            elif self.node.is_take_first:
+                return self.takefirst_dict_list(res_list)
             else:
                 return self.reduce_dict_list(res_list)
         else:
@@ -131,6 +141,7 @@ class Node(BaseNode):
         self.is_opt = False
         self.is_list = False
         self.concat_sep = None
+        self.is_take_first = False
         for i in args:
             if isinstance(i, basestring):
                 self.alts.append(i)
@@ -160,9 +171,19 @@ class Node(BaseNode):
         return res
 
     def concat(self, s):
+        if self.is_take_first:
+            raise TypeError("take_first and concat are mutually exclusive!")
         if not self.is_list:
             raise TypeError("You can only concat a list of strings")
         self.concat_sep = s
+        return self
+
+    def take_first(self):
+        if self.concat_sep is not None:
+            raise TypeError("take_first and concat are mutually exclusive!")
+        if not self.is_list:
+            raise TypeError("You can only take_first from a list")
+        self.is_take_first = True
         return self
 
     def validate_sel_list_len(self, size):
@@ -196,6 +217,15 @@ class Text(BaseLeaf):
     # TODO
     # Text.replace("$", "").lower()
     # Text.not_strip (or Text.with_whitespace or Text.retain_spaces)
+
+
+class Attr(BaseLeaf):
+    def __init__(self, attr):
+        super(Attr, self).__init__()
+        self.attr = attr
+
+    def extract(self, selector):
+        return {self.fieldlabel: selector.get_attr(self.attr).strip()}
 
 
 class Constant(BaseLeaf):

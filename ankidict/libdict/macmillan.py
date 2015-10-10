@@ -1,7 +1,7 @@
 import urllib2
 
-from pagemodel import (Node, StrictNode, Text, ShallowText,
-    Html, StrictHtml, ThisClass)
+from pagemodel.html import (Node, StrictNode, Text, ShallowText, Attr,
+    Html, StrictHtml, ThisClass, Constant)
 from pagemodel.bsoup import PageModel
 from libdict.models import Models
 from libdict.cache import Cache
@@ -81,7 +81,7 @@ class Sense(PageModel):
         Node.list("> div.EXAMPLES")(
             examples=Example()
         ),
-        Node("> div.THES"),
+        # Node("> div.THES"),
         Node.optional("> ol.SUB-SENSES")(
             Node.list("div.SUB-SENSE-CONTENT")(
                 subsenses=SubSense()
@@ -90,16 +90,51 @@ class Sense(PageModel):
     )
 
 
-class RelatedLink(PageModel):
-    model_class = None
+class RelatedWordLink(PageModel):
+    model_class = models.Link
 
-    page_tree = Html() # TODO
+    page_tree = Html(
+        Node("a")(
+            # FIXME FIXME
+            Node.optional("> :not(.arl8)")(
+                Node.list("span").concat(" ")(
+                    #key=Text()
+                ),
+                Node("span.PART-OF-SPEECH")(
+                    part_of_speech=Text()
+                ),
+            ),
+            key=Attr("title"),
+            url=Attr("href"),
+            link_type=Constant("related words"),
+        )
+    )
 
 
 class PhraseLink(PageModel):
-    model_class = None
+    model_class = models.Link
 
-    page_tree = Html() # TODO
+    page_tree = Html(
+        Node("a")(
+            url=Attr("href"),
+            key=Attr("title"),
+            link_type=Constant("phrases"),
+            part_of_speech=Constant("phrase"),
+        )
+    )
+
+
+class PhrasalVerbLink(PageModel):
+    model_class = models.Link
+
+    page_tree = Html(
+        Node("a")(
+            url=Attr("href"),
+            key=Attr("title"),
+            link_type=Constant("phrasal verbs"),
+            part_of_speech=Constant("phrasal verb"),
+        )
+    )
 
 
 class Entry(PageModel):
@@ -129,25 +164,30 @@ class Entry(PageModel):
         ),
         Node.optional("div#phrases_container > ul")(
             Node.list("li")(
-                # here code from macm_parser_css is outdated,
-                # and now they are links to separate dictionary definitions
-                # so this is TODO
-                # phrases=PhraseLink()
+                phrs=PhraseLink()
+                
             )
         ),
         Node.optional("div#phrasal_verbs_container > ul")(
             Node.list("li")(
-                # TODO
-                # phrasal_verbs=PhraseLink()
+                phrvbs=PhrasalVerbLink()
             )
         ),
         Node.optional("div.entrylist > ul")(
             Node.list("li")(
-                # TODO
-                # related=RelatedLink()
+                relwrds=RelatedWordLink()
             )
         )
     )
+
+    @classmethod
+    def postproc(cls, dic):
+        dic['links'] = dic.pop('phrs', [])
+        dic['links'] += dic.pop('phrvbs', []) + dic.pop('relwrds', [])
+        return dic
+    
+    # TODO TODO
+    # in postproc, convert all Nones to empty strings (in every model)
 
 
 def query_site(query):
