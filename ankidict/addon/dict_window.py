@@ -5,12 +5,12 @@ from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
-from addon import macm_parser_css
 from addon import collection
 from libdict import macmillan
 import re
 import datetime
 from addon.collection import get_plugin
+from addon import basegui
 
 # TODO LIST:
 
@@ -50,28 +50,17 @@ from addon.collection import get_plugin
 # main dictionary window
 
 
-class DictWindow(QtGui.QWidget):
+def tostr(a):
+    if a is None:
+        return ""
+    else:
+        return a
+
+
+class DictWindow(basegui.DictWindow):
     
     def __init__(self):
         super(DictWindow, self).__init__()
-        def conf_btn(btn):
-            btn.setMaximumWidth(60)
-            btn.setStyleSheet("font-weight: bold; font-family: monospace")
-        self.search_input = QLineEdit(":welcome")
-        self.search_button = QPushButton("SEARCH")
-        self.prev_button = QPushButton("<-")
-        self.next_button = QPushButton("->")
-        self.prev_button.setEnabled(False)
-        self.next_button.setEnabled(False)
-        self.prev_button.setMaximumWidth(66)
-        self.next_button.setMaximumWidth(66)
-        self.wordlist_button = QPushButton("LIST")
-        self.settings_button = QPushButton("==C")
-        conf_btn(self.prev_button)
-        conf_btn(self.next_button)
-        #conf_btn(self.search_button)
-        #conf_btn(self.wordlist_button)
-        conf_btn(self.settings_button)
         
         self.welcome_view = WelcomeView()
         self.wordlist_view = WordListView()
@@ -81,8 +70,8 @@ class DictWindow(QtGui.QWidget):
         self.search_button.clicked.connect(self.dictSearchEvent)
         self.prev_button.clicked.connect(self.prevView)
         self.next_button.clicked.connect(self.nextView)
-        self.wordlist_button.clicked.connect(lambda : self.setView(self.wordlist_view))
-        self.settings_button.clicked.connect(lambda : self.setView(self.settings_view))
+        self.wordlist_button.clicked.connect(lambda: self.setView(self.wordlist_view))
+        self.settings_button.clicked.connect(lambda: self.setView(self.settings_view))
         
         # after pressing prev_button:
         self.prev_views = []
@@ -90,22 +79,9 @@ class DictWindow(QtGui.QWidget):
         self.next_views = []
         # what is now displayed:
         self.current_view = self.welcome_view
-        self.head_hbox = QHBoxLayout()
-        self.head_hbox.addWidget(self.prev_button)
-        self.head_hbox.addWidget(self.next_button)
-        self.head_hbox.addWidget(self.search_input)
-        self.head_hbox.addWidget(self.search_button)
-        self.head_hbox.addWidget(self.wordlist_button)
-        self.head_hbox.addWidget(self.settings_button)
-        self.main_vbox = QVBoxLayout()
-        self.main_vbox.addLayout(self.head_hbox)
-        self.main_vbox.addWidget(self.current_view)
-        self.setLayout(self.main_vbox)
-        self.resize(800,600)
-        self.setWindowTitle('Macmillan Dictionary')
-        
-        self.view_factory = ViewFactory(self)
-        
+
+        self.init_finalize()
+
         #self.dictSearch("make")
     
     def __updatePrevNextBtns(self):
@@ -150,43 +126,18 @@ class DictWindow(QtGui.QWidget):
         self.search_input.setText(self.current_view.getTitle())
         self.__updatePrevNextBtns()
     
-    def closeEvent(self, event):
-        event.ignore()
-        self.hide()
-    
-    def keyPressEvent(self, e):
-        if e.key() == QtCore.Qt.Key_Escape:
-            # Selecting the search input field
-            self.search_input.setFocus()
-            self.search_input.setText("")
+    def makeView(self, s):
+        res = macmillan.query_site(s)
+        return DictEntryView(res)
     
     def dictSearchEvent(self):
-        self.setView(self.view_factory.makeView(self.search_input.text()))
+        self.setView(self.makeView(self.search_input.text()))
     
     def dictSearch(self, query):
-        self.setView(self.view_factory.makeView(query))
+        self.setView(self.makeView(query))
 
 
-class ViewFactory(object):
-    ''' here goes caching of dict entries, interpreting user commands, etc. '''
-    def __init__(self, dwnd):
-        self.dwnd = dwnd
-    
-    def makeView(self, s):
-        if s == ":start" or s == ":help" or s == ":h":
-            return self.dwnd.welcome_view
-        if s == ":l":
-            return self.dwnd.wordlist_view
-        if s == ":s":
-            return self.dwnd.settings_view
-        res = macmillan.query_site(s)
-        if isinstance(res, macmillan.models.Entry):
-            return DictEntryView(res)
-        else:
-            return SearchResultsView(res, self.dwnd)
-
-
-class BaseView(QWidget):
+class BaseView(object):
     def __init__(self):
         super(BaseView, self).__init__()
     # returns what should be placed in the search_input textbox
@@ -195,21 +146,21 @@ class BaseView(QWidget):
     # if True, then every appearance of it will be saved into the history of searches
     def isHistRecorded(self):
         raise "BaseView is an abstract class!"
-    
-    pass
 
-class WelcomeView(BaseView):
+
+class WelcomeView(BaseView, QWidget):
     def __init__(self):
         super(WelcomeView, self).__init__()
         self.main_vbox = QVBoxLayout()
         self.main_vbox.addWidget(QLabel("Welcome to our addon!"))
         self.setLayout(self.main_vbox)
     def getTitle(self):
-        return ":start"
+        return ""
     def isHistRecorded(self):
         return True
 
-class WordListView(BaseView):
+
+class WordListView(BaseView, QWidget):
     def __init__(self):
         super(WordListView, self).__init__()
         self.main_hbox = QHBoxLayout()
@@ -228,7 +179,6 @@ class WordListView(BaseView):
             today = datetime.date.today()
             filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
             self.logfile = open(filename, "a+")
-        
     
     def addSense(self, sense):
         tr = "<tr><td>" + sense.original_key + "</td><td>" + sense.definition + "</td></tr>"
@@ -263,12 +213,12 @@ class WordListView(BaseView):
         self.text_edit.setTextCursor(self.text_edit.cursorForPosition(c_pos))
     
     def getTitle(self):
-        return ":l"
+        return ""
     def isHistRecorded(self):
         return False
-        
 
-class SettingsView(BaseView):
+
+class SettingsView(BaseView, QWidget):
     def __init__(self):
         super(SettingsView, self).__init__()
         self.main_vbox = QVBoxLayout()
@@ -276,226 +226,53 @@ class SettingsView(BaseView):
         self.setLayout(self.main_vbox)
         pass
     def getTitle(self):
-        return ":s"
+        return ""
     def isHistRecorded(self):
         return False
 
 
-class SearchResultsView(BaseView):
-    def __init__(self, results, dwnd):
-        super(SearchResultsView, self).__init__()
-        self.results = results
-        self.main_vbox = QVBoxLayout()
-        for i in results.results:
-            lab = QLabel("<h3><a href='"+i+"'>"+i+"</a></h3>")
-            # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
-            lab.linkActivated.connect((lambda t: lambda: dwnd.dictSearch(t))(i))
-            
-            lab.setAlignment(Qt.AlignHCenter)
-            self.main_vbox.addWidget(lab)
-        self.setLayout(self.main_vbox)
-    def getTitle(self):
-        return self.results.word
-    def isHistRecorded(self):
-        return True
-
-
-class DictEntryView(BaseView):
+class DictEntryView(BaseView, basegui.DictEntryView):
     def __init__(self, entry):
-        dwnd = get_plugin().dwnd
-        super(DictEntryView, self).__init__()
+        self.dwnd = get_plugin().dwnd
         self.entry = entry
-        self.dwnd = dwnd
-        left_scroll = QScrollArea()
-        right_scroll = QScrollArea()
-        left_widget = QWidget()
-        right_widget = QWidget()
-        self.left_vbox = QVBoxLayout()
-        self.right_vbox = QVBoxLayout()
-        self.main_hbox = QHBoxLayout()
+        # self.examples_widget is required for superclass __init__
         self.examples_widget = ExamplesWidget(self)
-        entry_all = entry.senses
-        for i in entry_all:
-            self.left_vbox.addWidget(SenseWidget(i, self))
+        super(DictEntryView, self).__init__()
+        
+        for i in entry.senses:
+            self.add_sense_widget(SenseWidget(i, self))
         
         for link in entry.links:
-            title = link.key if link.key is not None else ""
-            href = link.url
-            btn = QLabel('<a href="related" style="text-decoration: none; color: black;"><strong>' + title + "</strong></a>")
             # TODO change it to use 'Destination' object
             # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
-            btn.linkActivated.connect( (lambda t: lambda: dwnd.dictSearch(t))(href) )
-            btn.show()
-            btn.setWordWrap(True)
-            def make_line():
-                fr = QFrame()
-                #fr.setStyleSheet("background-color: white;");
-                fr.setFrameShape(QFrame.HLine)
-                fr.setFrameShadow(QFrame.Sunken)
-                fr.setLineWidth(2)
-                #fr.setMidLineWidth(1)
-                return fr
-            self.right_vbox.addWidget(btn)
-            self.right_vbox.addWidget(make_line())
+            self.add_link(link, (lambda t: lambda: get_plugin().dwnd.dictSearch(t))(link.url) )
         
-        left_scroll.setWidgetResizable(True)
-        right_scroll.setWidgetResizable(True)
-        left_widget.setLayout(self.left_vbox)
-        right_widget.setLayout(self.right_vbox)
-        left_widget.show()
-        right_widget.show()
-        left_scroll.setWidget(left_widget)
-        right_scroll.setWidget(right_widget)
-        right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        # TODO: potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
-        right_scroll.setMaximumWidth(get_plugin().config.related_defs_panel_width)
-        left_column = QVBoxLayout()
-        left_column.addWidget(left_scroll)
-        left_column.addWidget(self.examples_widget)
-        self.main_hbox.addLayout(left_column)
-        self.main_hbox.addWidget(right_scroll)
-        self.setLayout(self.main_hbox)
-        
+        self.init_finalize()
+
     def getTitle(self):
         return self.entry.original_key
     def isHistRecorded(self):
         return True
 
 
-class SenseWidget(QWidget):
-    def format_definition_html(self):
-        wyn = ""
-        if self.sense.style_level != "" and self.sense.style_level != None:
-            wyn += "<i>"+self.sense.style_level+"</i>"
-        return wyn + self.sense.definition
-
-    def extract_keys(self):
-        if self.sense.original_key is None:
-            keys = []
-        else:
-            keys = [s.strip() for s in self.sense.original_key.split("|")]
-        return keys
-
-    def format_key_html(self):
-        keys = self.extract_keys()
-        return "<strong>"+(" </strong ><i> or </i><strong> ".join(keys))+"</strong>"
-
-    def format_erased_definition_html(self):
-        wyn = ""
-        if self.sense.style_level != "" and self.sense.style_level != None:
-            wyn += "<i>"+self.sense.style_level+"</i>"
-        tmp_def = self.sense.definition
-        keys = self.extract_keys()
-        for i in keys:
-            tmp_def = " ____ ".join(tmp_def.split(i))
-        return wyn + tmp_def
-
+class SenseWidget(basegui.SenseWidget):
     def __init__(self, sense, entry_view):
-        super(SenseWidget, self).__init__()
         self.sense = sense
         self.entry_view = entry_view
         self.dwnd = get_plugin().dwnd
-        self.main_vbox = QVBoxLayout()
-        self.def_hbox = QHBoxLayout()
+        super(SenseWidget, self).__init__()
         
-        self.main_vbox.setMargin(0)
-        self.def_hbox.setMargin(0)
-        self.main_vbox.setSpacing(0)
-        self.def_hbox.setSpacing(0)
+        self.add_btn.clicked.connect(self.saveDef)
         
-        tmplabel = QLabel(self.format_key_html() + "  ---  " + self.format_definition_html())
-        tmplabel.setWordWrap(True)
-        tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        #tmplabel.setScaledContents(True)
-        tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        
-        self.main_vbox.addWidget(tmplabel)
-        btn = QPushButton("ADD")
-        btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        btn.clicked.connect(self.saveDef)
-        
-        self.examples_to_hide = []
-        
-        #self.main_vbox.addLayout(self.def_hbox)
-        for e in sense.examples:
-            key = e.original_key
-            ex = e.content
-            tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
-            if key:
-                tmp += "<b> "+key+" </b>"
-            tmp += ex
-            tmp += "</i></a>"
-            tmplabel = QLabel(tmp)
-            tmplabel.setWordWrap(True)
-            tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        for example in sense.examples:
             def add_ex_func(k,e):
                 def f():
                     self.entry_view.examples_widget.addExample(k, e)
                     self.entry_view.dwnd.wordlist_view.addExample(k, e, entry_view.entry.original_key)
                 return f
-            tmplabel.linkActivated.connect(add_ex_func(key, ex))
-            self.examples_to_hide.append(tmplabel)
-        self.examples_all = self.examples_to_hide
-        self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
+            self.add_example(example, add_ex_func(example.original_key, example.content))
         
-        def make_frame():
-            fr = QFrame()
-            fr.setStyleSheet("background-color: white;");
-            fr.setFrameShape(QFrame.Box)
-            fr.setFrameShadow(QFrame.Raised)
-            fr.setLineWidth(2)
-            fr.setMidLineWidth(2)
-            return fr
-        def make_hidden_examples():
-            w = QWidget()
-            w.onLeaveEvent = lambda e: None
-            if self.examples_all == []:
-                return w
-            w.setMouseTracking(True)
-            lab = QLabel('<a href="example" style="'+get_plugin().config.example_style+'"><b> ... ... ... </b></a>')
-            lab.hide()
-            layout = QVBoxLayout()
-            for i in self.examples_all:
-                layout.addWidget(i)
-            layout.setMargin(2)
-            layout.addWidget(lab)
-            w.setLayout(layout)
-            def onEnterEvent(event):
-                # here showing examples (takie onHover)
-                for i in self.examples_to_hide:
-                    i.show()
-                lab.hide()
-            def onLeaveEvent(event):
-                # here hiding examples (takie onUnHover)
-                for i in self.examples_to_hide:
-                    i.hide()
-                if self.examples_to_hide != []:
-                    lab.show()
-            def mouseMoveEvent(event):
-                if event.x() < get_plugin().config.examples_hover_area_width :
-                    onEnterEvent(event)
-                else:
-                    onLeaveEvent(event)
-            #w.enterEvent = onEnterEvent
-            #w.leaveEvent = onLeaveEvent
-            w.mouseMoveEvent = mouseMoveEvent
-            w.onLeaveEvent = onLeaveEvent
-            w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            onLeaveEvent(None)
-            w.show()
-            return w
-        self.hidden_examples = make_hidden_examples()
-        self.main_vbox.addWidget(self.hidden_examples)
-        frame = make_frame()
-        frame.setLayout(self.main_vbox)
-        self.def_hbox.addWidget(frame)
-        self.def_hbox.addWidget(btn)
-        
-        
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        
-        self.setLayout(self.def_hbox)
+        self.init_finalize()
     
     # in the settings should be whether to hide the examples or not
     def leaveEvent(self, event):
@@ -513,6 +290,7 @@ class Example(QLabel):
         def mouseReleaseEvent(self, e):
             self.txt = ""
             self.hide()
+
 
 class ExamplesWidget(QWidget):
     
