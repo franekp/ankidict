@@ -60,6 +60,8 @@ Example:
     content - 2
 
 Link:
+    key - 1
+    part_of_speech - 1
     TODO
 
 '''
@@ -139,6 +141,13 @@ class BaseTests(object):
         self.assertEqual(res.pron, u'/eə(r)/')
         # Entry.part_of_speech
         self.assertEqual(res.part_of_speech, 'noun')
+
+    def test_look_up(self):
+        res = self.result_hook(query_site("look up"))
+        # Link.key
+        self.assertEqual(res.links[0].key, u'look up to')
+        # Link.part_of_speech
+        self.assertEqual(res.links[0].part_of_speech, u'phrasal verb')
 
 
 @mock.patch("libdict.macmillan.Entry.model_class", new=AttrDict)
