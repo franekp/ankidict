@@ -129,11 +129,7 @@ class SenseWidget(QWidget):
         return wyn + self.sense.definition
 
     def extract_keys(self):
-        if self.sense.original_key is None:
-            keys = []
-        else:
-            keys = [s.strip() for s in self.sense.original_key.split("|")]
-        return keys
+        return self.sense.get_keys()
 
     def format_key_html(self):
         keys = self.extract_keys()
@@ -173,11 +169,11 @@ class SenseWidget(QWidget):
         #self.main_vbox.addLayout(self.def_hbox)
 
     def add_example(self, example, callback):
-        key = example.original_key
-        ex = example.content
+        key = "</b><i> or </i><b>".join(example.get_keys())
+        ex = example.get_erased_content()
         tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
         if key:
-            tmp += "<b> "+key+" </b>"
+            tmp += "</i><b> "+key+" </b><i>"
         tmp += ex
         tmp += "</i></a>"
         tmplabel = QLabel(tmp)
