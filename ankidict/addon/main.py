@@ -92,6 +92,7 @@ class AnkiDict(object):
     # here can be some initialization
     # return False to say: "Initialization failed"
     self.dwnd = dict_window.DictWindow()
+    self.dwnd.dictSearch("make")
     # MORE
     self.initialized = True
     return True

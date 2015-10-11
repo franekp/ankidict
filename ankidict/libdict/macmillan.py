@@ -7,6 +7,9 @@ from libdict.models import Models
 from libdict.cache import Cache
 
 
+#TODO: get the entry for 'maker' to work properly
+
+
 __all__ = ["models", "MacmillanCache"]
 
 

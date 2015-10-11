@@ -1,0 +1,45 @@
+SenseWidget QFrame {
+    background-color: rgb(210, 255, 210);
+}
+
+LinkLabel {
+    text-decoration: none;
+    color: black;
+}
+
+QWidget {
+    /* background-color: white; */
+    /* color: red; */
+}
+
+DictWindow {
+    background-color: rgb(150, 255, 150);
+}
+
+QLineEdit {
+    background-color: white;
+}
+
+QScrollArea {
+    background-color: white;
+    border-width: 4px;
+    border-color: rgb(90, 220, 90);
+    border-style: solid;
+    border-radius: 11px;
+}
+
+ScrollWidget {
+    background-color: white;
+    
+    /* this has no effect: */
+    /*
+    border-width: 4px;
+    border-color: red;
+    border-style: solid;
+    */
+}
+
+QPushButton {
+    color: green;
+    /* background-color: rgb(200, 255, 200); */
+}

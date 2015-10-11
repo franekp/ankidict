@@ -1,4 +1,4 @@
 {
   "name": "millandict-addon",
-  "files": [ { "directory": ".", "filters": ["*.py", "*example", "*.txt", "*.md", "*.sh", "*.html"], "recursive": 1 } ]
+  "files": [ { "directory": ".", "filters": ["*.py", "*example", "*.txt", "*.md", "*.sh", "*.html", "*.css"], "recursive": 1 } ]
 }

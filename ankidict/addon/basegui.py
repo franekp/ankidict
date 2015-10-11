@@ -5,6 +5,8 @@ from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication, QCursor
 from addon import macm_parser_css
 from addon import collection
 from libdict import macmillan
@@ -67,12 +69,26 @@ class DictWindow(QWidget):
             self.search_input.setText("")
 
 
+class ScrollWidget(QWidget):
+    pass
+
+
+class LinkLabel(QLabel):
+    clicked = pyqtSignal()
+    def __init__(self, *args, **kwargs):
+        super(LinkLabel, self).__init__(*args, **kwargs)
+        self.setCursor(Qt.PointingHandCursor)
+
+    def mouseReleaseEvent(self, e):
+        self.clicked.emit()
+
+
 class DictEntryView(QWidget):
     def init_begin(self):
         self.left_scroll = QScrollArea()
         self.right_scroll = QScrollArea()
-        self.left_widget = QWidget()
-        self.right_widget = QWidget()
+        self.left_widget = ScrollWidget()
+        self.right_widget = ScrollWidget()
         self.left_vbox = QVBoxLayout()
         self.right_vbox = QVBoxLayout()
         self.main_hbox = QHBoxLayout()
@@ -83,8 +99,9 @@ class DictEntryView(QWidget):
     def add_link(self, link, callback):
         title = tostr(link.key)
         href = link.url
-        btn = QLabel('<a href="related" style="text-decoration: none; color: black;"><strong>' + title + "</strong></a>")
-        btn.linkActivated.connect(callback)
+        # btn = QLabel('<a href="related" style="text-decoration: none; color: green;"><strong>' + title + "</strong></a>")
+        btn = LinkLabel(title)
+        btn.clicked.connect(callback)
         btn.show()
         btn.setWordWrap(True)
         def make_line():
@@ -184,11 +201,11 @@ class SenseWidget(QWidget):
         self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
         def make_frame():
             fr = QFrame()
-            fr.setStyleSheet("background-color: white;");
+            #fr.setStyleSheet("background-color: white;");
             fr.setFrameShape(QFrame.Box)
-            fr.setFrameShadow(QFrame.Raised)
-            fr.setLineWidth(2)
-            fr.setMidLineWidth(2)
+            # fr.setFrameShadow(QFrame.Raised)
+            fr.setLineWidth(0)
+            fr.setMidLineWidth(0)
             return fr
         def make_hidden_examples():
             w = QWidget()

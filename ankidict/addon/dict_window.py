@@ -9,6 +9,8 @@ from addon import collection
 from libdict import macmillan
 import re
 import datetime
+import os
+
 from addon.collection import get_plugin
 from addon import basegui
 
@@ -61,6 +63,14 @@ class DictWindow(basegui.DictWindow):
     
     def __init__(self):
         super(DictWindow, self).__init__()
+        
+        style_filepath = os.path.join(os.path.dirname(__file__), 'stylesheet.css')
+        
+        with open(style_filepath) as f:
+            style = f.read()
+        
+        self.setStyleSheet(style)
+        
         self.init_begin()
         
         self.welcome_view = WelcomeView()
@@ -82,8 +92,6 @@ class DictWindow(basegui.DictWindow):
         self.current_view = self.welcome_view
 
         self.init_end()
-
-        #self.dictSearch("make")
     
     def __updatePrevNextBtns(self):
         self.prev_button.setEnabled(self.prev_views != [])
@@ -138,7 +146,7 @@ class DictWindow(basegui.DictWindow):
         self.setView(self.makeView(query))
 
 
-class BaseView(object):
+class BaseView(QWidget):
     def __init__(self):
         super(BaseView, self).__init__()
     # returns what should be placed in the search_input textbox
@@ -149,7 +157,7 @@ class BaseView(object):
         raise "BaseView is an abstract class!"
 
 
-class WelcomeView(BaseView, QWidget):
+class WelcomeView(BaseView):
     def __init__(self):
         super(WelcomeView, self).__init__()
         self.main_vbox = QVBoxLayout()
@@ -161,7 +169,7 @@ class WelcomeView(BaseView, QWidget):
         return True
 
 
-class WordListView(BaseView, QWidget):
+class WordListView(BaseView):
     def __init__(self):
         super(WordListView, self).__init__()
         self.main_hbox = QHBoxLayout()
@@ -219,7 +227,7 @@ class WordListView(BaseView, QWidget):
         return False
 
 
-class SettingsView(BaseView, QWidget):
+class SettingsView(BaseView):
     def __init__(self):
         super(SettingsView, self).__init__()
         self.main_vbox = QVBoxLayout()
@@ -287,12 +295,12 @@ class SenseWidget(basegui.SenseWidget):
 
 
 class Example(QLabel):
-        def __init__(self, txt):
-            super(Example, self).__init__('<a href="example" style="'+get_plugin().config.example_style+'">'+txt+'</a>')
-            self.txt = txt
-        def mouseReleaseEvent(self, e):
-            self.txt = ""
-            self.hide()
+    def __init__(self, txt):
+        super(Example, self).__init__('<a href="example" style="'+get_plugin().config.example_style+'">'+txt+'</a>')
+        self.txt = txt
+    def mouseReleaseEvent(self, e):
+        self.txt = ""
+        self.hide()
 
 
 class ExamplesWidget(QWidget):
