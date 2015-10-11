@@ -61,6 +61,7 @@ class DictWindow(basegui.DictWindow):
     
     def __init__(self):
         super(DictWindow, self).__init__()
+        self.init_begin()
         
         self.welcome_view = WelcomeView()
         self.wordlist_view = WordListView()
@@ -80,7 +81,7 @@ class DictWindow(basegui.DictWindow):
         # what is now displayed:
         self.current_view = self.welcome_view
 
-        self.init_finalize()
+        self.init_end()
 
         #self.dictSearch("make")
     
@@ -233,11 +234,12 @@ class SettingsView(BaseView, QWidget):
 
 class DictEntryView(BaseView, basegui.DictEntryView):
     def __init__(self, entry):
+        super(DictEntryView, self).__init__()
         self.dwnd = get_plugin().dwnd
         self.entry = entry
         # self.examples_widget is required for superclass __init__
         self.examples_widget = ExamplesWidget(self)
-        super(DictEntryView, self).__init__()
+        self.init_begin()
         
         for i in entry.senses:
             self.add_sense_widget(SenseWidget(i, self))
@@ -247,7 +249,7 @@ class DictEntryView(BaseView, basegui.DictEntryView):
             # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
             self.add_link(link, (lambda t: lambda: get_plugin().dwnd.dictSearch(t))(link.url) )
         
-        self.init_finalize()
+        self.init_end()
 
     def getTitle(self):
         return self.entry.original_key
@@ -257,10 +259,11 @@ class DictEntryView(BaseView, basegui.DictEntryView):
 
 class SenseWidget(basegui.SenseWidget):
     def __init__(self, sense, entry_view):
+        super(SenseWidget, self).__init__()
         self.sense = sense
         self.entry_view = entry_view
         self.dwnd = get_plugin().dwnd
-        super(SenseWidget, self).__init__()
+        self.init_begin()
         
         self.add_btn.clicked.connect(self.saveDef)
         
@@ -272,7 +275,7 @@ class SenseWidget(basegui.SenseWidget):
                 return f
             self.add_example(example, add_ex_func(example.original_key, example.content))
         
-        self.init_finalize()
+        self.init_end()
     
     # in the settings should be whether to hide the examples or not
     def leaveEvent(self, event):

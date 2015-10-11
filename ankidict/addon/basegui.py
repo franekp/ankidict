@@ -21,8 +21,7 @@ def tostr(a):
 
 
 class DictWindow(QWidget):
-    def __init__(self):
-        super(DictWindow, self).__init__()
+    def init_begin(self):
         def conf_btn(btn):
             btn.setMaximumWidth(60)
             btn.setStyleSheet("font-weight: bold; font-family: monospace")
@@ -42,7 +41,7 @@ class DictWindow(QWidget):
         #conf_btn(self.wordlist_button)
         #conf_btn(self.settings_button)
 
-    def init_finalize(self):
+    def init_end(self):
         self.head_hbox = QHBoxLayout()
         self.head_hbox.addWidget(self.prev_button)
         self.head_hbox.addWidget(self.next_button)
@@ -69,9 +68,7 @@ class DictWindow(QWidget):
 
 
 class DictEntryView(QWidget):
-    def __init__(self):
-        super(DictEntryView, self).__init__()
-
+    def init_begin(self):
         self.left_scroll = QScrollArea()
         self.right_scroll = QScrollArea()
         self.left_widget = QWidget()
@@ -101,7 +98,7 @@ class DictEntryView(QWidget):
         self.right_vbox.addWidget(btn)
         self.right_vbox.addWidget(make_line())
 
-    def init_finalize(self):
+    def init_end(self):
         self.left_scroll.setWidgetResizable(True)
         self.right_scroll.setWidgetResizable(True)
         self.left_widget.setLayout(self.left_vbox)
@@ -145,8 +142,7 @@ class SenseWidget(QWidget):
             tmp_def = " ____ ".join(tmp_def.split(i))
         return wyn + tmp_def
 
-    def __init__(self):
-        super(SenseWidget, self).__init__()
+    def init_begin(self):
         self.main_vbox = QVBoxLayout()
         self.def_hbox = QHBoxLayout()
         
@@ -183,7 +179,7 @@ class SenseWidget(QWidget):
         tmplabel.linkActivated.connect(callback)
         self.examples_to_hide.append(tmplabel)
 
-    def init_finalize(self):
+    def init_end(self):
         self.examples_all = self.examples_to_hide
         self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
         def make_frame():
@@ -243,4 +239,7 @@ class SenseWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         
         self.setLayout(self.def_hbox)
-        
+
+
+class ExamplesWidget(QWidget):
+    pass

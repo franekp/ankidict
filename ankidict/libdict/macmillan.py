@@ -187,8 +187,35 @@ class Entry(PageModel):
         dic['links'] = dic.pop('relwrds', [])
         dic['links'] += dic.pop('phrvbs', []) + dic.pop('phrs', [])
         return dic
-    
-    # TODO TODO: HANDLING OF 'NOT FOUND' PAGES
+
+
+class NotFoundLink(PageModel):
+    model_class = models.Link
+
+    page_tree = Html(
+        Node("a")(
+            url=Attr("href"),
+            key=Text(),
+            link_type=Constant("did you mean"),
+        )
+    )
+
+
+class NotFoundEntry(PageModel):
+    model_class = models.Entry
+
+    page_tree = Html(
+        Node("div#search-results > ul")(
+            Node.list("li")(
+                links=NotFoundLink()
+            )
+        ),
+        senses=Constant(
+            [models.Sense(
+                original_key="Sorry, no search result for your query.",
+                definition="")]
+        ),
+    )
 
 
 def query_site(query):
@@ -200,7 +227,12 @@ def query_site(query):
     else:
         url = normal_prefix + query.replace(" ","+")
     response = urllib2.urlopen(url)
-    res = Entry(response.read())
+    url = response.geturl()
+    txt = response.read()
+    if "spellcheck" in url:
+        res = NotFoundEntry(txt)
+    else:
+        res = Entry(txt)
     res.url = response.geturl()
     return res
 
