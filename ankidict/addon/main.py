@@ -23,14 +23,6 @@
 # SOFTWARE.
 ####
 
-# Macmillan dictionary plugin
-# Supports [TODO]:
-# * querying Macmillan site
-# * caching results from Macmillan dictionary
-# * history of searches
-# * adding definitions to Anki collection
-# * minimized version of Anki for dictionary searches
-
 # main window object
 from aqt import mw
 
@@ -38,130 +30,93 @@ from aqt import mw
 from aqt.qt import *
 import sys
 
-# window and gui of our addon
-from addon import dict_window
+from libdict import macmillan
+
+
+def get_plugin():
+  return mw.ankidict
 
 
 class Config(object):
-  def __init__(self):
-    self.enable_global_shortcut = False
-    self.enable_debug_menu = False
-    self.deck = 'MillanDict'
-    self.model = 'MillanNote'
-    self.template = 'MillanTemplate'
-    self.shortcut = 'Ctrl+Shift+E'
-    # only works at first time!
-    # when model is created
-    self.note_question = 'Front'
-    self.note_answer = 'Back'
-    self.note_info = 'Info'
-    self.type_answer = True
-    self.max_examples_per_sense = 2
-    self.examples_hover_area_width = 450
-    self.related_defs_panel_width = 250
-    self.add_examples_to_list = True
-    self.log_wordlist = True
-    self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
-    self.enable_old_unused_actions = False
+    def __init__(self):
+        self.enable_global_shortcut = False
+        self.enable_debug_menu = False
+        self.deck = 'MillanDict'
+        self.model = 'MillanNote'
+        self.template = 'MillanTemplate'
+        self.shortcut = 'Ctrl+Shift+E'
+        # only works at first time!
+        # when model is created
+        self.note_question = 'Front'
+        self.note_answer = 'Back'
+        self.note_info = 'Info'
+        self.type_answer = True
+        self.max_examples_per_sense = 2
+        self.examples_hover_area_width = 450
+        self.related_defs_panel_width = 250
+        self.add_examples_to_list = True
+        self.log_wordlist = True
+        self.example_style = "text-decoration: none; color: rgb(0, 51, 153);"
+        self.enable_old_unused_actions = False
 
 
 class AnkiDict(object):
-  def __init__(self, config):
-    mw.ankidict = self
-    self.config = config
-    self.initialized = False
+    """This should be 'Controller' from the M-V-C pattern."""
+    def __init__(self, config):
+        mw.ankidict = self
+        self.config = config
+        self.initialized = False
 
-    # place where we want to place our buttons
-    basep = mw.form.menuTools.actions()[6]
+        # place where we want to place our menu action
+        basep = mw.form.menuTools.actions()[6]
 
-    mw.form.menuTools.insertSeparator(basep)
+        mw.form.menuTools.insertSeparator(basep)
 
-    self.dictact = QAction("Macmillan dictionary", mw)
-    self.dictact.setShortcut("Ctrl+D")
-    mw.connect(self.dictact, SIGNAL("triggered()"), self.show_dictionary)
-    mw.form.menuTools.insertAction(basep, self.dictact)
+        self.dictact = QAction("Macmillan dictionary", mw)
+        self.dictact.setShortcut("Ctrl+D")
+        mw.connect(self.dictact, SIGNAL("triggered()"), self.show_dictionary)
+        mw.form.menuTools.insertAction(basep, self.dictact)
 
-    
-  def init(self):
-    """
-    Initializes the dictionary engine if needed.
-    Loads some files, etc.
-    If called before, does nothing.
-    """
-    if self.initialized: return True
-    # here can be some initialization
-    # return False to say: "Initialization failed"
-    self.dwnd = dict_window.DictWindow()
-    self.dwnd.dictSearch("make")
-    # MORE
-    self.initialized = True
-    return True
+    def init(self):
+        """
+        Initializes the dictionary engine if needed.
+        Loads some files, etc.
+        If called before, does nothing.
+        """
+        if self.initialized:
+            return
+        # here can be some initialization
+        # return False to say: "Initialization failed"
+        from addon.gui import DictWindow
+        from addon.collection import Collection
+        self.dwnd = DictWindow()
+        self.col = Collection()
+        self.open_destination("make")
+        #MORE
+        self.initialized = True
+        return True
 
-  def show_dictionary(self):
-    """
-    Opens dictionary main window.
-    """
-    if not self.init(): return
-    self.dwnd.show()
+    def show_dictionary(self):
+        """
+        Opens dictionary main window.
+        """
+        self.init()
+        self.dwnd.show()
 
-  def open_destination(self, dest):
-      """Take destinaation that is defined in libdict.models, start loading
-      it to caches and finally display it in dictionary view.
-      """
-      pass
-  
+    def add_note_example(self, ex):
+        self.col.add_note(*ex.create_anki_note())
+        self.dwnd.wordlist_view.add_example(ex)
 
-class OldUnusedActions(object):
-  def __init__(self, config):
-    self.hideact = QAction("Hide window", mw)
-    self.hideact.setShortcut("Ctrl+M")
-    mw.connect(self.hideact, SIGNAL("triggered()"), self.minimize)
-    mw.form.menuTools.insertAction(basep, self.hideact)
+    def add_note_sense(self, sense):
+        """Take a sense or a subsense and add its note to the dict."""
+        self.col.add_note(*sense.create_anki_note())
+        self.dwnd.wordlist_view.add_sense(sense)
 
-    if config.enable_debug_menu:
-      self.dbgact = QAction("Debug", mw)
-      mw.connect(self.dbgact, SIGNAL("triggered()"), self.debugger)
-      mw.form.menuTools.insertAction(basep, self.dbgact)
-
-    if config.enable_global_shortcut:
-      import pyqxtgs as gs
-      self.globact = gs.PyGlobalShortcutHandler()
-      mw.connect(self.globact, SIGNAL('onGlobalShortcut()'), self.global_call)
-      self.globact.setShortcut(self.config.shortcut)
-      self.globact.enable()
-
-  def snippet(self):
-    """
-    Shows in right bottom corner of screen window to type queries.
-    """
-    if not self.init(): return
-    pass
-
-  def minimize(self):
-    """
-    Should minimize (hide) the window.
-    """
-    mw.hide()
-    # example usage of showInfo utility
-    # uncomment to see, the window is really hidden
-    #showInfo("Hidden window!")
-    # we should add an icon in notification area to allow unhiding windows
-    # then we will be able to remove show call
-    mw.show()
-    return 0
-
-  def debugger(self):
-    """
-    Shows debugging window...
-    """
-    # You MUST run Anki from terminal to be able to enter debug mode.
-    debug()
-
-  def global_call(self):
-    """
-    Does something on global shortcut...
-    """
-    # Global shortcuts are NOW WORKING
-    #showInfo("Global Shortcut call succeeded!")
-    print "[ global shortcut handled ]"
-    pass
+    def open_destination(self, dest):
+        """If dest is a string, open a search for it in a dictionary,
+        else if it is a Link model instance, open its destination.
+        """
+        if isinstance(dest, basestring):
+            self.dwnd.load_entry(macmillan.query_site(dest))
+        else:
+            self.dwnd.load_entry(macmillan.query_site(dest.url))

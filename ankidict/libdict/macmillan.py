@@ -98,7 +98,7 @@ class RelatedWordLink(PageModel):
 
     page_tree = Html(
         Node("a")(
-            Node.optional("span.PART-OF-SPEECH")(
+            Node.list("span.PART-OF-SPEECH").take_first()(
                 part_of_speech=Text()
             ),
             key=Attr("title"),
@@ -110,8 +110,9 @@ class RelatedWordLink(PageModel):
     @classmethod
     def postproc(cls, dic):
         k = dic["key"]
-        p = dic.get("part_of_speech", "")
-        k = k[:-len(p)]
+        p = dic.get("part_of_speech", None)
+        if p is not None:
+            k = k[:-len(p)]
         k = k.strip()
         dic["key"] = k
 
@@ -154,7 +155,7 @@ class Entry(PageModel):
             Node.optional("span.STYLE-LEVEL")(
                 style_level=Text()
             ),
-            Node.optional("span.PRON")(
+            Node.list("span.PRON").take_first()(
                 pron=Text()
             ),
             Node.optional("span.PART-OF-SPEECH")(
@@ -189,6 +190,7 @@ class Entry(PageModel):
     def postproc(cls, dic):
         dic['links'] = dic.pop('relwrds', [])
         dic['links'] += dic.pop('phrvbs', []) + dic.pop('phrs', [])
+        dic['links'] = [i for i in dic['links'] if i.part_of_speech is not None]
         return dic
 
 
@@ -226,7 +228,7 @@ def query_site(query):
     normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
     url = ""
     if query[:7] == "http://":
-        url = query
+        url = query.replace(" ", "+")
     else:
         url = normal_prefix + query.replace(" ","+")
     response = urllib2.urlopen(url)

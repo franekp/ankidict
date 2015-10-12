@@ -5,13 +5,12 @@ from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
-from addon import collection
-from libdict import macmillan
 import re
 import datetime
 import os
 
-from addon.collection import get_plugin
+from addon.main import get_plugin
+from addon import collection
 from addon import basegui
 
 # TODO LIST:
@@ -134,16 +133,12 @@ class DictWindow(basegui.DictWindow):
         self.current_view.show()
         self.search_input.setText(self.current_view.getTitle())
         self.__updatePrevNextBtns()
-    
-    def makeView(self, s):
-        res = macmillan.query_site(s)
-        return DictEntryView(res)
-    
+
+    def load_entry(self, entry):
+        self.setView(DictEntryView(entry))
+
     def dictSearchEvent(self):
-        self.setView(self.makeView(self.search_input.text()))
-    
-    def dictSearch(self, query):
-        self.setView(self.makeView(query))
+        get_plugin().open_destination(self.search_input.text())
 
 
 class BaseView(QWidget):
@@ -169,64 +164,6 @@ class WelcomeView(BaseView):
         return True
 
 
-class WordListView(BaseView):
-    def __init__(self):
-        super(WordListView, self).__init__()
-        self.main_hbox = QHBoxLayout()
-        self.text_edit = QTextEdit()
-        self.text_edit.setHtml('<table border="2" style="border-color: black; border-width: 2; border-style: solid;"> </table>')
-        self.main_hbox.addWidget(self.text_edit)
-        self.setLayout(self.main_hbox)
-        def func_constr(f):
-            def wyn(e):
-                f(e)
-                if e.key() == QtCore.Qt.Key_Backspace:
-                    self.reloadTable()
-            return wyn
-        self.text_edit.keyPressEvent = func_constr(self.text_edit.keyPressEvent)
-        if get_plugin().config.log_wordlist:
-            today = datetime.date.today()
-            filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
-            self.logfile = open(filename, "a+")
-    
-    def addSense(self, sense):
-        tr = "<tr><td>" + sense.original_key + "</td><td>" + sense.definition + "</td></tr>"
-        text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
-        text = 'border="2"'.join(text.split('border="0"'))
-        self.text_edit.setHtml(text)
-        if get_plugin().config.log_wordlist:
-            self.logfile.write(tr.encode("ascii","ignore") + "\n")
-        #print self.text_edit.toHtml()
-    
-    def addExample(self, k, e, word):
-        if not (get_plugin().config.add_examples_to_list):
-            return
-        if k == "":
-            k = word
-        tr = "<tr><td>" + k + "</td><td>" + "____".join(e.split(word)) + "</td></tr>"
-        text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
-        text = 'border="2"'.join(text.split('border="0"'))
-        self.text_edit.setHtml(text)
-        if get_plugin().config.log_wordlist:
-            self.logfile.write(tr.encode("ascii","ignore") + "\n")
-    
-    def reloadTable(self):
-        text = self.text_edit.toHtml()
-        text = 'border="2"'.join(text.split('border="0"'))
-        #text = ''.join(text.split('<td></td>'))
-        text = ''.join(re.split(r'<tr>\s*<td>\s*</td>\s*<td>\s*</td>\s*</tr>',text))
-        #print text
-        cursor = self.text_edit.textCursor()
-        c_pos = self.text_edit.cursorRect().center()
-        self.text_edit.setHtml(text)
-        self.text_edit.setTextCursor(self.text_edit.cursorForPosition(c_pos))
-    
-    def getTitle(self):
-        return ""
-    def isHistRecorded(self):
-        return False
-
-
 class SettingsView(BaseView):
     def __init__(self):
         super(SettingsView, self).__init__()
@@ -245,18 +182,12 @@ class DictEntryView(BaseView, basegui.DictEntryView):
         super(DictEntryView, self).__init__()
         self.dwnd = get_plugin().dwnd
         self.entry = entry
-        # self.examples_widget is required for superclass __init__
-        self.examples_widget = ExamplesWidget(self)
         self.init_begin()
-        
-        for i in entry.senses:
-            self.add_sense_widget(SenseWidget(i, self))
-        
+        for sense in entry.senses:
+            self.add_sense_widget(SenseWidget(sense, self))
         for link in entry.links:
-            # TODO change it to use 'Destination' object
             # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
-            self.add_link(link, (lambda t: lambda: get_plugin().dwnd.dictSearch(t))(link.url) )
-        
+            self.add_link(link, (lambda t: lambda: get_plugin().open_destination(t))(link) )
         self.init_end()
 
     def getTitle(self):
@@ -273,76 +204,38 @@ class SenseWidget(basegui.SenseWidget):
         self.dwnd = get_plugin().dwnd
         self.init_begin()
         
-        self.add_btn.clicked.connect(self.saveDef)
+        self.add_btn.clicked.connect(self.save_def)
         
-        for example in sense.examples:
-            def add_ex_func(k,e):
-                def f():
-                    self.entry_view.examples_widget.addExample(k, e)
-                    self.entry_view.dwnd.wordlist_view.addExample(k, e, entry_view.entry.original_key)
-                return f
-            self.add_example(example, add_ex_func(example.original_key, example.content))
+        for ex in sense.examples:
+            # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
+            self.add_example(ex,
+                (lambda t: lambda: get_plugin().add_note_example(t))(ex) )
         
         self.init_end()
-    
-    # in the settings should be whether to hide the examples or not
-    def leaveEvent(self, event):
-        self.hidden_examples.onLeaveEvent(event)
-    
-    def saveDef(self):
-        self.dwnd.wordlist_view.addSense(self.sense)
-        collection.add_note(self.format_key_html(), self.format_erased_definition_html())
+
+    def save_def(self):
+        get_plugin().add_note_sense(self.sense)
 
 
-class Example(QLabel):
-    def __init__(self, txt):
-        super(Example, self).__init__('<a href="example" style="'+get_plugin().config.example_style+'">'+txt+'</a>')
-        self.txt = txt
-    def mouseReleaseEvent(self, e):
-        self.txt = ""
-        self.hide()
+class WordListView(BaseView, basegui.WordListView):
+    def __init__(self):
+        super(WordListView, self).__init__()
+        self.init_begin()
+        self.init_end()
 
+    def add_sense(self, sense):
+        self.add_table_row(sense.format_key_html(),
+            sense.get_erased_definition())
 
-class ExamplesWidget(QWidget):
-    
-    def __init__(self, entry_view):
-        super(ExamplesWidget, self).__init__()
-        self.entry_view = entry_view
-        self.examples = []
-        self.main_hbox = QHBoxLayout()
-        self.list_vbox = QVBoxLayout()
-        self.main_hbox.addLayout(self.list_vbox)
-        self.add_button = QPushButton("ADD")
-        self.add_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        self.main_hbox.addWidget(self.add_button)
-        self.add_button.hide()
-        self.add_button.clicked.connect(self.addToCollection)
-        self.setLayout(self.main_hbox)
-        #self.addExample("","here should be some examples...")
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-    def addExample(self, k, e):
-        k = "____".join(k.split(self.entry_view.entry.original_key))
-        e = "____".join(e.split(self.entry_view.entry.original_key))
-        txt = '<i>'
-        if k:
-            txt += "<b>"+k+" </b>"
-        txt += e
-        txt += "</i>"
-        ex = Example(txt)
-        self.examples.append(ex)
-        self.list_vbox.addWidget(ex)
-        self.setLayout(self.main_hbox)
-        self.add_button.show()
-    def mouseReleaseEvent(self, e):
-        self.examples = filter((lambda a: a.txt != ""), self.examples)
-        if self.examples == []:
-            self.add_button.hide()
-    def addToCollection(self):
-        self.mouseReleaseEvent(None)
-        q = "<br />".join(map((lambda a: a.txt), self.examples))
-        collection.add_note(q, "<strong>"+self.entry_view.entry.original_key+"</strong>")
-        for i in self.examples:
-            i.hide()
-        self.examples = []
-        self.add_button.hide()
-        
+    def add_example(self, ex):
+        if not (get_plugin().config.add_examples_to_list):
+            return
+        k = ex.format_key_html()
+        e = "<i>" + ex.get_erased_content() + "</i>"
+        self.add_table_row(k, e)
+
+    def getTitle(self):
+        return ""
+
+    def isHistRecorded(self):
+        return False

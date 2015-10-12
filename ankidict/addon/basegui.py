@@ -15,6 +15,12 @@ import datetime
 from addon.collection import get_plugin
 
 
+class StyleSheet(object):
+    """Needed for html elements embedded into labels."""
+    related_link_key = "font-weight: bold; color: rgb(10, 50, 10);"
+    related_link_part_of_speech = "font-weight: normal; color: grey;"
+
+
 def tostr(a):
     if a is None:
         return ""
@@ -99,8 +105,12 @@ class DictEntryView(QWidget):
     def add_link(self, link, callback):
         title = tostr(link.key)
         href = link.url
-        # btn = QLabel('<a href="related" style="text-decoration: none; color: green;"><strong>' + title + "</strong></a>")
-        btn = LinkLabel(title)
+        label_content = "<span style='"+StyleSheet.related_link_key+"'>" + tostr(link.key) + "</span> "
+        label_content += "<span style='"+StyleSheet.related_link_part_of_speech+"'>"
+        label_content += tostr(link.part_of_speech)
+        # label_content += " " + tostr(link.url)
+        label_content += "</span>"
+        btn = LinkLabel(label_content)
         btn.clicked.connect(callback)
         btn.show()
         btn.setWordWrap(True)
@@ -125,12 +135,8 @@ class DictEntryView(QWidget):
         self.left_scroll.setWidget(self.left_widget)
         self.right_scroll.setWidget(self.right_widget)
         self.right_scroll.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        # TODO: potem i tak to będą jakieś labelsy, więc się będą zawijać i będzie dobrze
         self.right_scroll.setMaximumWidth(get_plugin().config.related_defs_panel_width)
-        self.left_column = QVBoxLayout()
-        self.left_column.addWidget(self.left_scroll)
-        self.left_column.addWidget(self.examples_widget)
-        self.main_hbox.addLayout(self.left_column)
+        self.main_hbox.addWidget(self.left_scroll)
         self.main_hbox.addWidget(self.right_scroll)
         self.setLayout(self.main_hbox)
 
@@ -182,8 +188,8 @@ class SenseWidget(QWidget):
         #self.main_vbox.addLayout(self.def_hbox)
 
     def add_example(self, example, callback):
-        key = "</b><i> or </i><b>".join(example.get_keys())
-        ex = example.get_erased_content()
+        key = example.format_original_key_html()
+        ex = example.content
         tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
         if key:
             tmp += "</i><b> "+key+" </b><i>"
@@ -257,6 +263,49 @@ class SenseWidget(QWidget):
         
         self.setLayout(self.def_hbox)
 
+    def leaveEvent(self, event):
+        self.hidden_examples.onLeaveEvent(event)
 
-class ExamplesWidget(QWidget):
-    pass
+
+class WordListView(QWidget):
+    def init_begin(self):
+        self.main_hbox = QHBoxLayout()
+        self.text_edit = QTextEdit()
+        self.text_edit.setHtml('<table border="2" style="border-color: black; border-width: 2; border-style: solid;"> </table>')
+        self.main_hbox.addWidget(self.text_edit)
+        self.setLayout(self.main_hbox)
+        def func_constr(f):
+            def wyn(e):
+                f(e)
+                if e.key() == QtCore.Qt.Key_Backspace:
+                    self.reload_table()
+            return wyn
+        self.text_edit.keyPressEvent = func_constr(self.text_edit.keyPressEvent)
+        if get_plugin().config.log_wordlist:
+            today = datetime.date.today()
+            filename = "millandict_wordlist_log_"+str(today.month) + "_" +str(today.year) + ".html"
+            self.logfile = filename
+
+    def init_end(self):
+        pass
+
+    def add_table_row(self, a, b):
+        tr = "<tr><td>" + a + "</td><td>" + b + "</td></tr>"
+        text = self.text_edit.toHtml()[:-(len("</table></body></html>"))] + tr + "</table></body></html>"
+        text = 'border="2"'.join(text.split('border="0"'))
+        self.text_edit.setHtml(text)
+        if get_plugin().config.log_wordlist:
+            with open(self.logfile, "a+") as f:
+                f.write(tr.encode("ascii","ignore") + "\n")
+        #print self.text_edit.toHtml()
+
+    def reload_table(self):
+        text = self.text_edit.toHtml()
+        text = 'border="2"'.join(text.split('border="0"'))
+        #text = ''.join(text.split('<td></td>'))
+        text = ''.join(re.split(r'<tr>\s*<td>\s*</td>\s*<td>\s*</td>\s*</tr>',text))
+        #print text
+        cursor = self.text_edit.textCursor()
+        c_pos = self.text_edit.cursorRect().center()
+        self.text_edit.setHtml(text)
+        self.text_edit.setTextCursor(self.text_edit.cursorForPosition(c_pos))

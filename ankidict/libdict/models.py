@@ -9,15 +9,6 @@ from sqlalchemy import Column, Integer, String
 from libdict import basemodels
 
 
-class Destination(object):
-    def __init__(self, query=None, link=None):
-        """Accept either a string with user-entered query or a link model
-        instance.
-        """
-        assert query is not None or link is not None
-        assert query is None or link is None
-
-
 def make_models(self):
     """
     IMPORTANT: use distinct declarative_base for each dictionary
