@@ -55,6 +55,8 @@ class EraseAlgorithm(object):
             txt = txt[:-3]
         if txt.startswith(pat) and len(txt) - len(pat) <= 1:
             return True
+        if pat.startswith(txt) and len(pat) - len(txt) <= 1:
+            return True
         return False
 
     def anonymize_word(self, wrd):
