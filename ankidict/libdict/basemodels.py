@@ -1,6 +1,60 @@
 """Here some convenience getter methods for models."""
 
 
+class EraseAlgorithm(object):
+
+    def generate_possibilities(self, word):
+        pass #TODO
+
+    def match(self, txt, pat):
+        return txt == pat
+        pass #TODO
+
+    def anonymize_word(self, wrd):
+        return " _" * len(wrd) + " "
+        pass #TODO
+
+    def try_erase_lists(self, text, pattern):
+        # TODO TODO TODO write tests for it!
+        """Take two lists of words and return erased list of words on
+        success and None on failure."""
+        res = []
+        res_key = []
+        while True:
+            if pattern == []:
+                break
+            elif text == []:
+                return None
+            elif self.match(text[0], pattern[0]):
+                res.append(self.anonymize_word(text[0]))
+                res_key.append(text[0])
+                text = text[1:]
+                pattern = pattern[1:]
+            elif len(text) >= 2 and self.match(text[1], pattern[0]):
+                res.append(text[0])
+                res.append(self.anonymize_word(text[1]))
+                res_key.append(text[1])
+                text = text[2:]
+                pattern = pattern[1:]
+            else:
+                return None
+        while text != []:
+            res.append(text[0])
+            text = text[1:]
+        return (res, res_key)
+
+    def erase_lists(self, text, pattern):
+        res = []
+        while text != []:
+            tmp = self.try_erase_lists(text, pattern)
+            if tmp is not None:
+                (r, r_k) = tmp
+                return (res + r, r_k)
+            res.append(text[0])
+            text = text[1:]
+        return None
+
+
 class Base(object):
     
     @classmethod

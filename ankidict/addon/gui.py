@@ -26,7 +26,9 @@ from addon import basegui
 
 # TODO:
 
-
+# - send crash reports to the author!
+# - catch the value errors in PageModel and throw exceptions with shorter traceback,
+#     but include the page structure info in exceptions.
 # - caching entries in a db!
 # - downloading related links ahead of time when entry was loaded IMPORTANT!!!
 # - autocomplete - lol

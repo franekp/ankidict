@@ -69,6 +69,7 @@ Link:
 
 class BaseTests(object):
     """Subclasses must implement result_hook."""
+    is_heavy = True
     def test_phrase_take_on(self):
         res = self.result_hook(query_site("take on"))
         # res.pprint()
