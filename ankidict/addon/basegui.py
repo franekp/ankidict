@@ -141,6 +141,14 @@ class DictEntryView(QWidget):
         self.setLayout(self.main_hbox)
 
 
+class ExampleAddButton(QPushButton):
+    pass
+
+
+class ExampleWidget(QWidget):
+    pass
+
+
 class SenseWidget(QWidget):
     def format_definition_html(self):
         wyn = ""
@@ -181,8 +189,8 @@ class SenseWidget(QWidget):
         tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         
         self.main_vbox.addWidget(tmplabel)
-        self.add_btn = QPushButton("ADD")
-        self.add_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        # self.add_btn = QPushButton("ADD")
+        # self.add_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         
         self.examples_to_hide = []
         #self.main_vbox.addLayout(self.def_hbox)
@@ -190,17 +198,27 @@ class SenseWidget(QWidget):
     def add_example(self, example, callback):
         key = example.format_original_key_html()
         ex = example.content
-        tmp = '<a href="example" style="'+get_plugin().config.example_style+'"><i>'
+        tmp = '<span style="'+get_plugin().config.example_style+'"><i>'
         if key:
             tmp += "</i><b> "+key+" </b><i>"
         tmp += ex
-        tmp += "</i></a>"
+        tmp += "</i></span>"
         tmplabel = QLabel(tmp)
         tmplabel.setWordWrap(True)
         tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        tmplabel.linkActivated.connect(callback)
-        self.examples_to_hide.append(tmplabel)
+        tmpwidget = ExampleWidget()
+        tmplayout = QHBoxLayout()
+        tmplayout.setContentsMargins(0, 0, 0, 0)
+        tmpbutton = ExampleAddButton("+")
+        tmplayout.addWidget(tmpbutton)
+        tmplayout.addWidget(tmplabel)
+        tmpwidget.setLayout(tmplayout)
+        tmpbutton.show()
+        tmplabel.show()
+        tmpbutton.clicked.connect(callback)
+        tmpbutton.clicked.connect(lambda: tmpbutton.setEnabled(False))
+        self.examples_to_hide.append(tmpwidget)
 
     def init_end(self):
         self.examples_all = self.examples_to_hide
@@ -256,7 +274,7 @@ class SenseWidget(QWidget):
         frame = make_frame()
         frame.setLayout(self.main_vbox)
         self.def_hbox.addWidget(frame)
-        self.def_hbox.addWidget(self.add_btn)
+        # self.def_hbox.addWidget(self.add_btn)
         
         
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)

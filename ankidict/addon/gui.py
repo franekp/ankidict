@@ -206,7 +206,7 @@ class SenseWidget(basegui.SenseWidget):
         self.dwnd = get_plugin().dwnd
         self.init_begin()
         
-        self.add_btn.clicked.connect(self.save_def)
+        # self.add_btn.clicked.connect(self.save_def)
         
         for ex in sense.examples:
             # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
@@ -215,8 +215,8 @@ class SenseWidget(basegui.SenseWidget):
         
         self.init_end()
 
-    def save_def(self):
-        get_plugin().add_note_sense(self.sense)
+    # def save_def(self):
+    #     get_plugin().add_note_sense(self.sense)
 
 
 class WordListView(BaseView, basegui.WordListView):
