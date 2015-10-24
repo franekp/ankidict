@@ -1,6 +1,12 @@
 from collections import Counter
 
 
+# TODO:
+# - flatten_lists switch in PageModel subclasses - when lists are nested, they
+#    are flattened
+# - If(Attr("class") == "myclass") (...)
+# - ParentNode node-like thing to access parent node space from child nodes
+
 class Base(object):
     def extract(self, selector):
         """Always return a dict with (possibly partial) results."""

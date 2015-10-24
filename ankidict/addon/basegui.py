@@ -192,7 +192,7 @@ class SenseWidget(QWidget):
         # self.add_btn = QPushButton("ADD")
         # self.add_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         
-        self.examples_to_hide = []
+        self.examples_all = []
         #self.main_vbox.addLayout(self.def_hbox)
 
     def add_example(self, example, callback):
@@ -206,7 +206,6 @@ class SenseWidget(QWidget):
         tmplabel = QLabel(tmp)
         tmplabel.setWordWrap(True)
         tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         tmpwidget = ExampleWidget()
         tmplayout = QHBoxLayout()
         tmplayout.setContentsMargins(0, 0, 0, 0)
@@ -218,11 +217,10 @@ class SenseWidget(QWidget):
         tmplabel.show()
         tmpbutton.clicked.connect(callback)
         tmpbutton.clicked.connect(lambda: tmpbutton.setEnabled(False))
-        self.examples_to_hide.append(tmpwidget)
+        self.examples_all.append(tmpwidget)
 
     def init_end(self):
-        self.examples_all = self.examples_to_hide
-        self.examples_to_hide = self.examples_to_hide[(get_plugin().config.max_examples_per_sense):]
+        self.examples_to_hide = self.examples_all[(get_plugin().config.max_examples_per_sense):]
         def make_frame():
             fr = QFrame()
             #fr.setStyleSheet("background-color: white;");

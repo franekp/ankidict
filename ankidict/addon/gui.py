@@ -34,19 +34,13 @@ from addon import basegui
 # - autocomplete - lol
 # - add proper closing of word list log file
 
-# - add better key phrase removal from the definitions (e.g. remove also words with 's'/'ed' at the end or phrasal verbs)
-#		encapsulate it in separate class/module/whatever and replace existing code with it
-# - add special handling of cases where there is only one example added (some list of possible answers)
-#		put this in the same module/class that the above
+
 # - add many behavior specifiers to config (and maybe settings view to change the config)
 # - add the additional textbox to paste currently studied text (for examples) and textbox with link to it (for additional field in note)
-# - add option to add to deck two/more senses as one sense (and think how to do it sensibly in the UI)
-#   (or maybe do it at the deck level - utility to merge the cards with the same key)
 # - utility for learning synonyms - some form of grouping thgs.
 # - make usable distribution so that people can install it easily (best option - through Anki addon-manager)
-# - POSSIBLE IDEA : maybe write something such as a 'scraper generator' - generating scrapers from unit tests for them - this can be interesting thing...
-#    (this is good as long as content is not changing, but website code may change)
-# - scraping unit tests... - launched automatically for ex. every month
+
+# - scraping unit tests... - launched automatically for ex. every week
 
 # windows utilities...
 
@@ -205,18 +199,13 @@ class SenseWidget(basegui.SenseWidget):
         self.entry_view = entry_view
         self.dwnd = get_plugin().dwnd
         self.init_begin()
-        
-        # self.add_btn.clicked.connect(self.save_def)
-        
+
         for ex in sense.examples:
             # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
             self.add_example(ex,
                 (lambda t: lambda: get_plugin().add_note_example(t))(ex) )
-        
-        self.init_end()
 
-    # def save_def(self):
-    #     get_plugin().add_note_sense(self.sense)
+        self.init_end()
 
 
 class WordListView(BaseView, basegui.WordListView):

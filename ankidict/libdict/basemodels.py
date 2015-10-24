@@ -139,6 +139,8 @@ class EraseAlgorithm(object):
         text = text.replace(",", " , ")
         text = text.replace(".", " . ")
         text = text.replace("'", " ' ")
+        text = text.replace(" - ", " ~ ")
+        text = text.replace("-", " - ")
         text = text.split()
         return text
 
@@ -147,6 +149,8 @@ class EraseAlgorithm(object):
         res = res.replace(" ,", ",")
         res = res.replace(" .", ".")
         res = res.replace(" ' ", "'")
+        res = res.replace(" - ", "-")
+        res = res.replace(" ~ ", " - ")
         return res
 
     def remove_irrelevant_parts(self, sentence):

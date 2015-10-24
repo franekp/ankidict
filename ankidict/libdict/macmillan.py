@@ -29,6 +29,46 @@ class Example(PageModel):
         ),
     )
 
+# <longman>
+
+'''
+class ExampleWithKey(PageModel):
+    model_class = models.example
+    page_tree = Html(
+        ParentNode(
+            Node("my-sibling")(
+                asdf = Text()
+            )
+            asdd=Attr("...")
+        )
+    )
+
+
+class LongmanExamples(PageModel):
+    flatten_lists = True
+    Node.list("> div")(
+        If(Attr("class") == "GramExa")(
+            Node.list(".Example")(
+                examples=ExampleWithKey()
+            )
+        ),
+        If(Attr("class") == "Example")(
+            examples=ExampleWithoutKey()
+        ),
+        If(CountNodes("div.asdf") == 1)(
+            asdf = ...
+        )
+    )
+    
+    @classmethod
+    def postproc(self):
+        for i in ...:
+            if isinstance(i, list):
+                ...
+'''
+
+# </longman>
+
 
 class SubSense(PageModel):
     model_class = models.SubSense
@@ -45,7 +85,7 @@ class SubSense(PageModel):
         Node.optional("> span.SYNTAX-CODING")(
             syntax_coding=Text()
         ),
-        Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
+        Node("> .DEFINITION", "> .QUICK-DEFINITION", "> .GREF-GROUP")(
             definition=Text()
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
@@ -74,7 +114,7 @@ class Sense(PageModel):
         Node.optional("> span.SYNTAX-CODING")(
             syntax_coding=Text()
         ),
-        Node("> span.DEFINITION", "> span.QUICK-DEFINITION")(
+        Node("> .DEFINITION", "> .QUICK-DEFINITION", "> .GREF-GROUP")(
             definition=Text()
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",

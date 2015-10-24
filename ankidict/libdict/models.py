@@ -15,7 +15,6 @@ def make_models(self):
     Attributes of 'self' required:
      - Base
      - dictname
-     - enable_translations
     """
     Base = self.Base
     dictname = self.dictname
