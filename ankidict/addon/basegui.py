@@ -19,6 +19,9 @@ class StyleSheet(object):
     """Needed for html elements embedded into labels."""
     related_link_key = "font-weight: bold; color: rgb(10, 50, 10);"
     related_link_part_of_speech = "font-weight: normal; color: grey;"
+    custom_example_default_text = "QLineEdit {color: gray; font-style: italic}"
+    custom_example_user_text = "QLineEdit {color: black; font-style: normal}"
+    user_example_style = "text-decoration: none; color: rgb(0, 133, 31);"
 
 
 def tostr(a):
@@ -142,26 +145,145 @@ class DictEntryView(QWidget):
 
 
 class ExampleAddButton(QPushButton):
+    def __init__(self):
+        super(ExampleAddButton, self).__init__("+")
     pass
 
 
 class ExampleWidget(QWidget):
-    pass
+    def __init__(self, example, callback, user_defined=False):
+        super(ExampleWidget, self).__init__()
+        key = example.format_original_key_html()
+        ex = example.content
+        if not user_defined:
+            label_content = '<span style="'+get_plugin().config.example_style+'"><i>'
+        else:
+            label_content = '<span style="'+StyleSheet.user_example_style+'"><i>'
+        if key:
+            label_content += "</i><b> "+key+" </b><i>"
+        label_content += ex
+        label_content += "</i></span>"
+        self.label = QLabel(label_content)
+        self.label.setWordWrap(True)
+        self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+
+        self.button = ExampleAddButton()
+        self.button.clicked.connect(callback)
+        self.button.clicked.connect(lambda: self.button.setEnabled(False))
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.button)
+        layout.addWidget(self.label)
+        self.setLayout(layout)
 
 
-class SenseWidget(QWidget):
+class UserExampleLineEdit(QLineEdit):
+    DEFAULT_TEXT = "Type your example usage of this word here..."
+    def focusInEvent(self, e):
+        super(UserExampleLineEdit, self).focusInEvent(e)
+        if self.text() == self.DEFAULT_TEXT:
+            self.setText("")
+            self.setStyleSheet(StyleSheet.custom_example_user_text)
+
+    def focusOutEvent(self, e):
+        if e is not None:
+            super(UserExampleLineEdit, self).focusOutEvent(e)
+        if self.text() == "":
+            self.setText(self.DEFAULT_TEXT)
+            self.setStyleSheet(StyleSheet.custom_example_default_text)
+
+    def __init__(self):
+        super(UserExampleLineEdit, self).__init__("")
+        self.focusOutEvent(None)
+
+
+class UserExampleWidget(QWidget):
+    def __init__(self, callback):
+        super(UserExampleWidget, self).__init__()
+        self.lineedit = UserExampleLineEdit()
+        self.button = ExampleAddButton()
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.button)
+        layout.addWidget(self.lineedit)
+        self.setLayout(layout)
+        self.callback = callback
+        self.button.clicked.connect(self.return_pressed)
+        self.lineedit.returnPressed.connect(self.return_pressed)
+        self.lineedit.textChanged.connect(self.text_changed)
+        self.button.setEnabled(False)
+
+    def text_changed(self, txt):
+        if txt == '' or txt == self.lineedit.DEFAULT_TEXT:
+            self.button.setEnabled(False)
+        else:
+            self.button.setEnabled(True)
+
+    def return_pressed(self):
+        self.callback(self.lineedit.text())
+        self.lineedit.clear()
+        self.lineedit.clearFocus()
+
+
+class HiddenExamplesWidget(QWidget):
+    def __init__(self, examples_list):
+        super(HiddenExamplesWidget, self).__init__()
+        self.setMouseTracking(True)
+        self.update(examples_list)
+
+    def update(self, example_widgets):
+        self.main_layout = QVBoxLayout()
+        for i in example_widgets:
+            self.main_layout.addWidget(i)
+        self.ellipsis = QLabel('<a href="example" style="'+
+            get_plugin().config.example_style+'"><b> ... ... ... </b></a>')
+        self.main_layout.addWidget(self.ellipsis)
+        self.setLayout(self.main_layout)
+        self.main_layout.setMargin(2)
+        self.example_widgets = example_widgets
+        self.hidden_example_widgets = example_widgets[
+            (get_plugin().config.max_examples_per_sense):]
+        self.show()
+        self.ellipsis.hide()
+        self.collapse()
+
+    def insert_example_one_before_end(self, ex_widget):
+        self.main_layout.insertWidget(self.main_layout.count()-2, ex_widget)
+        self.example_widgets.insert(len(self.example_widgets)-1, ex_widget)
+        self.hidden_example_widgets = self.example_widgets[
+            (get_plugin().config.max_examples_per_sense):]
+        self.show()
+        self.ellipsis.hide()
+        self.collapse()
+
+    def expand(self):
+        # here showing examples
+        for i in self.hidden_example_widgets:
+            i.show()
+        self.ellipsis.hide()
+
+    def collapse(self):
+        # here hiding examples
+        for i in self.hidden_example_widgets:
+            i.hide()
+        if self.hidden_example_widgets != []:
+            self.ellipsis.show()
+
+    def mouseMoveEvent(self, event):
+        super(HiddenExamplesWidget, self).mouseMoveEvent(event)
+        if event.x() < get_plugin().config.examples_hover_area_width:
+            self.expand()
+        else:
+            self.collapse()
+
+
+class SenseWidget(QFrame):
     def format_definition_html(self):
         wyn = ""
         if self.sense.style_level != "" and self.sense.style_level != None:
             wyn += "<i>"+self.sense.style_level+"</i>"
-        return wyn + self.sense.definition
-
-    def extract_keys(self):
-        return self.sense.get_keys()
-
-    def format_key_html(self):
-        keys = self.extract_keys()
-        return "<strong>"+(" </strong ><i> or </i><strong> ".join(keys))+"</strong>"
+        return wyn + " " + self.sense.definition
 
     def format_erased_definition_html(self):
         wyn = ""
@@ -174,113 +296,53 @@ class SenseWidget(QWidget):
         return wyn + tmp_def
 
     def init_begin(self):
-        self.main_vbox = QVBoxLayout()
-        self.def_hbox = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
         
-        self.main_vbox.setMargin(0)
-        self.def_hbox.setMargin(0)
-        self.main_vbox.setSpacing(0)
-        self.def_hbox.setSpacing(0)
+        self.main_layout.setMargin(0)
+        self.main_layout.setSpacing(0)
         
-        tmplabel = QLabel(self.format_key_html() + "  ---  " + self.format_definition_html())
-        tmplabel.setWordWrap(True)
-        tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        #tmplabel.setScaledContents(True)
-        tmplabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        
-        self.main_vbox.addWidget(tmplabel)
-        # self.add_btn = QPushButton("ADD")
-        # self.add_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        
-        self.examples_all = []
-        #self.main_vbox.addLayout(self.def_hbox)
+        self.label = QLabel(self.sense.format_key_html() + "  ---  " + self.format_definition_html())
+        self.label.setWordWrap(True)
+        self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
-    def add_example(self, example, callback):
-        key = example.format_original_key_html()
-        ex = example.content
-        tmp = '<span style="'+get_plugin().config.example_style+'"><i>'
-        if key:
-            tmp += "</i><b> "+key+" </b><i>"
-        tmp += ex
-        tmp += "</i></span>"
-        tmplabel = QLabel(tmp)
-        tmplabel.setWordWrap(True)
-        tmplabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        tmpwidget = ExampleWidget()
-        tmplayout = QHBoxLayout()
-        tmplayout.setContentsMargins(0, 0, 0, 0)
-        tmpbutton = ExampleAddButton("+")
-        tmplayout.addWidget(tmpbutton)
-        tmplayout.addWidget(tmplabel)
-        tmpwidget.setLayout(tmplayout)
-        tmpbutton.show()
-        tmplabel.show()
-        tmpbutton.clicked.connect(callback)
-        tmpbutton.clicked.connect(lambda: tmpbutton.setEnabled(False))
-        self.examples_all.append(tmpwidget)
+        self.main_layout.addWidget(self.label)
+
+        self.example_widgets = []
+
+    def add_example(self, example):
+        # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
+        self.example_widgets.append(ExampleWidget(example, (
+            lambda t: lambda: get_plugin().add_note_example(t))(example)))
+
+    def make_user_example_widget(self, example):
+        return ExampleWidget(
+            example,
+            (lambda t: lambda: get_plugin().add_note_example(t))(example),
+            user_defined=True,
+        )
+
+    def add_textfield_for_custom_examples(self):
+        self.example_widgets.append(UserExampleWidget(self.user_example_supplied))
+
+    def user_example_supplied(self, text):
+        ex = get_plugin().create_user_example(self.sense, text)
+        ex_w = self.make_user_example_widget(ex)
+
+        self.examples_widget.insert_example_one_before_end(ex_w)
+
+        ex_w.button.clicked.emit(True)
 
     def init_end(self):
-        self.examples_to_hide = self.examples_all[(get_plugin().config.max_examples_per_sense):]
-        def make_frame():
-            fr = QFrame()
-            #fr.setStyleSheet("background-color: white;");
-            fr.setFrameShape(QFrame.Box)
-            # fr.setFrameShadow(QFrame.Raised)
-            fr.setLineWidth(0)
-            fr.setMidLineWidth(0)
-            return fr
-        def make_hidden_examples():
-            w = QWidget()
-            w.onLeaveEvent = lambda e: None
-            if self.examples_all == []:
-                return w
-            w.setMouseTracking(True)
-            lab = QLabel('<a href="example" style="'+get_plugin().config.example_style+'"><b> ... ... ... </b></a>')
-            lab.hide()
-            layout = QVBoxLayout()
-            for i in self.examples_all:
-                layout.addWidget(i)
-            layout.setMargin(2)
-            layout.addWidget(lab)
-            w.setLayout(layout)
-            def onEnterEvent(event):
-                # here showing examples (takie onHover)
-                for i in self.examples_to_hide:
-                    i.show()
-                lab.hide()
-            def onLeaveEvent(event):
-                # here hiding examples (takie onUnHover)
-                for i in self.examples_to_hide:
-                    i.hide()
-                if self.examples_to_hide != []:
-                    lab.show()
-            def mouseMoveEvent(event):
-                if event.x() < get_plugin().config.examples_hover_area_width :
-                    onEnterEvent(event)
-                else:
-                    onLeaveEvent(event)
-            #w.enterEvent = onEnterEvent
-            #w.leaveEvent = onLeaveEvent
-            w.mouseMoveEvent = mouseMoveEvent
-            w.onLeaveEvent = onLeaveEvent
-            w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            onLeaveEvent(None)
-            w.show()
-            return w
-        self.hidden_examples = make_hidden_examples()
-        self.main_vbox.addWidget(self.hidden_examples)
-        frame = make_frame()
-        frame.setLayout(self.main_vbox)
-        self.def_hbox.addWidget(frame)
-        # self.def_hbox.addWidget(self.add_btn)
-        
-        
+        self.examples_widget = HiddenExamplesWidget(self.example_widgets)
+        self.main_layout.addWidget(self.examples_widget)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        
-        self.setLayout(self.def_hbox)
+        self.setLayout(self.main_layout)
+        self.show()
 
     def leaveEvent(self, event):
-        self.hidden_examples.onLeaveEvent(event)
+        super(SenseWidget, self).leaveEvent(event)
+        self.examples_widget.collapse()
 
 
 class WordListView(QWidget):

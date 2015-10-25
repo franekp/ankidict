@@ -201,9 +201,8 @@ class SenseWidget(basegui.SenseWidget):
         self.init_begin()
 
         for ex in sense.examples:
-            # tej lambdy NIE można uprościć, bo inaczej się zbuguje:
-            self.add_example(ex,
-                (lambda t: lambda: get_plugin().add_note_example(t))(ex) )
+            self.add_example(ex)
+        self.add_textfield_for_custom_examples()
 
         self.init_end()
 

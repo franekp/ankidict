@@ -1,5 +1,5 @@
-SenseWidget QFrame {
-    background-color: rgb(210, 255, 210);
+SenseWidget {
+    background-color: rgb(200, 255, 200);
 }
 
 ExampleAddButton {
@@ -7,6 +7,12 @@ ExampleAddButton {
     margin: 0px;
     width: 25px;
     height: 20px;
+}
+
+UserExampleLineEdit {
+    border: 0px;
+    margin-right: 3px;
+    margin-bottom: 3px;
 }
 
 ExampleWidget {

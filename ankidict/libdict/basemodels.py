@@ -178,6 +178,9 @@ class EraseAlgorithm(object):
     def erase_sentence(self, text, pat):
         pat = self.remove_parentheses(pat)
         pat = pat.replace("do something", "")
+        pat = pat.replace("doing something", "")
+        pat = pat.replace("did something", "")
+        pat = pat.replace("does something", "")
         pat = pat.replace("etc", "")
         text = self.glue_short_words(text)
         pat = self.glue_short_words(pat)

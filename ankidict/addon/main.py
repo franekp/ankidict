@@ -107,10 +107,13 @@ class AnkiDict(object):
         self.col.add_note(*ex.create_anki_note())
         self.dwnd.wordlist_view.add_example(ex)
 
-    def add_note_sense(self, sense):
-        """Take a sense or a subsense and add its note to the dict."""
-        self.col.add_note(*sense.create_anki_note())
-        self.dwnd.wordlist_view.add_sense(sense)
+    def create_user_example(self, sense, ex_text):
+        Example = sense.example_class
+        ex = Example(
+            content=ex_text,
+            sense=sense,
+        )
+        return ex
 
     def open_destination(self, dest):
         """If dest is a string, open a search for it in a dictionary,

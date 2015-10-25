@@ -36,7 +36,8 @@ def make_models(self):
 
     class SubSense(mixins.SubSense, Base):
         __tablename__ = dictname + '_subsense'
-        
+        example_class = Example
+
         # core:
         id = Column(Integer, primary_key=True)
         original_key = Column(String)
@@ -58,6 +59,7 @@ def make_models(self):
 
     class Sense(mixins.Sense, Base):
         __tablename__ = dictname + '_sense'
+        example_class = Example
 
         # core:
         id = Column(Integer, primary_key=True)

@@ -7,9 +7,6 @@ from libdict.models import Models
 from libdict.cache import Cache
 
 
-#TODO: get the entry for 'maker' to work properly
-
-
 __all__ = ["models", "MacmillanCache"]
 
 
@@ -85,7 +82,8 @@ class SubSense(PageModel):
         Node.optional("> span.SYNTAX-CODING")(
             syntax_coding=Text()
         ),
-        Node("> .DEFINITION", "> .QUICK-DEFINITION", "> .GREF-GROUP")(
+        Node("> .DEFINITION", "> .QUICK-DEFINITION",
+             "> .GREF-GROUP", "> .SAMEAS")(
             definition=Text()
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
@@ -114,7 +112,8 @@ class Sense(PageModel):
         Node.optional("> span.SYNTAX-CODING")(
             syntax_coding=Text()
         ),
-        Node("> .DEFINITION", "> .QUICK-DEFINITION", "> .GREF-GROUP")(
+        Node("> .DEFINITION", "> .QUICK-DEFINITION",
+             "> .GREF-GROUP", "> .SAMEAS")(
             definition=Text()
         ),
         Node.list("> strong", "> span.SENSE-VARIANT span.BASE",
