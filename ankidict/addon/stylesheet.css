@@ -35,6 +35,11 @@ DictWindow {
     background-color: rgb(150, 255, 150);
 }
 
+DictWindow > QLabel {
+    color: green;
+    font-weight: bold;
+}
+
 QLineEdit {
     background-color: white;
 }

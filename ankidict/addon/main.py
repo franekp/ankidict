@@ -89,8 +89,8 @@ class AnkiDict(object):
         # return False to say: "Initialization failed"
         from addon.gui import DictWindow
         from addon.collection import Collection
-        self.dwnd = DictWindow()
         self.col = Collection()
+        self.dwnd = DictWindow()
         self.open_destination("make")
         #MORE
         self.initialized = True
@@ -104,7 +104,8 @@ class AnkiDict(object):
         self.dwnd.show()
 
     def add_note_example(self, ex):
-        self.col.add_note(*ex.create_anki_note())
+        self.col.add_note(*ex.create_anki_note(),
+                          deckname=self.get_user_selected_deck())
         self.dwnd.wordlist_view.add_example(ex)
 
     def create_user_example(self, sense, ex_text):
@@ -114,6 +115,13 @@ class AnkiDict(object):
             sense=sense,
         )
         return ex
+
+    def get_user_selected_deck(self):
+        """Return selected (in the DictWindow) deck's name."""
+        return self.dwnd.select_deck_combobox.currentText()
+
+    def get_deck_names(self):
+        return self.col.get_deck_names()
 
     def open_destination(self, dest):
         """If dest is a string, open a search for it in a dictionary,

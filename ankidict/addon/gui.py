@@ -71,14 +71,13 @@ class DictWindow(basegui.DictWindow):
         self.welcome_view = WelcomeView()
         self.wordlist_view = WordListView()
         self.settings_view = SettingsView()
-        
+
         self.search_input.returnPressed.connect(self.dictSearchEvent)
         self.search_button.clicked.connect(self.dictSearchEvent)
         self.prev_button.clicked.connect(self.prevView)
         self.next_button.clicked.connect(self.nextView)
         self.wordlist_button.clicked.connect(lambda: self.setView(self.wordlist_view))
-        self.settings_button.clicked.connect(lambda: self.setView(self.settings_view))
-        
+
         # after pressing prev_button:
         self.prev_views = []
         # after pressing next_button:
@@ -87,6 +86,7 @@ class DictWindow(basegui.DictWindow):
         self.current_view = self.welcome_view
 
         self.init_end()
+        self.show()
     
     def __updatePrevNextBtns(self):
         self.prev_button.setEnabled(self.prev_views != [])

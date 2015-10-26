@@ -31,6 +31,19 @@ def tostr(a):
         return a
 
 
+class SelectDeckComboBox(QComboBox):
+    def __init__(self):
+        super(SelectDeckComboBox, self).__init__()
+        self.addItems(get_plugin().get_deck_names())
+        self.setCurrentIndex(0)
+
+    def showPopup(self):
+        # update the list...
+        self.clear()
+        self.addItems(get_plugin().get_deck_names())
+        super(SelectDeckComboBox, self).showPopup()
+
+
 class DictWindow(QWidget):
     def init_begin(self):
         def conf_btn(btn):
@@ -45,12 +58,10 @@ class DictWindow(QWidget):
         self.prev_button.setMaximumWidth(66)
         self.next_button.setMaximumWidth(66)
         self.wordlist_button = QPushButton("WORDLIST")
-        self.settings_button = QPushButton("SETTINGS")
         conf_btn(self.prev_button)
         conf_btn(self.next_button)
-        #conf_btn(self.search_button)
-        #conf_btn(self.wordlist_button)
-        #conf_btn(self.settings_button)
+        self.select_deck_label = QLabel("DECK: ")
+        self.select_deck_combobox = SelectDeckComboBox()
 
     def init_end(self):
         self.head_hbox = QHBoxLayout()
@@ -59,7 +70,9 @@ class DictWindow(QWidget):
         self.head_hbox.addWidget(self.search_input)
         self.head_hbox.addWidget(self.search_button)
         self.head_hbox.addWidget(self.wordlist_button)
-        self.head_hbox.addWidget(self.settings_button)
+        self.head_hbox.addWidget(self.select_deck_label)
+        self.head_hbox.addWidget(self.select_deck_combobox)
+
         self.main_vbox = QVBoxLayout()
         self.main_vbox.addLayout(self.head_hbox)
         self.main_vbox.addWidget(self.current_view)
@@ -147,7 +160,6 @@ class DictEntryView(QWidget):
 class ExampleAddButton(QPushButton):
     def __init__(self):
         super(ExampleAddButton, self).__init__("+")
-    pass
 
 
 class ExampleWidget(QWidget):
@@ -224,6 +236,7 @@ class UserExampleWidget(QWidget):
         self.callback(self.lineedit.text())
         self.lineedit.clear()
         self.lineedit.clearFocus()
+        self.lineedit.focusOutEvent(None)
 
 
 class HiddenExamplesWidget(QWidget):

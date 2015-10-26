@@ -29,13 +29,14 @@ import re
 from main import get_plugin
 
 class Collection(object):
-    def setup(self):
-        self.select_deck()
-
-    def select_deck(self):
-        # selects deck
-        # [TODO] test
-        deckname = get_plugin().config.deck
+    """Interface functions: get_deck_names, add_note. The rest is for internal
+    use, 'private'.
+    """
+    def select_deck(self, deckname):
+        """Select deck with given name so that anki functions will add to
+        this deck. Also select note model defined in config. Called from
+        add_note(...) method.
+        """
         deckid = mw.col.decks.id(deckname)
 
         # select proper model
@@ -64,20 +65,19 @@ class Collection(object):
                 tmp['qfmt'] = '{{'+get_plugin().config.note_question+'}}'
                 tmp['afmt'] = '{{FrontSide}}<hr/>{{'+get_plugin().config.note_answer+'}}<hr/>{{'+get_plugin().config.note_info+'}}'
             mw.col.models.addTemplate(mod, tmp)
-            # [TODO] Maby should I here move deck selecting?
             mw.col.models.add(mod)
         mw.col.models.setCurrent(mod)
 
-    def add_note(self, q, a, e = ''):
+    def add_note(self, q, a, deckname, e = ''):
         # adds card to collection
-        self.setup()
+        self.select_deck(deckname)
 
-        note = self.get_note(q)
+        note = self.get_note_by_question(q)
         if note != None:
-            if not a in [s.strip() for s in note[get_plugin().config.note_answer].split(';')]:
-                note[get_plugin().config.note_answer] += '; ' + a
-                note[get_plugin().config.note_info] += '; ' + e
-                note.flush()
+            # do nothing since it is already in the collection...
+            # TODO: some special handling of groups of synonyms
+            #       but it needs also special card type for them
+            pass
         else:
             note = mw.col.newNote()
             note[get_plugin().config.note_question] = q
@@ -86,30 +86,14 @@ class Collection(object):
             mw.col.addNote(note)
             mw.reset()
 
-    def add_tag(self, q, t):
-        # adds tag to note
-        self.setup()
-
-        note = self.get_note(q)
-        if not note: raise "Najpierw otaguj siebie, zanim zaczniesz tagować to co nie istnieje..."
-        note.tags.append(t)
-        note.flush()
-        mw.reset()
-
-    def get_note(self, q):
-        # returns card with selected question
-        self.setup()
+    def get_note_by_question(self, q):
+        """Return card with question being exactly q or None."""
+        #DANGER: needs select_deck called before!
 
         notes = mw.col.findNotes('"'+re.escape(q)+'"')
         for note in [mw.col.getNote(n) for n in notes]:
             if note[get_plugin().config.note_question] == q: return note
         return None
 
-    def is_note(self, q, a):
-        # checks if <question, answer> is in collection
-
-        note = self.get_note(q)
-        if not note: return False
-        answers = [s.strip() for s in note[get_plugin().config.note_answer].split(';')]
-        if a in answers: return True
-        return False
+    def get_deck_names(self):
+        return mw.col.decks.allNames()
