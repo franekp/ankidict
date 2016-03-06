@@ -1,6 +1,20 @@
 """Here some convenience getter methods for models."""
 import re
 
+# TODO: store original_key in the 'info' field
+
+# TODO: these should work:
+# nicety -> niceties
+# orchestrate -> orchestration
+# stratum -> strata
+# man -> men // check if it is a suffix for example craftsman -> craftsmen
+# glass -> glasses
+# dig -> digging // doubling the last letter when gerund form
+
+# TODO:
+# detect if a word directly after slash is present also somewhere before,
+# if yes, then elongate the boundary of slash operator arguments
+# vanish into thin air/vanish from the face of the earth (=used for emphasis)
 
 IRREGULARS = ['beat,beat,beaten', 'become,became,become', 'begin,began,begun', 'bend,bent,bent', 'bet,bet,bet',
               'bite,bit,bitten', 'bleed,bled,bled', 'blow,blew,blown', 'break,broke,broken', 'breed,bred,bred',

@@ -38,9 +38,12 @@ class BasePageModel(six.with_metaclass(PageModelMetaClass, BaseBasePageModel)):
 class PageModel(BasePageModel, BaseLeaf):
     @classmethod
     def extract_unboxed(cls, selector):
-        res = cls.page_tree.extract(selector)
-        cls.postproc(res)
-        return cls.model_class(**res)
+        try:
+            res = cls.page_tree.extract(selector)
+            cls.postproc(res)
+            return cls.model_class(**res)
+        except ValueError as a:
+            raise ValueError(cls.__name__ + ": " + str(a))
 
     def extract(self, selector):
         res = self.extract_unboxed(selector)

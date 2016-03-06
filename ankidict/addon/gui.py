@@ -26,6 +26,50 @@ from addon import basegui
 
 # TODO:
 
+# - in addition to static questions that don't change, add also dynamic questions,
+#   that is - take some corpus, and generate the questions from it, always marking
+#   sentences as visited. Always select these corpus entries that are the least
+#   visited ones. This way each time user practices, they will be presented with
+#   entirely new question that asks for a word they are learning and they will
+#   need to think for a while which word to use here so the learning will be more
+#   focused on actually using the words and less like remembering random sentences
+#   (which is also needed to some extent). If the user does not know the answer, he
+#   will later be presented some other sentence. This what counts is that user is
+#   required to use every word he is learning in some sentence, NOT to complete all
+#   sentences.
+
+# also using paralell corpus we may make questions about translating given sentences and
+# check if advanced words were used.
+
+# important sources of bi-lingual corpus:
+# - !!! http://opus.lingfil.uu.se/ !!! - OPEN SOURCE PARALELL CORPUS, really good!
+# - !!! main.edu.pl !!! and similar CS contests sites, their tasks are translated into English
+
+# less important:
+# - download pelcra corpora - the literature one
+# - wikipedia
+# - bible translation
+# - other books translations
+# - multilingual news services # take some time
+#    - pap.pl - small amount of data
+#    - globalvoices.org - good quality, but small amount of data
+#    they are poorly structured and usually only some of the articles
+#    have their pair in another language, many are just different
+# - tekstowo.pl and similar song-translation websites # low-quality
+# - subtitles from various movies # medium-quality
+
+# possible source of mono-lingual funny corpus:
+# - scp-wiki.pl , scp-wiki.net
+
+# GENERAL IDEA IS THAT SOMEHOW WE NEED TO FORCE THE LEARNER TO BUILD SOME
+# SENTENCES WITH THE WORDS HE STUDIED TODAY. SO FIRST WE OBTAIN A LIST OF WORDS
+# THAT WERE STUDIED TODAY. THEN WE NEED TO CREATE SOME HINTS (SIMPLE IDEA IS THAT
+# THEY ARE WORDS FROM PARALELL CORPUS) THAT WILL LEAD TO THE LEARNER USE THE
+# WORDS IN _NEW_ SENTENCES. (IT MAY BE IMPORTANT THAT THE USER WRITES _WHOLE_
+# SENTENCE INSTEAD OF FILLING THE BLANKS...)
+
+# - SUBSENSES!
+# - PREVENT OUT-OF-MEM CRASHES!
 # - send crash reports to the author!
 # - catch the value errors in PageModel and throw exceptions with shorter traceback,
 #     but include the page structure info in exceptions.

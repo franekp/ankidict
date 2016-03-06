@@ -6,6 +6,9 @@ from collections import Counter
 #    are flattened
 # - If(Attr("class") == "myclass") (...)
 # - ParentNode node-like thing to access parent node space from child nodes
+# - Node.nth(num)("<css-selector>"), Node.first, Node.second, Node.third
+# - more accurate, informative error handling
+
 
 class Base(object):
     def extract(self, selector):

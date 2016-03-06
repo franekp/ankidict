@@ -104,9 +104,10 @@ class AnkiDict(object):
         self.dwnd.show()
 
     def add_note_example(self, ex):
-        self.col.add_note(*ex.create_anki_note(),
+        note = ex.create_anki_note()
+        self.col.add_note(*note,
                           deckname=self.get_user_selected_deck())
-        self.dwnd.wordlist_view.add_example(ex)
+        self.dwnd.wordlist_view.add_table_row(*reversed(note))
 
     def create_user_example(self, sense, ex_text):
         Example = sense.example_class
@@ -122,6 +123,30 @@ class AnkiDict(object):
 
     def get_deck_names(self):
         return self.col.get_deck_names()
+
+    '''
+    def restore_from_file(self):
+        with open("anki-crash-restore.html") as f:
+            html_txt = f.read()
+        from pagemodel.bsoup import PageModel
+        from pagemodel.html import Html, Node, Text
+        class Restore(PageModel):
+            model_class = dict
+            page_tree = Html(
+                Node.list("tr")(
+                    Node.list("td")(
+                        content=Text()
+                    )
+                )
+            )
+        res = Restore(html_txt)
+        res = res['content']
+        res = [(k, v.replace("(", "<br><span style='color: grey;'>(") + "</span>")for (k, v) in res]
+        for (k, v) in res:
+            self.col.add_note(v, k,
+                          deckname=self.get_user_selected_deck())
+        print(res)
+    '''
 
     def open_destination(self, dest):
         """If dest is a string, open a search for it in a dictionary,

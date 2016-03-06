@@ -6,6 +6,13 @@ from pagemodel.bsoup import PageModel
 from libdict.models import Models
 from libdict.cache import Cache
 
+# TODO: get those entries to work properly:
+# - "smithereens"
+# - "the known"
+# - "torn"
+# - "primate"
+# - "go on"
+# - "piece together"
 
 __all__ = ["models", "MacmillanCache"]
 
@@ -204,14 +211,13 @@ class Entry(PageModel):
         Node.optional("div.SUMMARY div.p")(
             intro_paragraph=Text()
         ),
-        Node.list("div.SENSE-BODY")(
+        Node.list("div.SENSE-BODY", "div.phrasalverbsense")(
             senses=Sense()
         ),
         Node.optional("div#phrases_container > ul")(
-            Node.list("li")(
+            Node.list("li.PHR-XREF")(
                 phrs=PhraseLink()
-                
-            )
+            ),
         ),
         Node.optional("div#phrasal_verbs_container > ul")(
             Node.list("li")(
