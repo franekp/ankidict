@@ -1,0 +1,91 @@
+<html>
+    <head>
+      <!-- JQuery --> <script  type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+      <!-- Botstrap: CSS --> <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
+      <!-- Bootstrap: theme --> <link rel="stylesheet" type="text/css" href="bootstrap_theme.css" />
+      <!-- Bootstrap: JavaScript --> <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      <style>
+        body {
+          background: url('background_image.jpg') no-repeat center center fixed;
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+        }
+      </style>
+      <script type="text/javascript">
+        $(function(){
+          $("#question_text").load("http://localhost:9090/get_question");
+          $("#answer_text").load("http://localhost:9090/get_answer");
+          $("#remaining_text").load("http://localhost:9090/get_remaining");
+
+          $("#close_button").click(function(){
+            $.get("http://localhost:9090/deactivate", function(data){});
+          })
+          $("#again_button").click(function(){
+            $.get("http://localhost:9090/again", function(data){});
+          })
+          $("#hard_button").click(function(){
+            $.get("http://localhost:9090/hard", function(data){});
+          })
+          $("#good_button").click(function(){
+            $.get("http://localhost:9090/good", function(data){});
+          })
+          $("#easy_button").click(function(){
+            $.get("http://localhost:9090/easy", function(data){});
+          })
+          window.enable_collapse_next = function() {
+            $('body').on('click.collapse-next.data-api', '[data-toggle=collapse-next]', function (e) {
+              var $target = $(this).next()
+              $target.collapse('toggle')
+              //$target.data('collapse') ? $target.collapse('toggle') : $target.collapse()
+            })
+          }
+          window.enable_collapse_next()
+        })
+      </script>
+    </head>
+    <body>
+      <div class="container">
+        <div id="reviewer_modal" class="modal show" role="dialog">
+          <div class="modal-dialog">
+          <!-- Modal content-->
+          <h1> <br /> <br /> </h1>
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" id="close_button">&times;</button>
+              <h3 class="modal-title">Time for vocabulary!</h3>
+            </div>
+            <div class="modal-body">
+              <center>
+              <p id="question_text">Question text.</p>
+                <div class="form-group form-inline">
+                  <label for="user_answer">Your answer:</label>
+                  <input type="text" class="form-control" id="user_answer">
+                </div>
+                <div class="panel panel-default">
+                  <div class="panel-heading" data-toggle="collapse-next"
+                         style="cursor: pointer; cursor: hand;">
+                  <h4> Show correct answer </h4>
+                  </div>
+                  <div class="panel-body collapse" id="answer_text">
+                    
+                  </div>
+                </div>
+              </center>
+            </div>
+            <div class="modal-footer">
+              <center>
+                <button id="again_button" class="btn btn-danger btn-lg">Again</button>
+                <button id="hard_button" class="btn btn-warning btn-lg">Hard</button>
+                <button id="good_button" class="btn btn-primary btn-lg">Good</button>
+                <button id="easy_button" class="btn btn-success btn-lg">Easy</button>
+              </center>
+              <p id="remaining_text">Remaining text.</p>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </body>
+</html>

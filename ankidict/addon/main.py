@@ -28,6 +28,7 @@ from aqt import mw
 
 # with this you can eg. get current module object
 from aqt.qt import *
+from PyQt4 import QtCore
 import sys
 
 from libdict import macmillan
@@ -77,6 +78,15 @@ class AnkiDict(object):
         mw.connect(self.dictact, SIGNAL("triggered()"), self.show_dictionary)
         mw.form.menuTools.insertAction(basep, self.dictact)
 
+        self.reviewact = QAction("AnkiDict: Review cards", mw)
+        self.reviewact.setShortcut("Ctrl+R")
+        mw.connect(self.reviewact, SIGNAL("triggered()"), self.show_reviews)
+        mw.form.menuTools.insertAction(basep, self.reviewact)
+        QtCore.QTimer.singleShot(
+            500,
+            lambda: self.show_reviews()
+        )
+
     def init(self):
         """
         Initializes the dictionary engine if needed.
@@ -89,11 +99,15 @@ class AnkiDict(object):
         # return False to say: "Initialization failed"
         from addon.gui import DictWindow
         from addon.collection import Collection
+        from addon.review_view import ReviewView
         self.col = Collection()
         self.dwnd = DictWindow()
+        self.review_view = ReviewView()
         self.open_destination("make")
         #MORE
         self.initialized = True
+        self.dwnd.hide()
+        self.review_view.hide()
         return True
 
     def show_dictionary(self):
@@ -102,6 +116,11 @@ class AnkiDict(object):
         """
         self.init()
         self.dwnd.show()
+
+    def show_reviews(self):
+        self.init()
+        self.review_view.update()
+        self.review_view.activate()
 
     def add_note_example(self, ex):
         note = ex.create_anki_note()
