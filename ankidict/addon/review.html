@@ -12,27 +12,42 @@
           -o-background-size: cover;
           background-size: cover;
         }
+        .modal-content {
+          background: rgba(255, 255, 255, 0.7);
+        }
+        .list-group, .list-group-item {
+          background: rgba(255, 255, 255, 0.4);
+        }
+        button:focus, button:hover {
+          color: black !important;
+        }
+        button {
+          font-weight: bold !important;
+        }
+        #question_text, #answer_text {
+          font-size: x-large;
+        }
       </style>
       <script type="text/javascript">
         $(function(){
-          $("#question_text").load("http://localhost:9090/get_question");
-          $("#answer_text").load("http://localhost:9090/get_answer");
-          $("#remaining_text").load("http://localhost:9090/get_remaining");
+          $("#question_text").load("http://localhost:9090/get_question")
+          $("#answer_text").load("http://localhost:9090/get_answer")
+          $("#remaining_text").load("http://localhost:9090/get_remaining")
 
           $("#close_button").click(function(){
-            $.get("http://localhost:9090/deactivate", function(data){});
+            $.get("http://localhost:9090/deactivate", function(data){})
           })
           $("#again_button").click(function(){
-            $.get("http://localhost:9090/again", function(data){});
+            $.get("http://localhost:9090/again", function(data){})
           })
           $("#hard_button").click(function(){
-            $.get("http://localhost:9090/hard", function(data){});
+            $.get("http://localhost:9090/hard", function(data){})
           })
           $("#good_button").click(function(){
-            $.get("http://localhost:9090/good", function(data){});
+            $.get("http://localhost:9090/good", function(data){})
           })
           $("#easy_button").click(function(){
-            $.get("http://localhost:9090/easy", function(data){});
+            $.get("http://localhost:9090/easy", function(data){})
           })
           window.enable_collapse_next = function() {
             $('body').on('click.collapse-next.data-api', '[data-toggle=collapse-next]', function (e) {
@@ -42,6 +57,12 @@
             })
           }
           window.enable_collapse_next()
+          $("#answer_form").submit(function(e){
+            e.preventDefault()
+            $("#answer_text").collapse('show')
+            $("#good_button").focus()
+          })
+          $("#user_answer").delay(100).focus()
         })
       </script>
     </head>
@@ -54,35 +75,38 @@
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" id="close_button">&times;</button>
-              <h3 class="modal-title">Time for vocabulary!</h3>
+              <h2 class="modal-title"><b>Time for vocabulary!</b></h2>
             </div>
             <div class="modal-body">
               <center>
-              <p id="question_text">Question text.</p>
-                <div class="form-group form-inline">
-                  <label for="user_answer">Your answer:</label>
-                  <input type="text" class="form-control" id="user_answer">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <p id="question_text">Question text.</p>
+                  </li>
+                  <li class="list-group-item">
+                    <form action="#" class="form-group form-inline" id="answer_form">
+                      <!--<label for="user_answer">Your answer:</label>-->
+                      <input type="text" class="form-control" id="user_answer" />
+                      <button type="submit" class="btn btn-primary">
+                        Show correct answer
+                      </button>
+                    </form>
+                  </li>
+                  <li class="collapse list-group-item" id="answer_div">
+                    <div class="collapse" id="answer_text">Answer text.</div>
+                  </li>
+                </ul>
+                <div class="btn-group btn-group-lg">
+                  <button id="again_button" class="btn btn-danger">Again</button>
+                  <button id="hard_button" class="btn btn-warning">Hard</button>
+                  <button id="good_button" class="btn btn-primary">Good</button>
+                  <button id="easy_button" class="btn btn-success">Easy</button>
                 </div>
-                <div class="panel panel-default">
-                  <div class="panel-heading" data-toggle="collapse-next"
-                         style="cursor: pointer; cursor: hand;">
-                  <h4> Show correct answer </h4>
-                  </div>
-                  <div class="panel-body collapse" id="answer_text">
-                    
-                  </div>
-                </div>
-              </center>
-            </div>
-            <div class="modal-footer">
-              <center>
-                <button id="again_button" class="btn btn-danger btn-lg">Again</button>
-                <button id="hard_button" class="btn btn-warning btn-lg">Hard</button>
-                <button id="good_button" class="btn btn-primary btn-lg">Good</button>
-                <button id="easy_button" class="btn btn-success btn-lg">Easy</button>
               </center>
               <p id="remaining_text">Remaining text.</p>
             </div>
+            <!-- <div class="modal-footer"> -->
+            <!-- </div> -->
           </div>
           </div>
         </div>

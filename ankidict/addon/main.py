@@ -83,7 +83,7 @@ class AnkiDict(object):
         mw.connect(self.reviewact, SIGNAL("triggered()"), self.show_reviews)
         mw.form.menuTools.insertAction(basep, self.reviewact)
         QtCore.QTimer.singleShot(
-            500,
+            100,
             lambda: self.show_reviews()
         )
 
@@ -119,7 +119,6 @@ class AnkiDict(object):
 
     def show_reviews(self):
         self.init()
-        self.review_view.update()
         self.review_view.activate()
 
     def add_note_example(self, ex):

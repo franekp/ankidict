@@ -50,28 +50,42 @@ class ReviewView(QWidget):
         from aqt import mw
         self.webview = QWebView()
         self.main_layout = QVBoxLayout()
+        self.main_layout.setSpacing(0)
+        self.main_layout.setMargin(0)
+        self.main_layout.setContentsMargins(0,0,0,0)
         self.main_layout.addWidget(self.webview)
         self.reviewer = Reviewer(mw.col, self)
         self.setLayout(self.main_layout)
         self.reload()
-        self.is_active = True
+        self.is_active = False
 
     def reload(self):
-        self.webview.setUrl(QUrl("http://localhost:9090/"))
+        self.webview.load(QUrl("http://localhost:9090/"))
 
     def activate(self):
+        self.is_active = True
         desktop_w = QtGui.QApplication.desktop().width()
         desktop_h = QtGui.QApplication.desktop().height()
-        my_w = desktop_w * 0.9
+        my_w = desktop_w * 0.97
         my_h = desktop_h * 0.9
         self.resize(my_w, my_h)
         x = desktop_w/2 - my_w/2
         y = desktop_h/2 - my_h/2
         self.move(x, y)
+        self.maintain()
+        self.reload()
+
+    def maintain(self):
         self.show()
         self.activateWindow()
+        # możliwe, że przydatne do lepszego blokowania:
+        # http://doc.qt.io/qt-4.8/qwidget.html#grabKeyboard
+        # http://doc.qt.io/qt-4.8/qwidget.html#grabMouse
+        self.setFocus()
+        self.webview.setFocus()
+        self.webview.page().mainFrame().setFocus()
         if self.is_active:
-           QtCore.QTimer.singleShot(100, lambda: self.activate())
+           QtCore.QTimer.singleShot(100, lambda: self.maintain())
         else:
            self.hide()
 
