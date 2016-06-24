@@ -13,16 +13,56 @@
           background-size: cover;
         }
         .modal-content {
-          background: rgba(255, 255, 255, 0.7);
+          background: rgba(255, 255, 255, 0.7) !important;
         }
         .list-group, .list-group-item {
-          background: rgba(255, 255, 255, 0.4);
+          background: rgba(255, 255, 255, 0.4) !important;
         }
-        button:focus, button:hover {
-          color: black !important;
-        }
-        button {
+        .btn {
           font-weight: bold !important;
+          border-radius: 30px !important;
+        }
+        input {
+          border-top-right-radius: 0px !important;
+          border-bottom-right-radius: 0px !important;
+          border-top-left-radius: 30px !important;
+          border-bottom-left-radius: 30px !important;
+        }
+        input + .btn {
+          border-right-width: 1px !important;
+          border-top-left-radius: 0px !important;
+          border-bottom-left-radius: 0px !important;
+          border-top-right-radius: 30px !important;
+          border-bottom-right-radius: 30px !important;
+        }
+        .btn-group .btn {
+          border-radius: 0px !important;
+          border-left-width: 0px !important;
+          border-right-width: 0px !important;
+          border-top-width: 1px !important;
+          border-bottom-width:1px !important;
+        }
+        .btn-group .btn:first-child {
+          border-left-width: 1px !important;
+          border-top-left-radius: 30px !important;
+          border-bottom-left-radius: 30px !important;
+        }
+        .btn-group .btn:last-child {
+          border-right-width: 1px !important;
+          border-top-right-radius: 30px !important;
+          border-bottom-right-radius: 30px !important;
+        }
+        .btn:hover, .btn:focus  {
+          color: black !important;
+          -webkit-box-shadow: rgb(0,0,0) 0px 0px 3px !important;
+          box-shadow: rgb(0,0,0) 0px 0px 3px !important;
+          -webkit-text-shadow: 0px 0px 10px rgba(255,255,255,0.7) !important;
+          text-shadow: 0px 0px 10px rgb(255,255,255),
+                       0px 0px 10px rgb(255,255,255),
+                       0px 0px 15px rgb(255,255,255),
+                       0px 0px 15px rgb(255,255,255),
+                       0px 0px 15px rgb(255,255,255) !important;
+          border-color: black !important;
         }
         #question_text, #answer_text {
           font-size: x-large;
@@ -63,6 +103,7 @@
             $("#good_button").focus()
           })
           $("#user_answer").delay(100).focus()
+          //alert('blah');
         })
       </script>
     </head>
@@ -88,7 +129,7 @@
                       <!--<label for="user_answer">Your answer:</label>-->
                       <input type="text" class="form-control" id="user_answer" />
                       <button type="submit" class="btn btn-primary">
-                        Show correct answer
+                        Show answer
                       </button>
                     </form>
                   </li>
