@@ -24,31 +24,20 @@
           $("#easy_button").click(function(){
             $.get("http://localhost:9090/easy", function(data){})
           })
-          window.enable_collapse_next = function() {
-            $('body').on('click.collapse-next.data-api', '[data-toggle=collapse-next]', function (e) {
-              var $target = $(this).next()
-              $target.collapse('toggle')
-              //$target.data('collapse') ? $target.collapse('toggle') : $target.collapse()
-            })
-          }
-          window.enable_collapse_next()
           $("#answer_form").submit(function(e){
             e.preventDefault()
-            $("#answer_text").collapse('show')
+            $("#answer_text").toggle('slow')
             $("#good_button").focus()
           })
           $("#user_answer").delay(100).focus()
-          //alert('blah');
         })
       </script>
     </head>
     <body>
       <div class="container">
-        <div id="reviewer_modal" class="modal show" role="dialog">
-          <div class="modal-dialog">
+        <div id="reviewer_modal">
           <!-- Modal content-->
           <h1> <br /> <br /> </h1>
-          <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" id="close_button">&times;</button>
               <h2 class="modal-title"><b>Time for vocabulary!</b></h2>
@@ -63,13 +52,13 @@
                     <form action="#" class="form-group form-inline" id="answer_form">
                       <!--<label for="user_answer">Your answer:</label>-->
                       <input type="text" class="form-control" id="user_answer" />
-                      <button type="submit" class="btn btn-primary">
+                      <button type="submit">
                         Show answer
                       </button>
                     </form>
                   </li>
                   <li class="collapse list-group-item" id="answer_div">
-                    <div class="collapse" id="answer_text">Answer text.</div>
+                    <div id="answer_text">Answer text.</div>
                   </li>
                 </ul>
                 <div class="btn-group btn-group-lg">
@@ -81,10 +70,6 @@
               </center>
               <p id="remaining_text">Remaining text.</p>
             </div>
-            <!-- <div class="modal-footer"> -->
-            <!-- </div> -->
-          </div>
-          </div>
         </div>
       </div>
     </body>
