@@ -29,7 +29,7 @@
             $("#answer_text").toggle('slow')
             $("#good_button").focus()
           })
-          $("#user_answer").delay(100).focus()
+          $("#answer_textbox").delay(100).focus()
         })
       </script>
     </head>
@@ -37,35 +37,25 @@
       <div class="container">
         <div id="reviewer_modal">
           <!-- Modal content-->
-          <h1> <br /> <br /> </h1>
-            <div class="modal-header">
-              <button type="button" class="close" id="close_button">&times;</button>
-              <h2 class="modal-title"><b>Time for vocabulary!</b></h2>
+            <div id="reviewer_modal_header">
+              <button id="close_button">&times;</button>
+              <h2><b>Time for vocabulary!</b></h2>
             </div>
-            <div class="modal-body">
+            <div id="reviewer_modal_body">
               <center>
-                <ul class="list-group">
-                  <li class="list-group-item">
-                    <p id="question_text">Question text.</p>
-                  </li>
-                  <li class="list-group-item">
-                    <form action="#" class="form-group form-inline" id="answer_form">
-                      <!--<label for="user_answer">Your answer:</label>-->
-                      <input type="text" class="form-control" id="user_answer" />
-                      <button type="submit">
-                        Show answer
-                      </button>
-                    </form>
-                  </li>
-                  <li class="collapse list-group-item" id="answer_div">
-                    <div id="answer_text">Answer text.</div>
-                  </li>
-                </ul>
-                <div class="btn-group btn-group-lg">
-                  <button id="again_button" class="btn btn-danger">Again</button>
-                  <button id="hard_button" class="btn btn-warning">Hard</button>
-                  <button id="good_button" class="btn btn-primary">Good</button>
-                  <button id="easy_button" class="btn btn-success">Easy</button>
+                <p id="question_text">Question text.</p>
+                <form action="#" id="answer_form">
+                  <input type="text" id="answer_textbox" />
+                  <button type="submit">
+                    Show answer
+                  </button>
+                </form>
+                <p id="answer_text">Answer text.</p>
+                <div id="difficulty_buttongroup">
+                  <button id="again_button"> Again </button>
+                  <button id="hard_button">  Hard  </button>
+                  <button id="good_button">  Good  </button>
+                  <button id="easy_button">  Easy  </button>
                 </div>
               </center>
               <p id="remaining_text">Remaining text.</p>
