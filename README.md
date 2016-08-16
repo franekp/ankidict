@@ -1,5 +1,3 @@
-Kolor pierwszoplanowy: 012006
-
 MillanDict
 ==========
 

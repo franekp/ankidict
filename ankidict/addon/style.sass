@@ -1,21 +1,37 @@
+//$color-1-ui: #012006
+//$color-1-ui: #002c08
+//$color-1-ui: #003d0b
+$color-1-ui: #093d00
+
 #answer_text
   display: none
 
 #reviewer_modal
   width: 50%
-  border: 5px solid black
-  border-radius: 10px
+  border: 1px solid white
+  border-radius: 7px
+  box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 8px 4px $color-1-ui
+  overflow: hidden
   padding: 0px
   margin-top: 10%
   margin-left: auto
   margin-right: auto
+  hr
+    border: 1px solid white
+    box-shadow: 0px 1px 4px 0px $color-1-ui
 
 #reviewer_modal_header
-  color: white
-  background-color: black
+  color: $color-1-ui
   margin: 0px
+  padding: 10px
+  border-bottom: 2px solid white
+  box-shadow: 0px 2px 6px 0px $color-1-ui
   h2
     margin: 0px
+
+#reviewer_modal_body
+  margin: 0px
+  padding: 20px
 
 #close_button
   float: right
@@ -23,3 +39,22 @@
 #difficulty_buttongroup
   align-content: center
   align-self: center
+
+button
+  border: 1px solid white
+  box-shadow: 0px 0px 4px 2px $color-1-ui, inset 0px 0px 2px 1px white
+  border-radius: 3px
+  $button-gradient-color: desaturate(lighten($color-1-ui, 55%), 75%)
+  background: linear-gradient(to bottom, $button-gradient-color, $button-gradient-color 8% , white 45%, white 55%, $button-gradient-color 85%, $button-gradient-color)
+  font-weight: bold
+  color: $color-1-ui
+
+button:hover
+  border-color: $color-1-ui
+  background: $color-1-ui
+  color: white
+
+button:focus
+  border-color: $color-1-ui
+  background: $color-1-ui
+  color: white
