@@ -1,74 +1,8 @@
 <html>
     <head>
-      <!-- JQuery --> <script  type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-      <!-- Botstrap: CSS --> <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
-      <!-- Bootstrap: theme --> <link rel="stylesheet" type="text/css" href="bootstrap_theme.css" />
-      <!-- Bootstrap: JavaScript --> <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-      <style>
-        body {
-          background: url('background_image.jpg') no-repeat center center fixed;
-          -webkit-background-size: cover;
-          -moz-background-size: cover;
-          -o-background-size: cover;
-          background-size: cover;
-        }
-        .modal-content {
-          background: rgba(255, 255, 255, 0.7) !important;
-        }
-        .list-group, .list-group-item {
-          background: rgba(255, 255, 255, 0.4) !important;
-        }
-        .btn {
-          color: black !important;
-          font-weight: bold !important;
-          border-radius: 30px !important;
-        }
-        input {
-          border-top-right-radius: 0px !important;
-          border-bottom-right-radius: 0px !important;
-          border-top-left-radius: 30px !important;
-          border-bottom-left-radius: 30px !important;
-        }
-        input + .btn {
-          border-right-width: 1px !important;
-          border-top-left-radius: 0px !important;
-          border-bottom-left-radius: 0px !important;
-          border-top-right-radius: 30px !important;
-          border-bottom-right-radius: 30px !important;
-        }
-        .btn-group .btn {
-          border-radius: 0px !important;
-          border-left-width: 0px !important;
-          border-right-width: 0px !important;
-          border-top-width: 1px !important;
-          border-bottom-width:1px !important;
-        }
-        .btn-group .btn:first-child {
-          border-left-width: 1px !important;
-          border-top-left-radius: 30px !important;
-          border-bottom-left-radius: 30px !important;
-        }
-        .btn-group .btn:last-child {
-          border-right-width: 1px !important;
-          border-top-right-radius: 30px !important;
-          border-bottom-right-radius: 30px !important;
-        }
-        .btn:hover, .btn:focus  {
-          color: black !important;
-          -webkit-box-shadow: rgb(0,0,0) 0px 0px 3px !important;
-          box-shadow: rgb(0,0,0) 0px 0px 3px !important;
-          -webkit-text-shadow: 0px 0px 10px rgba(255,255,255,0.7) !important;
-          text-shadow: 0px 0px 10px rgb(255,255,255),
-                       0px 0px 10px rgb(255,255,255),
-                       0px 0px 15px rgb(255,255,255),
-                       0px 0px 15px rgb(255,255,255),
-                       0px 0px 15px rgb(255,255,255) !important;
-          border-color: black !important;
-        }
-        #question_text, #answer_text {
-          font-size: x-large;
-        }
-      </style>
+      <!-- JQuery --> <script  type="text/javascript" src="jquery.js"></script>
+      <!-- normalize.css --> <link rel="stylesheet" type="text/css" href="normalize.css" />
+      <!-- style --> <link rel="stylesheet" type="text/css" href="style.css" />
       <script type="text/javascript">
         $(function(){
           $("#question_text").load("http://localhost:9090/get_question")

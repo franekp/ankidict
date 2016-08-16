@@ -103,7 +103,7 @@ class DictWindow(basegui.DictWindow):
     def __init__(self):
         super(DictWindow, self).__init__()
         
-        style_filepath = os.path.join(os.path.dirname(__file__), 'stylesheet.css')
+        style_filepath = os.path.join(os.path.dirname(__file__), 'qt-style.css')
         
         with open(style_filepath) as f:
             style = f.read()

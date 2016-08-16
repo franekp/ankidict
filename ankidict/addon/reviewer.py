@@ -37,99 +37,19 @@ from addon.main_thread_executor import executes_in_main_thread
 # pliki statyczne nie będą tego potrzebować
 
 
-class CssGenerator(object):
-    def offset_color(self, col, amt):
-        usePound = False
-        if col[0] == "#":
-            col = col[1:]
-            usePound = True
-        num = int(col,16);
-        r = (num >> 16) + amt;
-        if (r > 255):
-            r = 255
-        elif  (r < 0):
-            r = 0
-        b = ((num >> 8) & 0x00FF) + amt;
-        if (b > 255):
-            b = 255
-        elif (b < 0):
-            b = 0
-        g = (num & 0x0000FF) + amt;
-        if (g > 255):
-            g = 255
-        elif (g < 0):
-            g = 0;
-        return ("#" if usePound else "") + "{0:x}".format(g | (b << 8) | (r << 16))
-
-    def get_colors(self):
-        colors = """
-        #bcd6ef  0%, #a3c1ef  5%, #98b8e9  10%, #91b3e9 15%,
-        #8ab1e9 20%, #8ab2ea 25%, #83abe8  30%, #7cabe9 35%,
-        #73a6e8 40%, #6ca4e9 45%, #67a1e9  50%, #4693ea 50%,
-        #579eec 70%, #64a7ee 75%, #6eaeee  80%, #7db6ef 85%,
-        #88bfef 90%, #97caef 95%, #abd4ef 100%
-        """.split(",")
-        colors = [x.strip().split() for x in colors]
-        return colors
-
-    def transform_color(self, c, color, index):
-        r = int(c[1:3], 16)
-        g = int(c[3:5], 16)
-        b = int(c[5:7], 16)
-        if color == 'y':
-            r, g, b = int(b*1.0), int(g*1.15), r
-            return "rgb(%d,%d,%d)" % (r, g, b)
-        elif color == 'r':
-            r, g, b = b, r, r
-            return "rgb(%d,%d,%d)" % (r, g, b)
-        elif color == 'g':
-            r, g, b = int(r*0.9), int(b*0.8), int(g*0.9)
-            return "rgb(%d,%d,%d)" % (r, g, b)
-        elif color == 'b':
-            # r, g, b = r, b, g
-            return "rgb(%d,%d,%d)" % (r, g, b)
-        else:
-            raise Exception("Wrong argument")
-
-    def make_gradient(self, color):
-        col = self.get_colors()
-        return [
-                (self.transform_color(i[0], color, index), i[1])
-                for index, i in enumerate(col)
-        ]
-
-    def make_button_style(self, color):
-        col = self.make_gradient(color)
-        border_color = col[11][0]
-        col = ['-90deg'] + [c + " " + p for (c, p) in col]
-        grad = "(" + ", ".join(col) + ")"
-        res = "{\n"
-        res += "border-color: " + border_color + ";\n"
-        res += "background: -webkit-linear-gradient" + grad + " !important;\n"
-        res += "background-image: -moz-linear-gradient" + grad + " !important;\n"
-        res += "}\n"
-        return res
-
-    def get_style(self):
-        res = ""
-        res += ".btn-danger, .btn-danger:hover" + self.make_button_style('r')
-        res += ".btn-warning, .btn-warning:hover" + self.make_button_style('y')
-        res += ".btn-success, .btn-success:hover" + self.make_button_style('g')
-        res += ".btn-primary, .btn-primary:hover" + self.make_button_style('b')
-        return res
-
-
 class MyServer(object):
     def __init__(self, reviewer):
         self.reviewer = reviewer
 
     @cherrypy.expose
-    def bootstrap_theme_css(self):
-        path = os.path.join(os.path.dirname(__file__), "green_bootstrap.css")
-        res = serve_file(path, content_type="text/css")
-        res = "".join(list(res))
-        res += CssGenerator().get_style()
-        return res
+    def jquery_js(self):
+        path = os.path.join(os.path.dirname(__file__), "jquery.js")
+        return serve_file(path, content_type="text/javascript")
+
+    @cherrypy.expose
+    def style_css(self):
+        path = os.path.join(os.path.dirname(__file__), "style.css")
+        return serve_file(path, content_type="text/css")
 
     @cherrypy.expose
     def background_image_jpg(self):
