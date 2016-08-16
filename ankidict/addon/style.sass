@@ -50,13 +50,15 @@ button
   height: 28px
 
 button:hover
+  $button-gradient-color: desaturate(lighten($color-1-ui, 55%), 75%)
   border-color: $color-1-ui
-  background: $color-1-ui
+  background: linear-gradient(to bottom, $button-gradient-color, $button-gradient-color 8% , $color-1-ui 40%, $color-1-ui 60%, $button-gradient-color 88%, $button-gradient-color)
   color: white
 
 button:focus
+  $button-gradient-color: desaturate(lighten($color-1-ui, 55%), 75%)
   border-color: $color-1-ui
-  background: $color-1-ui
+  background: linear-gradient(to bottom, $button-gradient-color, $button-gradient-color 8% , $color-1-ui 40%, $color-1-ui 60%, $button-gradient-color 88%, $button-gradient-color)
   color: white
 
 input[type="text"]
