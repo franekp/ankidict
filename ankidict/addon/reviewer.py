@@ -72,7 +72,7 @@ class CssGenerator(object):
         colors = [x.strip().split() for x in colors]
         return colors
 
-    def make_color(self, c, color):
+    def transform_color(self, c, color, index):
         r = int(c[1:3], 16)
         g = int(c[3:5], 16)
         b = int(c[5:7], 16)
@@ -83,18 +83,24 @@ class CssGenerator(object):
             r, g, b = b, r, r
             return "rgb(%d,%d,%d)" % (r, g, b)
         elif color == 'g':
-            r, g, b = r, int(b*0.9), int(b*0.12)
+            r, g, b = int(r*0.9), int(b*0.8), int(g*0.9)
             return "rgb(%d,%d,%d)" % (r, g, b)
         elif color == 'b':
-            r, g, b = int(r*0.4), int(b*0.8), int(r*0.7)
+            # r, g, b = r, b, g
             return "rgb(%d,%d,%d)" % (r, g, b)
         else:
             raise Exception("Wrong argument")
 
-    def make_button_style(self, color):
+    def make_gradient(self, color):
         col = self.get_colors()
-        col = [col[0]]+[(self.make_color(i[0], color), i[1]) for i in col[1:-1]]+[col[-1]]
-        border_color = col[12][0]
+        return [
+                (self.transform_color(i[0], color, index), i[1])
+                for index, i in enumerate(col)
+        ]
+
+    def make_button_style(self, color):
+        col = self.make_gradient(color)
+        border_color = col[11][0]
         col = ['-90deg'] + [c + " " + p for (c, p) in col]
         grad = "(" + ", ".join(col) + ")"
         res = "{\n"

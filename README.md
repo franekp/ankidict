@@ -1,3 +1,5 @@
+Kolor pierwszoplanowy: 012006
+
 MillanDict
 ==========
 
@@ -34,4 +36,3 @@ Copy `pyqxtgs.so` to Anki plugin directory.
 
 Copy `libpyqxtgs.so*` to directory where the dynamic linker will be looking for.
 It can be eg. `/usr/lib/`. You will probably have to run `ldconfig` to update dynamic linker library database.
-
