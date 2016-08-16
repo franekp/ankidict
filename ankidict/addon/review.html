@@ -1,8 +1,12 @@
+<!DOCTYPE html>
 <html>
     <head>
-      <!-- JQuery --> <script  type="text/javascript" src="jquery.js"></script>
-      <!-- normalize.css --> <link rel="stylesheet" type="text/css" href="normalize.css" />
-      <!-- style --> <link rel="stylesheet" type="text/css" href="style.css" />
+      <title> Time for vocabulary! </title>
+	    <meta charset="utf-8" />
+
+      <script  type="text/javascript" src="jquery.js"></script>
+      <link rel="stylesheet" type="text/css" href="normalize.css" />
+      <link rel="stylesheet" type="text/css" href="style.css" />
       <script type="text/javascript">
         $(function(){
           $("#question_text").load("http://localhost:9090/get_question")
@@ -42,22 +46,20 @@
               <h2><b>Time for vocabulary!</b></h2>
             </div>
             <div id="reviewer_modal_body">
-              <center>
-                <p id="question_text">Question text.</p>
-                <form action="#" id="answer_form">
-                  <input type="text" id="answer_textbox" />
-                  <button type="submit">
-                    Show answer
-                  </button>
-                </form>
-                <p id="answer_text">Answer text.</p>
-                <div id="difficulty_buttongroup">
-                  <button id="again_button"> Again </button>
-                  <button id="hard_button">  Hard  </button>
-                  <button id="good_button">  Good  </button>
-                  <button id="easy_button">  Easy  </button>
-                </div>
-              </center>
+              <p id="question_text">Question text.</p>
+              <form action="#" id="answer_form">
+                <input type="text" id="answer_textbox" />
+                <button type="submit">
+                  Show answer
+                </button>
+              </form>
+              <p id="answer_text">Answer text.</p>
+              <div id="difficulty_buttongroup">
+                <button id="again_button"> Again </button>
+                <button id="hard_button">  Hard  </button>
+                <button id="good_button">  Good  </button>
+                <button id="easy_button">  Easy  </button>
+              </div>
               <p id="remaining_text">Remaining text.</p>
             </div>
         </div>
