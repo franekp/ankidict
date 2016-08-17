@@ -63,7 +63,7 @@ button:focus
 
 input[type="text"]
   border: 1px solid white
-  box-shadow: inset 0px 0px 4px 2px $color-1-ui, 0px 0px 16px -1px $color-1-ui
+  box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 16px -1px $color-1-ui
   border-radius: 3px
   height: 28px
   width: 40%
@@ -72,7 +72,7 @@ input[type="text"]
   margin-right: 4px
 
 input[type="text"]:focus
-  background: desaturate(lighten($color-1-ui, 65%), 60%)
+  box-shadow: inset 0px 0px 5px 3px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
 
 #difficulty_buttongroup
   button
