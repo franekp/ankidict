@@ -4,13 +4,6 @@
 # Copyright (c) 2014 Wojciech Kordalski
 # Copyright (c) 2014 Franciszek Piszcz
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
@@ -66,14 +59,18 @@ class AnkiDict(object):
     def __init__(self, config):
         mw.ankidict = self
         self.config = config
-        self.initialized = False
+        self.initialized_dictionary = False
+        self.initialized_reviews = False
+
+        from addon.collection import Collection
+        self.col = Collection()
 
         # place where we want to place our menu action
         basep = mw.form.menuTools.actions()[6]
 
         mw.form.menuTools.insertSeparator(basep)
 
-        self.dictact = QAction("Macmillan dictionary", mw)
+        self.dictact = QAction("AnkiDict: Macmillan dictionary", mw)
         self.dictact.setShortcut("Ctrl+D")
         mw.connect(self.dictact, SIGNAL("triggered()"), self.show_dictionary)
         mw.form.menuTools.insertAction(basep, self.dictact)
@@ -87,38 +84,39 @@ class AnkiDict(object):
             lambda: self.show_reviews()
         )
 
-    def init(self):
+    def init_dictionary(self):
         """
         Initializes the dictionary engine if needed.
         Loads some files, etc.
         If called before, does nothing.
         """
-        if self.initialized:
+        if self.initialized_dictionary:
             return
         # here can be some initialization
         # return False to say: "Initialization failed"
         from addon.gui import DictWindow
-        from addon.collection import Collection
-        from addon.review_view import ReviewView
-        self.col = Collection()
         self.dwnd = DictWindow()
-        self.review_view = ReviewView()
+        self.initialized_dictionary = True
         self.open_destination("make")
-        #MORE
-        self.initialized = True
         self.dwnd.hide()
+
+    def init_reviews(self):
+        if self.initialized_reviews:
+            return
+        from addon.review_view import ReviewView
+        self.review_view = ReviewView()
+        self.initialized_reviews = True
         self.review_view.hide()
-        return True
 
     def show_dictionary(self):
         """
         Opens dictionary main window.
         """
-        self.init()
+        self.init_dictionary()
         self.dwnd.show()
 
     def show_reviews(self):
-        self.init()
+        self.init_reviews()
         self.review_view.activate()
 
     def add_note_example(self, ex):
