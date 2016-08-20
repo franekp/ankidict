@@ -38,7 +38,21 @@
       </script>
     </head>
     <body>
+      <!-- these <% and %> signs are to suppress html tidy complaining about stuff -->
+      <%
+      <input type="checkbox" id="sidebar-hidden-checkbox" name="" value="" novalidate />
+      %>
       <div class="container">
+        <label for="sidebar-hidden-checkbox">☰</label>
+        <nav id="sidebar">
+    			<ul>
+    				<li><a href="#"> Nav link 1 </a></li>
+    				<li><a href="#"> Nav link 2 </a></li>
+    				<li><a href="#"> Nav link 3 </a></li>
+    				<li><a href="#"> Nav link 4 </a></li>
+    				<li><a href="#"> Nav link 5 Bl a h b l a h b l a h b l a h b l a h</a></li>
+    			</ul>
+		    </nav>
         <div id="reviewer_modal">
             <div id="reviewer_modal_header">
               <button id="close_button">&times;</button>

@@ -59,8 +59,11 @@ class MyServer(object):
     @cherrypy.expose
     def index(self):
         path = os.path.join(os.path.dirname(__file__), "review.html")
-        return serve_file(path, content_type="text/html")
-        
+        return (
+            i.replace("<%", "").replace("%>", "")
+            for i in
+            serve_file(path, content_type="text/html")
+        )
 
     @cherrypy.expose
     @executes_in_main_thread
