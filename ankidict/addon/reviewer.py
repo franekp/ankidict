@@ -118,6 +118,7 @@ class Reviewer(object):
         cherrypy.config.update({'server.socket_port': 9090})
         cherrypy.log.screen = False
         del cherrypy._cpchecker.Checker.check_skipped_app_config
+        cherrypy.engine.autoreload.unsubscribe()
         #cherrypy.quickstart(MyServer())
         cherrypy.tree.mount(MyServer(self))
         cherrypy.engine.start()
