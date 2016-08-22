@@ -20,6 +20,7 @@ except ImportError:
 
 from aqt.qt import *
 import aqt.qt as QtGui
+import aqt
 from PyQt4 import QtCore
 
 from PyQt4.QtCore import pyqtSlot, pyqtSignal
@@ -59,6 +60,7 @@ class MainThreadExecutor(object):
         self.proxy_thread.callback_arrived.connect(
             self.proxy_object.on_callback_arrived
         )
+        aqt.mw.app.aboutToQuit.connect(self.proxy_thread.terminate)
         self.proxy_thread.start()
 
 

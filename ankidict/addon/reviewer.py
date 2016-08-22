@@ -31,6 +31,7 @@ from cherrypy.lib.static import serve_file
 
 from addon.main import get_plugin
 from addon.main_thread_executor import executes_in_main_thread
+import aqt
 
 
 # docelowo API będzie potrzebować executes_in_main_thread ale
@@ -113,7 +114,10 @@ class MyServer(object):
 
 class Reviewer(object):
     def start_webserver(self):
+        aqt.mw.app.aboutToQuit.connect(cherrypy.engine.exit)
         cherrypy.config.update({'server.socket_port': 9090})
+        cherrypy.log.screen = False
+        del cherrypy._cpchecker.Checker.check_skipped_app_config
         #cherrypy.quickstart(MyServer())
         cherrypy.tree.mount(MyServer(self))
         cherrypy.engine.start()
