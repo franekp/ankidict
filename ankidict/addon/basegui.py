@@ -7,7 +7,6 @@ from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication, QCursor
-from addon import macm_parser_css
 from addon import collection
 from libdict import macmillan
 import re
