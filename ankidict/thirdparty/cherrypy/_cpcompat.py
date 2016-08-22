@@ -95,7 +95,7 @@ def assert_native(n):
 try:
     # Python 3.1+
     from base64 import decodebytes as _base64_decodebytes
-except ImportError:
+except:
     # Python 3.0-
     # since CherryPy claims compability with Python 2.3, we must use
     # the legacy API of base64
@@ -138,7 +138,7 @@ try:
     from urllib.parse import quote, quote_plus
     from urllib.request import unquote, urlopen
     from urllib.request import parse_http_list, parse_keqv_list
-except ImportError:
+except:
     # Python 2
     from urlparse import urljoin
     from urllib import urlencode, urlopen
@@ -148,7 +148,7 @@ except ImportError:
 
 try:
     from threading import local as threadlocal
-except ImportError:
+except:
     from cherrypy._cpthreadinglocal import local as threadlocal
 
 try:
@@ -184,7 +184,7 @@ except AttributeError:
 try:
     # Python 3
     import builtins
-except ImportError:
+except:
     # Python 2
     import __builtin__ as builtins
 
@@ -195,7 +195,7 @@ try:
     from httplib import BadStatusLine, HTTPConnection, IncompleteRead
     from httplib import NotConnected
     from BaseHTTPServer import BaseHTTPRequestHandler
-except ImportError:
+except:
     # Python 3
     from http.cookies import SimpleCookie, CookieError
     from http.client import BadStatusLine, HTTPConnection, IncompleteRead
@@ -206,13 +206,13 @@ except ImportError:
 if six.PY3:
     try:
         from http.client import HTTPSConnection
-    except ImportError:
+    except:
         # Some platforms which don't have SSL don't expose HTTPSConnection
         HTTPSConnection = None
 else:
     try:
         from httplib import HTTPSConnection
-    except ImportError:
+    except:
         HTTPSConnection = None
 
 try:
@@ -242,7 +242,7 @@ try:
 
     def HTTPDate(timeval=None):
         return formatdate(timeval, usegmt=True)
-except ImportError:
+except:
     from rfc822 import formatdate as HTTPDate
 
 try:
@@ -254,7 +254,7 @@ try:
             atom.replace('+', ' '),
             encoding=encoding,
             errors=errors)
-except ImportError:
+except:
     # Python 2
     from urllib import unquote as parse_unquote
 
@@ -267,7 +267,7 @@ try:
     import simplejson as json
     json_decode = json.JSONDecoder().decode
     _json_encode = json.JSONEncoder().iterencode
-except ImportError:
+except:
     if sys.version_info >= (2, 6):
         # Python >=2.6 : json is part of the standard library
         import json
@@ -294,7 +294,7 @@ finally:
 
 try:
     import cPickle as pickle
-except ImportError:
+except:
     # In Python 2, pickle is a Python version.
     # In Python 3, pickle is the sped-up C version.
     import pickle
@@ -306,7 +306,7 @@ def random20():
 
 try:
     from _thread import get_ident as get_thread_ident
-except ImportError:
+except:
     from thread import get_ident as get_thread_ident
 
 try:
