@@ -2,30 +2,20 @@
 
 ####
 # Copyright (c) 2014 Wojciech Kordalski
-# Copyright (c) 2014 Franciszek Piszcz
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2014-2016 Franciszek Piszcz
 ####
 
 from ankidict.addon import main
 
 conf = main.Config()
+
+# type here hour when you want the daily review reminder to appear
+# after changing this value please restart anki
+# to restart anki click "file > quit" and then open anki again
+# NOTE: pressing the "X" button will not restart anki
+conf.daily_review_time = "08:00"
+# the interval at which application checks whether there is time for vocabulary
+conf.poll_interval_seconds = 60
 
 # Initialize the plugin
 ankidict = main.AnkiDict(conf)

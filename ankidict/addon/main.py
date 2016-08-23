@@ -81,7 +81,7 @@ class AnkiDict(object):
         mw.form.menuTools.insertAction(basep, self.reviewact)
         QtCore.QTimer.singleShot(
             100,
-            lambda: self.show_reviews()
+            lambda: self.init_reviews()
         )
 
     def init_dictionary(self):
@@ -104,7 +104,10 @@ class AnkiDict(object):
         if self.initialized_reviews:
             return
         from addon.review_view import ReviewView
-        self.review_view = ReviewView()
+        self.review_view = ReviewView(
+            daily_review_time=self.config.daily_review_time,
+            poll_interval_seconds=self.config.poll_interval_seconds,
+        )
         self.initialized_reviews = True
         self.review_view.hide()
 

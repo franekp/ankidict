@@ -23,10 +23,11 @@
 # SOFTWARE.
 ####
 
+from datetime import datetime
+
 from aqt.qt import *
 import aqt.qt as QtGui
 from PyQt4 import QtCore
-
 from PyQt4.QtWebKit import QWebView
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QUrl
@@ -34,11 +35,9 @@ from PyQt4.QtCore import QUrl
 from addon.main import get_plugin
 from addon.reviewer import Reviewer
 
-# FLASK - MINIMALISTYCZNY WEB FRAMEWORK, tego użyjemy
-
 
 class ReviewView(QWidget):
-    def __init__(self):
+    def __init__(self, daily_review_time, poll_interval_seconds):
         super(ReviewView, self).__init__()
         self.setWindowFlags(
             self.windowFlags()
@@ -58,6 +57,42 @@ class ReviewView(QWidget):
         self.setLayout(self.main_layout)
         self.reload()
         self.is_active = False
+        # hour and minute of the day to show reviews
+        self.hour = int(daily_review_time.split(":")[0])
+        self.minute = int(daily_review_time.split(":")[1])
+        self.last_reviewed_date = "<never>"
+        self.poll_interval_ms = poll_interval_seconds * 1000
+        # start controlling time when show reviews:
+        QtCore.QTimer.singleShot(
+            self.poll_interval_ms, self.maintain_background
+        )
+
+    def maintain_background(self):
+        """Background procedure that is called every <some time interval> and
+        checks whether there is time to review vocabulary. If it is, then
+        activates the review_view window.
+        """
+        now = datetime.now()
+        if now.hour < self.hour:
+            QtCore.QTimer.singleShot(
+                self.poll_interval_ms, self.maintain_background)
+            return
+        if now.hour == self.hour and now.minute < self.minute:
+            QtCore.QTimer.singleShot(
+                self.poll_interval_ms, self.maintain_background)
+            return
+        # it is after the time of day when reviews should be shown
+        # check whether this was already done today:
+        today = "%d-%d-%d" % (now.year, now.month, now.day)
+        if self.last_reviewed_date == today:
+            QtCore.QTimer.singleShot(
+                self.poll_interval_ms, self.maintain_background)
+            return
+        # reviews were not yet done today:
+        self.last_reviewed_date = today
+        QtCore.QTimer.singleShot(
+            self.poll_interval_ms, self.maintain_background)
+        self.activate()
 
     def reload(self):
         self.webview.load(QUrl("http://localhost:9090/"))
@@ -85,7 +120,7 @@ class ReviewView(QWidget):
         self.webview.setFocus()
         self.webview.page().mainFrame().setFocus()
         if self.is_active:
-           QtCore.QTimer.singleShot(100, lambda: self.maintain())
+           QtCore.QTimer.singleShot(100, self.maintain)
         else:
            self.hide()
 
