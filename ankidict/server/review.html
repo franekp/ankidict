@@ -9,30 +9,30 @@
       <link rel="stylesheet" type="text/css" href="style.css" />
       <script type="text/javascript">
         $(function(){
-          $("#question_text").load("http://localhost:9090/get_question")
-          $("#answer_text").load("http://localhost:9090/get_answer")
-          $("#remaining_text").load("http://localhost:9090/get_remaining")
+          $("#question_text").load("http://localhost:9090/api/get_question")
+          $("#answer_text").load("http://localhost:9090/api/get_answer")
+          $("#remaining_text").load("http://localhost:9090/api/get_remaining")
 
           $("#close_button").click(function(){
-            $.get("http://localhost:9090/deactivate", function(data){})
+            $.get("http://localhost:9090/api/deactivate", function(data){})
           })
           $("#again_button").click(function(){
-            $.get("http://localhost:9090/again", function(data){
+            $.get("http://localhost:9090/api/again", function(data){
               location.reload()
             })
           })
           $("#hard_button").click(function(){
-            $.get("http://localhost:9090/hard", function(data){
+            $.get("http://localhost:9090/api/hard", function(data){
               location.reload()
             })
           })
           $("#good_button").click(function(){
-            $.get("http://localhost:9090/good", function(data){
+            $.get("http://localhost:9090/api/good", function(data){
               location.reload()
             })
           })
           $("#easy_button").click(function(){
-            $.get("http://localhost:9090/easy", function(data){
+            $.get("http://localhost:9090/api/easy", function(data){
               location.reload()
             })
           })
