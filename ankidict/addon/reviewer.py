@@ -23,119 +23,19 @@
 # SOFTWARE.
 ####
 
-import os
-
-from PyQt4 import QtCore
-import cherrypy
-from cherrypy.lib.static import serve_file
-
-from addon.main import get_plugin
-from addon.main_thread_executor import executes_in_main_thread
 import aqt
 
 
-# docelowo API będzie potrzebować executes_in_main_thread ale
-# pliki statyczne nie będą tego potrzebować
-
-
-class MyServer(object):
-    def __init__(self, reviewer):
-        self.reviewer = reviewer
-
-    @cherrypy.expose
-    def jquery_js(self):
-        path = os.path.join(os.path.dirname(__file__), "jquery.js")
-        return serve_file(path, content_type="text/javascript")
-
-    @cherrypy.expose
-    def style_css(self):
-        path = os.path.join(os.path.dirname(__file__), "style.css")
-        return serve_file(path, content_type="text/css")
-
-    @cherrypy.expose
-    def background_image_jpg(self):
-        path = os.path.join(os.path.dirname(__file__), "background.jpg")
-        return serve_file(path, content_type="image/jpg")
-
-    @cherrypy.expose
-    def index(self):
-        path = os.path.join(os.path.dirname(__file__), "review.html")
-        return (
-            i.replace("<%", "").replace("%>", "")
-            for i in
-            serve_file(path, content_type="text/html")
-        )
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_question(self):
-        return self.reviewer.get_question()
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_answer(self):
-        return self.reviewer.get_answer()
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_remaining(self):
-        return self.reviewer.get_remaining()
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def deactivate(self):
-        self.reviewer.deactivate()
-        return "OK"
-    
-    @cherrypy.expose
-    @executes_in_main_thread
-    def again(self):
-        self.reviewer.again()
-        return "OK"
-    
-    @cherrypy.expose
-    @executes_in_main_thread
-    def hard(self):
-        self.reviewer.hard()
-        return "OK"
-    
-    @cherrypy.expose
-    @executes_in_main_thread
-    def good(self):
-        self.reviewer.good()
-        return "OK"
-    
-    @cherrypy.expose
-    @executes_in_main_thread
-    def easy(self):
-        self.reviewer.easy()
-        return "OK"
-
-
 class Reviewer(object):
-    def start_webserver(self):
-        aqt.mw.app.aboutToQuit.connect(cherrypy.engine.exit)
-        cherrypy.config.update({'server.socket_port': 9090})
-        cherrypy.log.screen = False
-        del cherrypy._cpchecker.Checker.check_skipped_app_config
-        cherrypy.engine.autoreload.unsubscribe()
-        #cherrypy.quickstart(MyServer())
-        cherrypy.tree.mount(MyServer(self))
-        cherrypy.engine.start()
-
-    def __init__(self, col, popup):
-        self.popup = popup
-        self.server_thread = None
-        self.col = col
+    def init(self):
+        self.col = aqt.mw.col
         self.card = self.col.sched.getCard()
-        self.start_webserver()
 
     def next_card(self):
         self.card = self.col.sched.getCard()
         if not self.card:
             # deck finished! TODO: view this
             pass
-        self.popup.reload()
 
     def select_deck_by_name(self, dname):
         did = self.col.decks.id(deckname)
@@ -147,12 +47,12 @@ class Reviewer(object):
     def get_question(self):
         if self.card is None:
             return "Finished"
-        return self.card.note()[get_plugin().config.note_question]
+        return self.card.note()[aqt.mw.ankidict.config.note_question]
 
     def get_answer(self):
         if self.card is None:
             return "Finished"
-        return self.card.note()[get_plugin().config.note_answer]
+        return self.card.note()[aqt.mw.ankidict.config.note_answer]
 
     def answer_button_list(self):
         # NOT USED, kept for reference only
@@ -214,6 +114,3 @@ class Reviewer(object):
         ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
         ctxt += space + '<font color="#007700">%s</font>' % counts[2]
         return ctxt
-
-    def deactivate(self):
-        self.popup.deactivate()

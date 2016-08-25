@@ -33,7 +33,6 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QUrl
 
 from addon.main import get_plugin
-from addon.reviewer import Reviewer
 
 
 class ReviewView(QWidget):
@@ -46,14 +45,12 @@ class ReviewView(QWidget):
             # | QtCore.Qt.Window
             | QtCore.Qt.WindowStaysOnTopHint
         )
-        from aqt import mw
         self.webview = QWebView()
         self.main_layout = QVBoxLayout()
         self.main_layout.setSpacing(0)
         self.main_layout.setMargin(0)
         self.main_layout.setContentsMargins(0,0,0,0)
         self.main_layout.addWidget(self.webview)
-        self.reviewer = Reviewer(mw.col, self)
         self.setLayout(self.main_layout)
         self.reload()
         self.is_active = False

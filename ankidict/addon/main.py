@@ -16,13 +16,13 @@
 # SOFTWARE.
 ####
 
-# main window object
-from aqt import mw
+import sys
 
-# with this you can eg. get current module object
+from aqt import mw
+import aqt
 from aqt.qt import *
 from PyQt4 import QtCore
-import sys
+import cherrypy
 
 from libdict import macmillan
 
@@ -63,7 +63,9 @@ class AnkiDict(object):
         self.initialized_reviews = False
 
         from addon.collection import Collection
+        from addon.reviewer import Reviewer
         self.col = Collection()
+        self.reviewer = Reviewer()
 
         # place where we want to place our menu action
         basep = mw.form.menuTools.actions()[6]
@@ -79,6 +81,7 @@ class AnkiDict(object):
         self.reviewact.setShortcut("Ctrl+R")
         mw.connect(self.reviewact, SIGNAL("triggered()"), self.show_reviews)
         mw.form.menuTools.insertAction(basep, self.reviewact)
+        self.init_webserver()
         QtCore.QTimer.singleShot(
             100,
             lambda: self.init_reviews()
@@ -100,9 +103,21 @@ class AnkiDict(object):
         self.open_destination("make")
         self.dwnd.hide()
 
+    def init_webserver(self):
+        aqt.mw.app.aboutToQuit.connect(cherrypy.engine.exit)
+        cherrypy.config.update({'server.socket_port': 9090})
+        cherrypy.log.screen = False
+        del cherrypy._cpchecker.Checker.check_skipped_app_config
+        cherrypy.engine.autoreload.unsubscribe()
+        #cherrypy.quickstart(MyServer())
+        from addon.myserver import MyServer
+        cherrypy.tree.mount(MyServer(self.reviewer))
+        cherrypy.engine.start()
+
     def init_reviews(self):
         if self.initialized_reviews:
             return
+        self.reviewer.init()
         from addon.review_view import ReviewView
         self.review_view = ReviewView(
             daily_review_time=self.config.daily_review_time,
@@ -121,6 +136,9 @@ class AnkiDict(object):
     def show_reviews(self):
         self.init_reviews()
         self.review_view.activate()
+
+    def deactivate_reviews(self):
+        self.review_view.deactivate()
 
     def add_note_example(self, ex):
         note = ex.create_anki_note()

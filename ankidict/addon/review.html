@@ -17,20 +17,28 @@
             $.get("http://localhost:9090/deactivate", function(data){})
           })
           $("#again_button").click(function(){
-            $.get("http://localhost:9090/again", function(data){})
+            $.get("http://localhost:9090/again", function(data){
+              location.reload()
+            })
           })
           $("#hard_button").click(function(){
-            $.get("http://localhost:9090/hard", function(data){})
+            $.get("http://localhost:9090/hard", function(data){
+              location.reload()
+            })
           })
           $("#good_button").click(function(){
-            $.get("http://localhost:9090/good", function(data){})
+            $.get("http://localhost:9090/good", function(data){
+              location.reload()
+            })
           })
           $("#easy_button").click(function(){
-            $.get("http://localhost:9090/easy", function(data){})
+            $.get("http://localhost:9090/easy", function(data){
+              location.reload()
+            })
           })
           $("#answer_form").submit(function(e){
             e.preventDefault()
-            $("#answer_text").toggle('slow')
+            $("#answer_text").toggle('fast')
             $("#good_button").focus()
           })
           $("#answer_textbox").delay(100).focus()
