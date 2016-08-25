@@ -15,27 +15,29 @@ import aqt
 # pliki statyczne nie będą tego potrzebować
 
 class AnkiDictServer(object):
+    THIRDPARTY = os.path.join(os.path.dirname(__file__), "thirdparty")
+    THISDIR = os.path.dirname(__file__)
     def __init__(self, reviewer):
         self.reviewer = reviewer
 
     @cherrypy.expose
     def jquery_js(self):
-        path = os.path.join(os.path.dirname(__file__), "jquery.js")
+        path = os.path.join(self.THIRDPARTY, "jquery.js")
+        return serve_file(path, content_type="text/javascript")
+
+    @cherrypy.expose
+    def normalize_css(self):
+        path = os.path.join(self.THIRDPARTY, "normalize.css")
         return serve_file(path, content_type="text/javascript")
 
     @cherrypy.expose
     def style_css(self):
-        path = os.path.join(os.path.dirname(__file__), "style.css")
+        path = os.path.join(self.THISDIR, "style.css")
         return serve_file(path, content_type="text/css")
 
     @cherrypy.expose
-    def background_image_jpg(self):
-        path = os.path.join(os.path.dirname(__file__), "background.jpg")
-        return serve_file(path, content_type="image/jpg")
-
-    @cherrypy.expose
     def index(self):
-        path = os.path.join(os.path.dirname(__file__), "review.html")
+        path = os.path.join(self.THISDIR, "review.html")
         return (
             i.replace("<%", "").replace("%>", "")
             for i in
