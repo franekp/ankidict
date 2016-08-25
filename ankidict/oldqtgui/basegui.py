@@ -3,15 +3,19 @@
 # PyQt library
 from aqt.qt import *
 import aqt.qt as QtGui
+import aqt
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication, QCursor
-from addon import collection
+from logic import collection
 from libdict import macmillan
 import re
 import datetime
-from addon.collection import get_plugin
+
+
+def get_plugin():
+  return aqt.mw.ankidict
 
 
 class StyleSheet(object):

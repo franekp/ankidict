@@ -62,8 +62,8 @@ class AnkiDict(object):
         self.initialized_dictionary = False
         self.initialized_reviews = False
 
-        from addon.collection import Collection
-        from addon.reviewer import Reviewer
+        from logic.collection import Collection
+        from logic.reviewer import Reviewer
         self.col = Collection()
         self.reviewer = Reviewer()
 

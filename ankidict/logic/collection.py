@@ -26,7 +26,7 @@
 from aqt import mw
 import re
 
-from main import get_plugin
+from addon.main import get_plugin
 
 class Collection(object):
     """Interface functions: get_deck_names, add_note. The rest is for internal
