@@ -110,8 +110,8 @@ class AnkiDict(object):
         del cherrypy._cpchecker.Checker.check_skipped_app_config
         cherrypy.engine.autoreload.unsubscribe()
         #cherrypy.quickstart(MyServer())
-        from server.myserver import MyServer
-        cherrypy.tree.mount(MyServer(self.reviewer))
+        from server.main import AnkiDictServer
+        cherrypy.tree.mount(AnkiDictServer(self.reviewer))
         cherrypy.engine.start()
 
     def init_reviews(self):

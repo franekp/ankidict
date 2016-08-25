@@ -14,7 +14,7 @@ import aqt
 # docelowo API będzie potrzebować executes_in_main_thread ale
 # pliki statyczne nie będą tego potrzebować
 
-class MyServer(object):
+class AnkiDictServer(object):
     def __init__(self, reviewer):
         self.reviewer = reviewer
 
