@@ -97,7 +97,7 @@ class AnkiDict(object):
             return
         # here can be some initialization
         # return False to say: "Initialization failed"
-        from addon.gui import DictWindow
+        from oldqtgui.gui import DictWindow
         self.dwnd = DictWindow()
         self.initialized_dictionary = True
         self.open_destination("make")

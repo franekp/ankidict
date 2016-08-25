@@ -10,8 +10,7 @@ import datetime
 import os
 
 from addon.main import get_plugin
-from addon import collection
-from addon import basegui
+from oldqtgui import basegui
 
 # TODO LIST:
 
