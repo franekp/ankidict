@@ -67,35 +67,33 @@ class Reviewer(object):
         else:
             return l + ((2, "Hard"), (3, "Good"), (4, "Easy"))
 
-    def answer_card(self, ease):
+    def buttons(self):
+        cnt = self.col.sched.answerButtons(self.card)
+        if cnt == 2:
+            return ['again', 'good']
+        elif cnt == 3:
+            return ['again', 'good', 'easy']
+        else:
+            return ['again', 'hard', 'good', 'easy']
+
+    def intervals(self):
+        return {
+            name: self.col.sched.nextIvlStr(self.card, i)
+            for i, name in enumerate(self.buttons(), start=1)
+        }
+
+    def answer_card(self, btn):
+        if isinstance(btn, str):
+            for i, name in enumerate(self.buttons(), start=1):
+                if btn == name:
+                    btn = i
+        assert isinstance(btn, int)
         if self.card is None:
             self.next_card()
         else:
-            self.col.sched.answerCard(self.card, ease)
+            self.col.sched.answerCard(self.card, btn)
             self.col.autosave()
             self.next_card()
-
-    def again(self):
-        self.answer_card(1)
-
-    def hard(self):
-        if self.col.sched.answerButtons(self.card) <= 3:
-            self.answer_card(1)
-        else:
-            # use 'again' if 'hard' not available
-            self.answer_card(2)
-
-    def good(self):
-        if self.col.sched.answerButtons(self.card) <= 3:
-            self.answer_card(2)
-        else:
-            self.answer_card(3)
-
-    def easy(self):
-        if self.col.sched.answerButtons(self.card) <= 3:
-            self.answer_card(3)
-        else:
-            self.answer_card(4)
 
     def get_remaining(self):
         if not self.col.conf['dueCounts']:
@@ -114,3 +112,7 @@ class Reviewer(object):
         ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
         ctxt += space + '<font color="#007700">%s</font>' % counts[2]
         return ctxt
+        now = ['new', 'learning', 'to_review'][idx]
+        return dict(
+            new=counts[0], learning=counts[1], to_review=counts[2], now=now
+        )

@@ -1,12 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
+import functools
 
 from PyQt4 import QtCore
 import cherrypy
 
 from addon.main_thread_executor import executes_in_main_thread
 import aqt
+
+
+def apiview(func):
+    @functools.wraps(func)
+    @cherrypy.expose
+    @executes_in_main_thread
+    def newfunc(*args, **kwargs):
+        cherrypy.response.headers['Content-Type'] = "application/json"
+        return json.dumps(func(*args, **kwargs))
+    return newfunc
 
 
 class AnkiDictApi(object):
@@ -37,23 +49,31 @@ class AnkiDictApi(object):
     @cherrypy.expose
     @executes_in_main_thread
     def again(self):
-        self.reviewer.again()
+        self.reviewer.answer_card('again')
         return "OK"
-    
+
     @cherrypy.expose
     @executes_in_main_thread
     def hard(self):
-        self.reviewer.hard()
+        self.reviewer.answer_card('hard')
         return "OK"
-    
+
     @cherrypy.expose
     @executes_in_main_thread
     def good(self):
-        self.reviewer.good()
+        self.reviewer.answer_card('good')
         return "OK"
-    
+
     @cherrypy.expose
     @executes_in_main_thread
     def easy(self):
-        self.reviewer.easy()
+        self.reviewer.answer_card('easy')
         return "OK"
+
+    @apiview
+    def buttons(self):
+        return self.reviewer.buttons()
+
+    @apiview
+    def intervals(self):
+        return self.reviewer.intervals()

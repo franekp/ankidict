@@ -12,7 +12,36 @@ var Sidebar = React.createClass({
   }
 })
 
+var AnswerButton = React.createClass({
+  handleClick: function() {
+    $.post("http://localhost:9090/api/" + this.props.button_name, function(data){
+      location.reload()
+    })
+  },
+  render: function(){
+    return (
+      <button onClick={this.handleClick} id={this.props.button_name + '_button'}>
+        {this.props.button_name}
+      </button>
+    )
+  }
+})
+
 var ReviewerModal = React.createClass({
+  getInitialState: function() {
+    return {buttons: []}
+  },
+  componentDidMount: function() {
+    this_ = this
+    $.getJSON("http://localhost:9090/api/buttons", function(buttons) {
+      $.getJSON("http://localhost:9090/api/intervals", function(intervals) {
+        this_.setState({
+          buttons: buttons,
+          intervals: intervals,
+        })
+      })
+    })
+  },
   render: function() {
     return (
       <div id="reviewer_modal">
@@ -31,16 +60,15 @@ var ReviewerModal = React.createClass({
             <p id="answer_text">Answer text.</p>
             <hr />
             <div id="difficulty_buttongroup">
-              <button id="again_button"> Again </button>
-              <button id="hard_button">  Hard  </button>
-              <button id="good_button">  Good  </button>
-              <button id="easy_button">  Easy  </button>
+              {this.state.buttons.map(function(name, i){
+                return <AnswerButton button_name={name} key={name} />;
+              })}
             </div>
             <p id="remaining_text">Remaining text.</p>
           </div>
       </div>
     );
-  }
+  },
 })
 
 var MainApp = React.createClass({
@@ -48,7 +76,7 @@ var MainApp = React.createClass({
     return(
       <div>
         <input type="checkbox" id="sidebar-hidden-checkbox" />
-        <div class="container">
+        <div className="container">
           <label htmlFor="sidebar-hidden-checkbox">☰</label>
           <Sidebar />
           <ReviewerModal />
@@ -69,26 +97,6 @@ $(function(){
 
   $("#close_button").click(function(){
     $.get("http://localhost:9090/api/deactivate", function(data){})
-  })
-  $("#again_button").click(function(){
-    $.get("http://localhost:9090/api/again", function(data){
-      location.reload()
-    })
-  })
-  $("#hard_button").click(function(){
-    $.get("http://localhost:9090/api/hard", function(data){
-      location.reload()
-    })
-  })
-  $("#good_button").click(function(){
-    $.get("http://localhost:9090/api/good", function(data){
-      location.reload()
-    })
-  })
-  $("#easy_button").click(function(){
-    $.get("http://localhost:9090/api/easy", function(data){
-      location.reload()
-    })
   })
   $("#answer_form").submit(function(e){
     e.preventDefault()
