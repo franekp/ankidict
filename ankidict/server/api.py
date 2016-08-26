@@ -35,10 +35,9 @@ class AnkiDictApi(object):
     def get_answer(self):
         return self.reviewer.get_answer()
 
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_remaining(self):
-        return self.reviewer.get_remaining()
+    @apiview
+    def remaining(self):
+        return self.reviewer.remaining()
 
     @cherrypy.expose
     @executes_in_main_thread
@@ -77,3 +76,7 @@ class AnkiDictApi(object):
     @apiview
     def intervals(self):
         return self.reviewer.intervals()
+
+    @apiview
+    def current_deck(self):
+        return self.reviewer.current_deck()

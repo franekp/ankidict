@@ -95,9 +95,9 @@ class Reviewer(object):
             self.col.autosave()
             self.next_card()
 
-    def get_remaining(self):
+    def remaining(self):
         if not self.col.conf['dueCounts']:
-            return ""
+            return {}
         if self.card is None: #self.hadCardQueue:
             # if it's come from the undo queue, don't count it separately
             counts = list(self.col.sched.counts())
@@ -106,13 +106,12 @@ class Reviewer(object):
             counts = list(self.col.sched.counts(self.card))
             idx = self.col.sched.countIdx(self.card)
         if idx is not None:
-            counts[idx] = "<u>%s</u>" % (counts[idx])
-        space = " + "
-        ctxt = '<font color="#000099">%s</font>' % counts[0]
-        ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
-        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
-        return ctxt
-        now = ['new', 'learning', 'to_review'][idx]
+            now = ['new', 'learning', 'to_review'][idx]
+        else:
+            now = None
         return dict(
             new=counts[0], learning=counts[1], to_review=counts[2], now=now
         )
+
+    def current_deck(self):
+        return self.col.decks.current()['name']
