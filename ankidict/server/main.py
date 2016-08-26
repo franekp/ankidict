@@ -22,6 +22,16 @@ class AnkiDictServer(object):
         return serve_file(path, content_type="text/javascript")
 
     @cherrypy.expose
+    def react_js(self):
+        path = os.path.join(self.THIRDPARTY, "react.js")
+        return serve_file(path, content_type="text/javascript")
+
+    @cherrypy.expose
+    def react_dom_js(self):
+        path = os.path.join(self.THIRDPARTY, "react-dom.js")
+        return serve_file(path, content_type="text/javascript")
+
+    @cherrypy.expose
     def normalize_css(self):
         path = os.path.join(self.THIRDPARTY, "normalize.css")
         return serve_file(path, content_type="text/javascript")
@@ -33,11 +43,14 @@ class AnkiDictServer(object):
 
     @cherrypy.expose
     def index(self):
-        path = os.path.join(self.THISDIR, "review.html")
+        path = os.path.join(self.THISDIR, "index.html")
         return (
             i.replace("<%", "").replace("%>", "")
             for i in
             serve_file(path, content_type="text/html")
         )
 
-    
+    @cherrypy.expose
+    def app_js(self):
+        path = os.path.join(self.THISDIR, "app.js")
+        return serve_file(path, content_type="text/javascript")
