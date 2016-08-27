@@ -74,11 +74,17 @@ var ReviewerModal = React.createClass({
               (this.state.remaining) ? (
                 <span>
                 <span className="vr"></span>
+                <span className={this.state.remaining['now'] == 'new' ? "selected" : ""}>
                 New: {this.state.remaining['new']}
+                </span>
                 <span className="vr"></span>
+                <span className={this.state.remaining['now'] == 'learning' ? "selected" : ""}>
                 Learning: {this.state.remaining['learning']}
+                </span>
                 <span className="vr"></span>
+                <span className={this.state.remaining['now'] == 'to_review' ? "selected" : ""}>
                 To review: {this.state.remaining['to_review']}
+                </span>
                 </span>
               ) : (<span> <span className="vr"></span> Loading... </span>)
             }
