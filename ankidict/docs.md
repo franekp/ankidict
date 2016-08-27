@@ -25,7 +25,7 @@ for each endpoint there is an example result
     "deck": "Animals",
   }
   OR
-  {"finished": True}
+  {"deck": "Animals", "finished": True}
 
 /api/reviewer/remaining
   {"new": 10, "learning": 12, "to_review": 35}

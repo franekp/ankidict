@@ -90,30 +90,37 @@ var ReviewerModal = React.createClass({
             }
           </div>
           {(this.state.card && this.state.buttons && this.state.intervals) ? (
-            <div id="reviewer_modal_body">
-              <div dangerouslySetInnerHTML={{__html: this.state.card.question}}></div>
-              <form action="#" onSubmit={submit_handler}>
-                <input type="text" id="answer_textbox" />
-                <button type="submit">
-                  Show answer
-                </button>
-              </form>
-              <div
-                dangerouslySetInnerHTML={{__html: this.state.card.answer}}
-                style={{display: this.state.show_answer ? "initial" : "none"}}
-              ></div>
-              <hr />
-              <div id="difficulty_buttongroup">
-                {this.state.buttons.map(function(name, i){
-                  return (<AnswerButton
-                    button_name={name}
-                    key={name}
-                    interval={this_.state.intervals[name]}
-                  />);
-                })}
+            (this.state.card.finished) ? (
+              <div id="reviewer_modal_body">
+                <h2>
+                  Congratulations! You have finished this deck for now.
+                </h2>
               </div>
-            </div>
-          ) : (<div id="reviewer_modal_body"> <h2> Loading... </h2> </div>)}
+            ) : (
+              <div id="reviewer_modal_body">
+                <div dangerouslySetInnerHTML={{__html: this.state.card.question}}></div>
+                <form action="#" onSubmit={submit_handler}>
+                  <input type="text" id="answer_textbox" />
+                  <button type="submit">
+                    Show answer
+                  </button>
+                </form>
+                <div
+                  dangerouslySetInnerHTML={{__html: this.state.card.answer}}
+                  style={{display: this.state.show_answer ? "initial" : "none"}}
+                ></div>
+                <hr />
+                <div id="difficulty_buttongroup">
+                  {this.state.buttons.map(function(name, i){
+                    return (<AnswerButton
+                      button_name={name}
+                      key={name}
+                      interval={this_.state.intervals[name]}
+                    />);
+                  })}
+                </div>
+              </div>
+          )) : (<div id="reviewer_modal_body"> <h2> Loading... </h2> </div>)}
       </div>
     );
   },

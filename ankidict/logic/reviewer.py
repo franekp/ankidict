@@ -46,13 +46,16 @@ class Reviewer(object):
 
     def get_question(self):
         if self.card is None:
-            return "Finished"
+            return None
         return self.card.note()[aqt.mw.ankidict.config.note_question]
 
     def get_answer(self):
         if self.card is None:
-            return "Finished"
+            return None
         return self.card.note()[aqt.mw.ankidict.config.note_answer]
+
+    def is_finished(self):
+        return (self.card is None)
 
     def answer_button_list(self):
         # NOT USED, kept for reference only
@@ -68,6 +71,8 @@ class Reviewer(object):
             return l + ((2, "Hard"), (3, "Good"), (4, "Easy"))
 
     def buttons(self):
+        if self.card is None:
+            return []
         cnt = self.col.sched.answerButtons(self.card)
         if cnt == 2:
             return ['again', 'good']

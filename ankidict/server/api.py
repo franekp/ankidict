@@ -25,27 +25,19 @@ class AnkiDictApi(object):
     def __init__(self, reviewer):
         self.reviewer = reviewer
 
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_question(self):
-        return self.reviewer.get_question()
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def get_answer(self):
-        return self.reviewer.get_answer()
-
-    @apiview
-    def current_deck(self):
-        return self.reviewer.current_deck()
-
     @apiview
     def card(self):
-        return dict(
-            question=self.reviewer.get_question(),
-            answer=self.reviewer.get_answer(),
-            deck=self.reviewer.current_deck(),
-        )
+        if self.reviewer.is_finished():
+            return dict(
+                finished=True,
+                deck=self.reviewer.current_deck(),
+            )
+        else:
+            return dict(
+                question=self.reviewer.get_question(),
+                answer=self.reviewer.get_answer(),
+                deck=self.reviewer.current_deck(),
+            )
 
     @apiview
     def remaining(self):
