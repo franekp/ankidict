@@ -22,6 +22,7 @@ var AnswerButton = React.createClass({
     return (
       <button onClick={this.handleClick} id={this.props.button_name + '_button'}>
         {this.props.button_name}
+        <span> {this.props.interval} </span>
       </button>
     )
   }
@@ -32,61 +33,81 @@ var ReviewerModal = React.createClass({
     return {buttons: []}
   },
   componentDidMount: function() {
-    this_ = this
+    var this_ = this
     $.getJSON("http://localhost:9090/api/buttons", function(buttons) {
       $.getJSON("http://localhost:9090/api/intervals", function(intervals) {
-        $.getJSON("http://localhost:9090/api/current_deck", function(current_deck) {
+        $.getJSON("http://localhost:9090/api/card", function(card) {
           $.getJSON("http://localhost:9090/api/remaining", function(remaining) {
             this_.setState({
               buttons: buttons,
               intervals: intervals,
-              current_deck: current_deck,
+              card: card,
               remaining: remaining,
+              show_answer: false,
             })
+            $("#answer_textbox").delay(100).focus()
           })
         })
       })
     })
   },
+  handleShowAnswer: function(e) {
+    this.setState({
+      show_answer: true,
+    })
+    $("#good_button").focus()
+  },
   render: function() {
-    this_ = this
+    var this_ = this
+    var submit_handler = function(e) {
+      e.preventDefault()
+      this_.handleShowAnswer()
+    }
     return (
       <div id="reviewer_modal">
           <div id="reviewer_modal_header">
             <button id="close_button">&times;</button>
-            <h3><font color="gray">Review deck:&nbsp;</font></h3>
-            <h3>
-              {this.state.current_deck}
+            <h3><span>Review deck:&nbsp;</span>
+              {(this.state.card) ? (this.state.card.deck) : ("Loading...")}
             </h3>
-            {function() { if(this_.state.remaining) return (
-              <span>
-              <span className="vr"></span>
-              New: {this_.state.remaining['new']}
-              <span className="vr"></span>
-              Learning: {this_.state.remaining['learning']}
-              <span className="vr"></span>
-              To review: {this_.state.remaining['to_review']}
-              </span>
-            )
-            else return (<span> Loading... </span>)
-            }()}
+            {
+              (this.state.remaining) ? (
+                <span>
+                <span className="vr"></span>
+                New: {this.state.remaining['new']}
+                <span className="vr"></span>
+                Learning: {this.state.remaining['learning']}
+                <span className="vr"></span>
+                To review: {this.state.remaining['to_review']}
+                </span>
+              ) : (<span> <span className="vr"></span> Loading... </span>)
+            }
           </div>
-          <div id="reviewer_modal_body">
-            <p id="question_text">Question text.</p>
-            <form action="#" id="answer_form">
-              <input type="text" id="answer_textbox" />
-              <button type="submit">
-                Show answer
-              </button>
-            </form>
-            <p id="answer_text">Answer text.</p>
-            <hr />
-            <div id="difficulty_buttongroup">
-              {this.state.buttons.map(function(name, i){
-                return <AnswerButton button_name={name} key={name} />;
-              })}
+          {(this.state.card && this.state.buttons && this.state.intervals) ? (
+            <div id="reviewer_modal_body">
+              <div dangerouslySetInnerHTML={{__html: this.state.card.question}}></div>
+              <form action="#" onSubmit={submit_handler}>
+                <input type="text" id="answer_textbox" />
+                <button type="submit">
+                  Show answer
+                </button>
+              </form>
+              <div
+                dangerouslySetInnerHTML={{__html: this.state.card.answer}}
+                style={{display: this.state.show_answer ? "initial" : "none"}}
+              ></div>
+              <hr />
+              <div id="difficulty_buttongroup">
+                {this.state.buttons.map(function(name, i){
+                  return (<AnswerButton
+                    button_name={name}
+                    key={name}
+                    interval={this_.state.intervals[name]}
+                  />);
+                })}
+              </div>
             </div>
-          </div>
+          ) : (<div id="reviewer_modal_body"> <h2> Loading... </h2> </div>)}
       </div>
     );
   },
@@ -112,16 +133,8 @@ $(function(){
     React.createElement(MainApp, null),
     document.getElementById('application_root')
   )
-  $("#question_text").load("http://localhost:9090/api/get_question")
-  $("#answer_text").load("http://localhost:9090/api/get_answer")
-
   $("#close_button").click(function(){
     $.get("http://localhost:9090/api/deactivate", function(data){})
   })
-  $("#answer_form").submit(function(e){
-    e.preventDefault()
-    $("#answer_text").toggle('fast')
-    $("#good_button").focus()
-  })
-  $("#answer_textbox").delay(100).focus()
+  
 })

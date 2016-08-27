@@ -36,6 +36,18 @@ class AnkiDictApi(object):
         return self.reviewer.get_answer()
 
     @apiview
+    def current_deck(self):
+        return self.reviewer.current_deck()
+
+    @apiview
+    def card(self):
+        return dict(
+            question=self.reviewer.get_question(),
+            answer=self.reviewer.get_answer(),
+            deck=self.reviewer.current_deck(),
+        )
+
+    @apiview
     def remaining(self):
         return self.reviewer.remaining()
 
@@ -76,7 +88,3 @@ class AnkiDictApi(object):
     @apiview
     def intervals(self):
         return self.reviewer.intervals()
-
-    @apiview
-    def current_deck(self):
-        return self.reviewer.current_deck()
