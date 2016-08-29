@@ -52,21 +52,21 @@ var ReviewerModal = React.createClass({
     })
   },
   handleShowAnswer: function(e) {
+    e.preventDefault()
     this.setState({
       show_answer: true,
     })
     $("#good_button").focus()
   },
+  handleClose: function() {
+    $.get("http://localhost:9090/api/deactivate", function(data){})
+  },
   render: function() {
     var this_ = this
-    var submit_handler = function(e) {
-      e.preventDefault()
-      this_.handleShowAnswer()
-    }
     return (
       <div id="reviewer_modal">
           <div id="reviewer_modal_header">
-            <button id="close_button">&times;</button>
+            <button id="close_button" onClick={this.handleClose}>&times;</button>
             <h3><span>Review deck:&nbsp;</span>
               {(this.state.card) ? (this.state.card.deck) : ("Loading...")}
             </h3>
@@ -99,7 +99,7 @@ var ReviewerModal = React.createClass({
             ) : (
               <div id="reviewer_modal_body">
                 <div dangerouslySetInnerHTML={{__html: this.state.card.question}}></div>
-                <form action="#" onSubmit={submit_handler}>
+                <form action="#" onSubmit={this.handleShowAnswer}>
                   <input type="text" id="answer_textbox" />
                   <button type="submit">
                     Show answer
@@ -146,8 +146,4 @@ $(function(){
     React.createElement(MainApp, null),
     document.getElementById('application_root')
   )
-  $("#close_button").click(function(){
-    $.get("http://localhost:9090/api/deactivate", function(data){})
-  })
-  
 })
