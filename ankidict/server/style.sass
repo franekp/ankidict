@@ -5,12 +5,16 @@ $color-1-ui: #093d00
 $color-2-ui: desaturate(lighten($color-1-ui, 55%), 75%)
 //$sidebar-width: 180px
 $sidebar-width: 15%
+$theme-light: true
 
 #reviewer_modal
   width: 55%
   border: 1px solid white
   border-radius: 7px
-  box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 8px 4px $color-1-ui
+  @if $theme-light
+    box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 6px 2px $color-1-ui
+  @else
+    box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 8px 4px $color-1-ui
   overflow: hidden
   padding: 0px
   margin-top: 10%
@@ -28,7 +32,10 @@ $sidebar-width: 15%
   margin: 0px
   padding: 5px
   border-bottom: 2px solid white
-  box-shadow: 0px 2px 6px 0px $color-1-ui
+  @if $theme-light
+    box-shadow: 0px 1px 5px 0px $color-1-ui
+  @else
+    box-shadow: 0px 2px 6px 0px $color-1-ui
   h2, h3
     margin: auto
     display: inline-block
@@ -69,7 +76,10 @@ $sidebar-width: 15%
 
 button
   border: 1px solid white
-  box-shadow: 0px 0px 4px 2px $color-1-ui, inset 0px 0px 2px 1px white
+  @if $theme-light
+    box-shadow: 0px 0px 4px 1px $color-1-ui, inset 0px 0px 2px 1px white
+  @else
+    box-shadow: 0px 0px 4px 1px $color-1-ui, 0px 0px 4px 0px $color-1-ui, inset 0px 0px 2px 1px white
   border-radius: 3px
   background: linear-gradient(to bottom, $color-2-ui, $color-2-ui 8% , white 45%, white 55%, $color-2-ui 85%, $color-2-ui)
   font-weight: bold
@@ -101,7 +111,10 @@ input[type="text"]
 
 input[type="text"]:focus
   outline: 0
-  box-shadow: inset 0px 0px 5px 3px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
+  @if $theme-light
+    box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
+  @else
+    box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
 
 #difficulty_buttongroup
   button
