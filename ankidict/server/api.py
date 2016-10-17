@@ -8,6 +8,8 @@ from PyQt4 import QtCore
 import cherrypy
 
 from addon.main_thread_executor import executes_in_main_thread
+
+from libdict import macmillan
 import aqt
 
 
@@ -80,3 +82,7 @@ class AnkiDictApi(object):
     @apiview
     def intervals(self):
         return self.reviewer.intervals()
+
+    @apiview
+    def dictionary(self, word):
+        return macmillan.query_site(word, plain_dict=True)

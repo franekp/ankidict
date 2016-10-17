@@ -268,7 +268,21 @@ class NotFoundEntry(PageModel):
     )
 
 
-def query_site(query):
+def model_to_json(a, exclude=[]):
+    if isinstance(a, models.Base):
+        res = {}
+        for i in a.__dict__:
+            if i.endswith("id") or i.startswith("_") or i in exclude:
+                continue
+            res[i] = model_to_json(getattr(a, i), exclude)
+        return res
+    elif 'InstrumentedList' in str(type(a)):
+        return [model_to_json(i, exclude) for i in a]
+    else:
+        return unicode(a)
+
+
+def query_site(query, plain_dict=False):
     # do normalnego wyszukiwania
     normal_prefix = "http://www.macmillandictionary.com/search/british/direct/?q="
     url = ""
@@ -284,7 +298,11 @@ def query_site(query):
     else:
         res = Entry(txt)
     res.url = response.geturl()
-    return res
+    if plain_dict:
+        # exclude backrefs so that we don't enter infinite recursion
+        return model_to_json(res, exclude=['subsense', 'sense', 'entry'])
+    else:
+        return res
 
 
 class MacmillanCache(Cache):
