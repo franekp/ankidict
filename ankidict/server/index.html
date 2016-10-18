@@ -12,8 +12,18 @@
       <link rel="stylesheet" type="text/css" href="style.css" />
       
       <script type="text/javascript" src="app.js"></script>
+      <script type="text/javascript" src="elmapp.js"></script>
     </head>
     <body>
       <div id="application_root"></div>
+      <div id="elm_root"></div>
+      <script type="text/javascript">
+      //var Elm = require('./Main.elm');
+      // Elm is already a global variable xd
+      var mountNode = document.getElementById('elm_root');
+
+      // The third value on embed are the initial values for incomming ports into Elm
+      var app = Elm.Main.embed(mountNode);
+      </script>
     </body>
 </html>

@@ -54,3 +54,8 @@ class AnkiDictServer(object):
     def app_js(self):
         path = os.path.join(self.THISDIR, "app.js")
         return serve_file(path, content_type="text/javascript")
+
+    @cherrypy.expose
+    def elmapp_js(self):
+        path = os.path.join(self.THISDIR, "elmapp.js")
+        return serve_file(path, content_type="text/javascript")

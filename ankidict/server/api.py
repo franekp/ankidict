@@ -85,4 +85,6 @@ class AnkiDictApi(object):
 
     @apiview
     def dictionary(self, word):
-        return macmillan.query_site(word, plain_dict=True)
+        res = macmillan.query_site(word, plain_dict=True)
+        #res['senses'] = [str(i) for i in res['senses']]
+        return res
