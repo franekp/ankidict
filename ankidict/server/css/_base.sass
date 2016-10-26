@@ -1,0 +1,53 @@
+//  --------------   GENERAL STYLE   --------------
+
+.gray
+  // !important flag here - this is a valid use-case, it is extremely likely
+  // that this class gets eaten by a higher-specificity but less-important
+  // selector
+  // https://css-tricks.com/when-using-important-is-the-right-choice/
+  color: gray !important
+
+header, section, footer, aside, nav, main, article, figure
+  display: block
+
+*
+  box-sizing: border-box
+
+button
+  border: 1px solid white
+  @if $theme-light
+    box-shadow: 0px 0px 4px 1px $color-1-ui, inset 0px 0px 2px 1px white
+  @else
+    box-shadow: 0px 0px 4px 1px $color-1-ui, 0px 0px 4px 0px $color-1-ui, inset 0px 0px 2px 1px white
+  border-radius: 3px
+  background: linear-gradient(to bottom, $color-2-ui, $color-2-ui 8% , white 45%, white 55%, $color-2-ui 85%, $color-2-ui)
+  font-weight: bold
+  color: $color-1-ui
+  cursor: pointer
+  transition: all 0.3s
+
+=button-hover
+  border-color: $color-1-ui
+  background: linear-gradient(to bottom, $color-2-ui, $color-2-ui 8% , $color-1-ui 40%, $color-1-ui 60%, $color-2-ui 88%, $color-2-ui)
+  color: white
+
+button:hover
+  +button-hover
+
+button:focus
+  outline: 0
+  +button-hover
+
+input[type="text"]
+  border: 1px solid white
+  box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 16px -1px $color-1-ui
+  border-radius: 3px
+  padding-left: 5px
+  font-weight: bold
+
+input[type="text"]:focus
+  outline: 0
+  @if $theme-light
+    box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
+  @else
+    box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui

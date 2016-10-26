@@ -1,0 +1,75 @@
+// ---------- SIDEBAR STUFF -----------
+
+label[for="sidebar-hidden-checkbox"]
+  display: block
+  text-decoration: none
+  font-size: 1.5em
+  transition: all 0.25s
+  position: fixed
+  top: 0px
+  left: 0px
+  margin-top: 10px
+  margin-left: 20px
+  z-index: 1
+  cursor: pointer
+
+#sidebar-hidden-checkbox
+  display: none
+
+#sidebar
+  overflow: hidden
+  position: fixed
+  top: -20px
+  bottom: -20px
+  padding-top: 30px
+  left: -$sidebar-width
+  transition: all 0.25s
+  width: $sidebar-width
+  //background: lighten(black, 50%)
+  //background: linear-gradient(to right, white, desaturate($color-2-ui, 30%) 50%, white)
+  border-right: 1px solid white
+  box-shadow: 0px 0px 6px 3px $color-1-ui, inset 0px 8px 6px white, inset 0px 0px 30px -10px $color-1-ui, inset 0px 0px 100px -5px $color-1-ui
+
+#sidebar a
+  position: relative
+  // disable dotted border when focused
+  outline: 0
+  color: $color-1-ui
+  font-size: 1.3em
+  //margin: 10px
+  //width: 100%
+  margin-left: -5px
+  margin-right: -5px
+  padding-top: 6px
+  padding-bottom: 6px
+  padding-left: 20px
+  padding-right: 20px
+  cursor: pointer
+  display: block
+  text-decoration: none
+  //line-height: 250%
+  margin-bottom: 1px
+  font-weight: 600
+
+#sidebar a:hover
+  box-shadow: 0px 0px 6px -2px $color-1-ui, inset 0px 0px 9px -1px white
+
+#sidebar a:focus
+  box-shadow: 0px 0px 4px 0px $color-1-ui, inset 0px 0px 9px 2px white
+  background: linear-gradient(to right, rgba(255,255,255,0), lighten($color-2-ui, 15%) 55%, lighten($color-2-ui, 12%) 65%, rgba(255,255,255,0))
+
+#sidebar hr
+  background: linear-gradient(to right, rgba(200,200,200,0), lighten($color-2-ui, 20%), rgba(200,200,200,0))
+  width: 90%
+  height: 1px
+  border: none
+  margin: 0px
+  padding: 0px
+  //background: none
+
+
+#sidebar-hidden-checkbox:checked + * #sidebar
+  left: 0px
+
+#sidebar-hidden-checkbox:checked + * label[for="sidebar-hidden-checkbox"]
+  left: $sidebar-width
