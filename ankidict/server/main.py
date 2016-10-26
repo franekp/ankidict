@@ -38,7 +38,7 @@ class AnkiDictServer(object):
 
     @cherrypy.expose
     def style_css(self):
-        path = os.path.join(self.THISDIR, "style.css")
+        path = os.path.join(self.THISDIR, "css", "style.css")
         return serve_file(path, content_type="text/css")
 
     @cherrypy.expose
@@ -57,5 +57,5 @@ class AnkiDictServer(object):
 
     @cherrypy.expose
     def elmapp_js(self):
-        path = os.path.join(self.THISDIR, "elmapp.js")
+        path = os.path.join(self.THISDIR, "elmapp", "main.js")
         return serve_file(path, content_type="text/javascript")

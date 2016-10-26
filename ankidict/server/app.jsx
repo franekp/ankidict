@@ -22,7 +22,7 @@ var AnswerButton = React.createClass({
     return (
       <button onClick={this.handleClick} id={this.props.button_name + '_button'}>
         {this.props.button_name}
-        <span> {this.props.interval} </span>
+        <span className="gray"> {this.props.interval} </span>
       </button>
     )
   }
@@ -65,39 +65,51 @@ var ReviewerModal = React.createClass({
     var this_ = this
     return (
       <div id="reviewer_modal">
-          <div id="reviewer_modal_header">
-            <button id="close_button" onClick={this.handleClose}>&times;</button>
-            <h3><span>Review deck:&nbsp;</span>
+          <header>
+            <button onClick={this.handleClose}>&times;</button>
+            <b><span className="gray">Review deck:&nbsp;</span>
               {(this.state.card) ? (this.state.card.deck) : ("Loading...")}
-            </h3>
+            </b>
             {
               (this.state.remaining) ? (
                 <span>
-                <span className="vr"></span>
-                <span className={this.state.remaining['now'] == 'new' ? "selected" : ""}>
-                New: {this.state.remaining['new']}
-                </span>
-                <span className="vr"></span>
-                <span className={this.state.remaining['now'] == 'learning' ? "selected" : ""}>
-                Learning: {this.state.remaining['learning']}
-                </span>
-                <span className="vr"></span>
-                <span className={this.state.remaining['now'] == 'to_review' ? "selected" : ""}>
-                To review: {this.state.remaining['to_review']}
-                </span>
+                  <hr />
+                  {
+                    this.state.remaining['now'] == 'new' ? (
+                      <u> New: {this.state.remaining['new']} </u>
+                    ) : (
+                      <span> New: {this.state.remaining['new']} </span>
+                    )
+                  }
+                  <hr />
+                  {
+                    this.state.remaining['now'] == 'learning' ? (
+                      <u> Learning: {this.state.remaining['learning']} </u>
+                    ) : (
+                      <span> Learning: {this.state.remaining['learning']} </span>
+                    )
+                  }
+                  <hr />
+                  {
+                    this.state.remaining['now'] == 'to_review' ? (
+                      <u> To review: {this.state.remaining['to_review']} </u>
+                    ) : (
+                      <span> To review: {this.state.remaining['to_review']} </span>
+                    )
+                  }
                 </span>
               ) : (<span> <span className="vr"></span> Loading... </span>)
             }
-          </div>
+          </header>
           {(this.state.card && this.state.buttons && this.state.intervals) ? (
             (this.state.card.finished) ? (
-              <div id="reviewer_modal_body">
+              <main>
                 <h2>
                   Congratulations! You have finished this deck for now.
                 </h2>
-              </div>
+              </main>
             ) : (
-              <div id="reviewer_modal_body">
+              <main>
                 <div dangerouslySetInnerHTML={{__html: this.state.card.question}}></div>
                 <form action="#" onSubmit={this.handleShowAnswer}>
                   <input type="text" id="answer_textbox" />
@@ -110,17 +122,15 @@ var ReviewerModal = React.createClass({
                   style={{display: this.state.show_answer ? "initial" : "none"}}
                 ></div>
                 <hr />
-                <div id="difficulty_buttongroup">
-                  {this.state.buttons.map(function(name, i){
-                    return (<AnswerButton
-                      button_name={name}
-                      key={name}
-                      interval={this_.state.intervals[name]}
-                    />);
-                  })}
-                </div>
-              </div>
-          )) : (<div id="reviewer_modal_body"> <h2> Loading... </h2> </div>)}
+                {this.state.buttons.map(function(name, i){
+                  return (<AnswerButton
+                    button_name={name}
+                    key={name}
+                    interval={this_.state.intervals[name]}
+                  />);
+                })}
+              </main>
+          )) : (<main> <h2> Loading... </h2> </main>)}
       </div>
     );
   },

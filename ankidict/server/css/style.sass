@@ -7,8 +7,12 @@ $color-2-ui: desaturate(lighten($color-1-ui, 55%), 75%)
 $sidebar-width: 15%
 $theme-light: true
 
+// --------- REVIEWER MODAL ----------
+
 #reviewer_modal
   width: 55%
+  // https://css-tricks.com/almanac/properties/m/min-width/
+  min-width: 600px
   border: 1px solid white
   border-radius: 7px
   @if $theme-light
@@ -20,15 +24,10 @@ $theme-light: true
   margin-top: 10%
   margin-left: auto
   margin-right: auto
-  hr
-    border: 0
-    background: linear-gradient(to right, rgba(200,200,200,0), darken($color-2-ui, 15%) 30%, darken($color-2-ui, 15%) 70%, rgba(200,200,200,0))
-    height: 3px
-    margin-top: 20px
-    margin-bottom: 20px
 
-#reviewer_modal_header
+#reviewer_modal header
   color: $color-1-ui
+  overflow: auto
   margin: 0px
   padding: 5px
   border-bottom: 2px solid white
@@ -36,35 +35,32 @@ $theme-light: true
     box-shadow: 0px 1px 5px 0px $color-1-ui
   @else
     box-shadow: 0px 2px 6px 0px $color-1-ui
-  h2, h3
-    margin: auto
-    display: inline-block
-    font-weight: bold
-  h3 span
-    color: gray
-  span.selected
-    text-decoration: underline
+  white-space: nowrap
   *
     font-family: Impact, Charcoal, sans-serif
-  > *
-    display: inline-block
-  #close_button
+    line-height: 1.5em
+    z-index: 1
+  button
+    z-index: 10
+    // for z-index to work need "position: relative"
+    position: relative
+    right: 0px
     float: right
+    height: 100%
+    padding-top: 0px
+    padding-bottom: 0px
+  hr
+    border: 0
+    width: 2px
+    height: 2.2em
+    background: linear-gradient(to bottom, rgba(200,200,200,0), darken($color-2-ui, 10%) 30%, darken($color-2-ui, 10%) 70%, rgba(200,200,200,0))
     display: inline-block
-    height: 60%
-    margin-top: -1px
+    margin-top: -0.5em
+    margin-bottom: -0.7em
+    margin-left: 5px
+    margin-right: 5px
 
-.vr
-  width: 2px
-  height: 2.2em
-  background: linear-gradient(to bottom, rgba(200,200,200,0), darken($color-2-ui, 10%) 30%, darken($color-2-ui, 10%) 70%, rgba(200,200,200,0))
-  display: inline-block
-  margin-top: -0.5em
-  margin-bottom: -0.7em
-  margin-left: 5px
-  margin-right: 5px
-
-#reviewer_modal_body
+#reviewer_modal main
   margin: 0px
   padding: 20px
   text-align: center
@@ -73,6 +69,42 @@ $theme-light: true
   form
     margin-top: 12px
     margin-bottom: 12px
+    input[type="text"]
+      height: 2em
+      width: 40%
+      margin-right: 4px
+    button
+      height: 2em
+
+#reviewer_modal
+  main>hr
+    border: 0
+    background: linear-gradient(to right, rgba(200,200,200,0), darken($color-2-ui, 15%) 30%, darken($color-2-ui, 15%) 70%, rgba(200,200,200,0))
+    height: 3px
+    margin-top: 20px
+    margin-bottom: 20px
+  // answer buttons are placed after horizontal divider
+  main>hr~button
+    margin: 3px
+    text-transform: capitalize
+    height: 2em
+    span
+      text-transform: none
+
+//  --------------   GENERAL STYLE   --------------
+
+.gray
+  // !important flag here - this is a valid use-case, it is extremely likely
+  // that this class gets eaten by a higher-specificity but less-important
+  // selector
+  // https://css-tricks.com/when-using-important-is-the-right-choice/
+  color: gray !important
+
+header, section, footer, aside, nav, main, article, figure
+  display: block
+
+*
+  box-sizing: border-box
 
 button
   border: 1px solid white
@@ -103,11 +135,8 @@ input[type="text"]
   border: 1px solid white
   box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 16px -1px $color-1-ui
   border-radius: 3px
-  height: 28px
-  width: 40%
   padding-left: 5px
   font-weight: bold
-  margin-right: 4px
 
 input[type="text"]:focus
   outline: 0
@@ -115,14 +144,6 @@ input[type="text"]:focus
     box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
   @else
     box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
-
-#difficulty_buttongroup
-  button
-    margin: 3px
-    text-transform: capitalize
-    span
-      color: gray
-      text-transform: none
 
 // ---------- SIDEBAR STUFF -----------
 
@@ -192,6 +213,7 @@ label[for="sidebar-hidden-checkbox"]
   margin: 0px
   padding: 0px
   //background: none
+
 
 #sidebar-hidden-checkbox:checked + * #sidebar
   left: 0px
