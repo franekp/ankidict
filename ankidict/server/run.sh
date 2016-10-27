@@ -8,6 +8,6 @@ postcss --use autoprefixer --use postcss-gradientfixer --replace css/style.css  
 
 jsx app.jsx > app.js  # reactjs part
 
-elm make elmapp/main.elm --output elmapp/main.js  # elm part
+elm make elmapp/Main.elm --output elmapp/main.js  # elm part
 
 anki 2>&1 > /dev/null &

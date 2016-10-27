@@ -1,3 +1,5 @@
+module Dictionary exposing (Model, Action, init, update, view)
+
 import Html exposing (div, text, button, h2, br, Html, input)
 import Html.App as App
 import Html.Attributes exposing (value, type')
@@ -6,33 +8,25 @@ import Http
 import Json.Decode as Json exposing ((:=))
 import Task
 
-main = App.program {
-    init = init "make",
-    view = view,
-    update = update,
-    subscriptions = subscriptions
-  }
-
 -- MODEL
 
 type alias Sense = {definition : String, examples : List String}
-
 type alias Model = {word : String, dict_entry : List Sense}
-
-init : String -> (Model, Cmd Msg)
-init word = (Model word [Sense "Welcome to our addon!" []], get_dict_entry word)
-
--- UPDATE
-
-type Msg
+type Action
   = SearchWord
   | FetchSucceed (List Sense)
   | FetchFail Http.Error
   | WordChanged String
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-  case msg of
+init : (Model, Cmd Action)
+init =
+  (Model "make" [Sense "Welcome to our addon!" []], get_dict_entry "make")
+
+-- UPDATE
+
+update : Action -> Model -> (Model, Cmd Action)
+update action model =
+  case action of
     SearchWord ->
       ({model | dict_entry = [Sense "Loading..." []]}, get_dict_entry model.word)
 
@@ -47,7 +41,7 @@ update msg model =
 
 -- VIEW
 
-view : Model -> Html Msg
+view : Model -> Html Action
 view model =
   div [] [
       input [type' "text", value model.word, onInput WordChanged] [],
@@ -59,15 +53,9 @@ view model =
       )
     ]
 
--- SUBSCRIPTIONS
+-- HTTP (not exposed, these are implementation details of this module)
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-  Sub.none
-
--- HTTP
-
-get_dict_entry : String -> Cmd Msg
+get_dict_entry : String -> Cmd Action
 get_dict_entry word =
   let
     url = "/api/dictionary?word=" ++ word
