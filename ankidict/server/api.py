@@ -23,27 +23,75 @@ def apiview(func):
     return newfunc
 
 
-class AnkiDictApi(object):
-    def __init__(self, reviewer):
-        self.reviewer = reviewer
+class Reviewer(object):
+    def __init__(self, reviewer_obj):
+        self.reviewer_obj = reviewer_obj
+
+    def get_card(self):
+        # TODO TODO TODO deck switching here
+        if self.reviewer_obj.is_finished():
+            return dict(finished=True)
+        else:
+            btns = self.reviewer_obj.buttons()
+            invls = self.reviewer_obj.intervals()
+            buttons = [
+                dict(button=btn, interval=invls[btn])
+                for btn in btns
+            ]
+            card = dict(
+                question=self.reviewer_obj.get_question(),
+                answer=self.reviewer_obj.get_answer(),
+            )
+            remaining = self.reviewer_obj.remaining()
+            return dict(
+                finished=False,
+                buttons=buttons,
+                card=card,
+                remaining=remaining,
+            )
 
     @apiview
     def card(self):
-        if self.reviewer.is_finished():
+        return self.get_card()
+
+    @apiview
+    def answer_card(self, button_name):
+        assert button_name in ['again', 'hard', 'good', 'easy']
+        self.reviewer_obj.answer_card(button_name)
+        return self.get_card()
+
+    @apiview
+    def close(self):
+        aqt.mw.ankidict.deactivate_reviews()
+        return None
+
+    @apiview
+    def list_decks(self):
+        return self.reviewer_obj.list_decks()
+
+
+class AnkiDictApi(object):
+    def __init__(self, reviewer_obj):
+        self.reviewer_obj = reviewer_obj
+        self.reviewer = Reviewer(reviewer_obj)
+
+    @apiview
+    def card(self):
+        if self.reviewer_obj.is_finished():
             return dict(
                 finished=True,
-                deck=self.reviewer.current_deck(),
+                deck=self.reviewer_obj.current_deck(),
             )
         else:
             return dict(
-                question=self.reviewer.get_question(),
-                answer=self.reviewer.get_answer(),
-                deck=self.reviewer.current_deck(),
+                question=self.reviewer_obj.get_question(),
+                answer=self.reviewer_obj.get_answer(),
+                deck=self.reviewer_obj.current_deck(),
             )
 
     @apiview
     def remaining(self):
-        return self.reviewer.remaining()
+        return self.reviewer_obj.remaining()
 
     @cherrypy.expose
     @executes_in_main_thread
@@ -54,34 +102,34 @@ class AnkiDictApi(object):
     @cherrypy.expose
     @executes_in_main_thread
     def again(self):
-        self.reviewer.answer_card('again')
+        self.reviewer_obj.answer_card('again')
         return "OK"
 
     @cherrypy.expose
     @executes_in_main_thread
     def hard(self):
-        self.reviewer.answer_card('hard')
+        self.reviewer_obj.answer_card('hard')
         return "OK"
 
     @cherrypy.expose
     @executes_in_main_thread
     def good(self):
-        self.reviewer.answer_card('good')
+        self.reviewer_obj.answer_card('good')
         return "OK"
 
     @cherrypy.expose
     @executes_in_main_thread
     def easy(self):
-        self.reviewer.answer_card('easy')
+        self.reviewer_obj.answer_card('easy')
         return "OK"
 
     @apiview
     def buttons(self):
-        return self.reviewer.buttons()
+        return self.reviewer_obj.buttons()
 
     @apiview
     def intervals(self):
-        return self.reviewer.intervals()
+        return self.reviewer_obj.intervals()
 
     @apiview
     def dictionary(self, word):
