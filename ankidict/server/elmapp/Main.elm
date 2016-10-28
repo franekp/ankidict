@@ -49,10 +49,25 @@ update action model =
 -- VIEW
 
 view : Model -> Html Action
-view model = H.div [] [
+view model =
+  H.div [] [
+    H.input [Att.type' "checkbox", Att.id "sidebar-hidden-checkbox"] [],
+    H.div [Att.class "container"] [
+      H.label [Att.for "sidebar-hidden-checkbox"] [H.text "☰"],
+      H.nav [Att.id "sidebar"] [
+          H.a [Att.href "#"] [H.text "Nav link 1"], H.hr [] [],
+          H.a [Att.href "#"] [H.text "Nav link 2"], H.hr [] [],
+          H.a [Att.href "#"] [H.text "Nav link 3"], H.hr [] [],
+          H.a [Att.href "#"] [H.text "Nav link 4"], H.hr [] [],
+          H.a [Att.href "#"]
+            [H.text "Nav link 5 Bl a h b l a h b l a h b l a h b l a h"],
+          H.hr [] []
+      ]
+    ],
     App.map ReviewerA (Reviewer.view model.reviewer),
     App.map DictionaryA (Dictionary.view model.dictionary)
   ]
+
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Action

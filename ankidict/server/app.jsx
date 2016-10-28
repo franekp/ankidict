@@ -140,15 +140,21 @@ var MainApp = React.createClass({
   render: function() {
     return(
       <div>
-        <input type="checkbox" id="sidebar-hidden-checkbox" />
-        <div className="container">
-          <label htmlFor="sidebar-hidden-checkbox">☰</label>
-          <Sidebar />
-        </div>
+        
       </div>
     )
   }
 })
+
+/*
+
+<input type="checkbox" id="sidebar-hidden-checkbox" />
+<div className="container">
+  <label htmlFor="sidebar-hidden-checkbox">☰</label>
+  <Sidebar />
+</div>
+
+*/
 
 $(function(){
   ReactDOM.render(
