@@ -144,7 +144,6 @@ var MainApp = React.createClass({
         <div className="container">
           <label htmlFor="sidebar-hidden-checkbox">☰</label>
           <Sidebar />
-          <ReviewerModal />
         </div>
       </div>
     )

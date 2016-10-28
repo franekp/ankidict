@@ -1,11 +1,12 @@
-import Html exposing (div, text, button, h2, br, Html, input)
+import Html as H exposing (Html)
 import Html.App as App
-import Html.Attributes exposing (value, type')
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes as Att
+import Html.Events as Ev
 import Http
 import Json.Decode as Json exposing ((:=))
 import Task
 import Dictionary
+import Reviewer
 
 main = App.program {
     init = init,
@@ -16,13 +17,22 @@ main = App.program {
 
 -- MODEL
 
-type alias Model = {dictionary : Dictionary.Model}
-type Action = DictionaryA Dictionary.Action
+type alias Model = {
+    dictionary : Dictionary.Model,
+    reviewer : Reviewer.Model
+  }
+type Action
+  = DictionaryA Dictionary.Action
+  | ReviewerA Reviewer.Action
 
 init : (Model, Cmd Action)
 init =
   let (dict_model, dict_cmd) = Dictionary.init in
-  ({dictionary = dict_model}, Cmd.map DictionaryA dict_cmd)
+  let (rev_model, rev_cmd) = Reviewer.init in
+  (
+    {dictionary = dict_model, reviewer = rev_model},
+    Cmd.batch [Cmd.map DictionaryA dict_cmd, Cmd.map ReviewerA rev_cmd]
+  )
 
 -- UPDATE
 
@@ -32,12 +42,17 @@ update action model =
     DictionaryA a ->
       let (dict_model, dict_cmd) = Dictionary.update a model.dictionary in
       ({model | dictionary = dict_model}, Cmd.map DictionaryA dict_cmd)
+    ReviewerA a ->
+      let (rev_model, rev_cmd) = Reviewer.update a model.reviewer in
+      ({model | reviewer = rev_model}, Cmd.map ReviewerA rev_cmd)
 
 -- VIEW
 
 view : Model -> Html Action
-view model = App.map DictionaryA (Dictionary.view model.dictionary)
-
+view model = H.div [] [
+    App.map ReviewerA (Reviewer.view model.reviewer),
+    App.map DictionaryA (Dictionary.view model.dictionary)
+  ]
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Action

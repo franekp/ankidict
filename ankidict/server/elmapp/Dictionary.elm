@@ -53,7 +53,7 @@ view model =
       )
     ]
 
--- HTTP (not exposed, these are implementation details of this module)
+-- HTTP
 
 get_dict_entry : String -> Cmd Action
 get_dict_entry word =
