@@ -44,6 +44,14 @@ class Reviewer(object):
         # scheduler keeps giving cards from previous deck
         self.col.reset()
 
+    def select_deck_by_id(self, did):
+        self.col.decks.select(did)
+        self.col.reset()
+
+    def list_decks(self):
+        names = self.col.decks.allNames()
+        return [dict(name=name, id=self.col.decks.id(name)) for name in names]
+
     def get_question(self):
         if self.card is None:
             return None
