@@ -11,25 +11,9 @@ from server.api import AnkiDictApi
 
 
 class AnkiDictServer(object):
-    THIRDPARTY = os.path.join(os.path.dirname(__file__), "thirdparty")
     THISDIR = os.path.dirname(__file__)
     def __init__(self, reviewer):
         self.api = AnkiDictApi(reviewer)
-
-    @cherrypy.expose
-    def jquery_js(self):
-        path = os.path.join(self.THIRDPARTY, "jquery.js")
-        return serve_file(path, content_type="text/javascript")
-
-    @cherrypy.expose
-    def react_js(self):
-        path = os.path.join(self.THIRDPARTY, "react.js")
-        return serve_file(path, content_type="text/javascript")
-
-    @cherrypy.expose
-    def react_dom_js(self):
-        path = os.path.join(self.THIRDPARTY, "react-dom.js")
-        return serve_file(path, content_type="text/javascript")
 
     @cherrypy.expose
     def normalize_css(self):
@@ -49,11 +33,6 @@ class AnkiDictServer(object):
             for i in
             serve_file(path, content_type="text/html")
         )
-
-    @cherrypy.expose
-    def app_js(self):
-        path = os.path.join(self.THISDIR, "app.js")
-        return serve_file(path, content_type="text/javascript")
 
     @cherrypy.expose
     def elmapp_js(self):
