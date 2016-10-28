@@ -33,7 +33,7 @@ class AnkiDictServer(object):
 
     @cherrypy.expose
     def normalize_css(self):
-        path = os.path.join(self.THIRDPARTY, "normalize.css")
+        path = os.path.join(self.THISDIR, "css", "normalize.css")
         return serve_file(path, content_type="text/javascript")
 
     @cherrypy.expose
