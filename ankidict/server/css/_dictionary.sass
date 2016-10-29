@@ -3,14 +3,20 @@
 .dictionary
   +window
   width: 40%
+  position: fixed
   // https://css-tricks.com/almanac/properties/m/min-width/
-  min-width: 100px
+  min-width: 350px
   padding: 0px
-  margin-top: 10%
-  margin-left: auto
-  margin-right: 5px
+  top: 35px
+  right: 15px
+  bottom: 35px
 
 .dictionary header
+  position: absolute
+  z-index: 5
+  top: 0px
+  height: 3em
+  width: 100%
   color: $color-1-ui
   overflow: auto
   form
@@ -44,3 +50,32 @@
       margin-right: 5px
       height: 2em
       float: right
+
+.dictionary section
+  padding: 10px
+  overflow-y: auto
+  position: absolute
+  top: 3em
+  bottom: 0px
+  li::before
+    content: ""
+  li
+    display: block
+  ol, ul
+    margin: 0px
+    padding: 0px
+  ol > li
+    padding: 10px
+    padding-left: 15px
+    background-color: white
+    border-style: solid
+    border-color: white
+    border-width: 1px
+    border-radius: 4px
+    box-shadow: inset 0px 0px 8px -2px $color-1-ui
+    //0px 0px 2px -1px $color-1-ui
+    margin-bottom: 5px
+  ol > li > ul > li
+    padding-left: 10px
+    font-style: italic
+    color: rgb(100, 100, 200)
