@@ -14,8 +14,8 @@ import Task
 -- MODEL
 
 type alias Deck = {
-    deck : String,
-    deckid : Int
+    name : String,
+    id : Int
   }
 
 type Button = Again | Hard | Good | Easy
@@ -53,7 +53,7 @@ init : (Model, Cmd Action)
 init =
   let url = "/api/reviewer/card" in
   (
-    Loading {deckid = 1444731542932, deck = "AngolLektorat-2015-2016"},
+    Loading {id = 1444731542932, name = "AngolLektorat-2015-2016"},
     Task.perform FetchFail FetchSucceed (Http.post apiDecoder url Http.empty)
   )
 
@@ -117,7 +117,7 @@ view model =
         H.button [Ev.onClick Close] [H.text "X"], -- [text "&times;"],
         H.b [] [
           H.span [Att.class "gray"] [H.text "Review deck: "],
-          H.text <| (get_deck_from_model model).deck
+          H.text <| (get_deck_from_model model).name
         ],
         (
           case model of
