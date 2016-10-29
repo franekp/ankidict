@@ -45,12 +45,17 @@ view : Model -> Html Action
 view model =
   H.div [Att.class "dictionary"] [
       H.header [] [
-        H.input [
-          Att.type' "text",
-          Att.value model.word,
-          Ev.onInput WordChanged
-        ] [],
-        H.button [Ev.onClick SearchWord] [H.text "Search"]
+        H.form [Att.action "#", Ev.onSubmit SearchWord] [
+          H.b [] [H.text "Macmillan Dictionary"],
+          H.button [Att.type' "submit"] [H.text "Search"],
+          H.div [] [
+            H.input [
+              Att.type' "text",
+              Att.value model.word,
+              Ev.onInput WordChanged
+            ] []
+          ]
+        ]
       ],
       H.section [] (
         List.map (\sense -> H.div [] [H.text sense.definition])

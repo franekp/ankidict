@@ -2,25 +2,45 @@
 
 .dictionary
   +window
-  width: 55%
+  width: 40%
   // https://css-tricks.com/almanac/properties/m/min-width/
-  min-width: 600px
+  min-width: 100px
   padding: 0px
   margin-top: 10%
   margin-left: auto
-  margin-right: auto
+  margin-right: 5px
 
 .dictionary header
-  // modify input style since it's shadow is too strong for usage in window frame
-  input[type="text"]
-    height: 2em
-    width: 40%
-    margin-right: 4px
-    box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 8px -2px $color-1-ui
-  input[type="text"]:focus
-    @if $theme-light
-      box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
-    @else
-      box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
-  button
-    height: 2em
+  color: $color-1-ui
+  overflow: auto
+  form
+    margin-left: 5px
+    margin-right: 5px
+    width: 100%
+    display: table
+    b
+      float: left
+      line-height: 2em
+      margin-right: 3px
+    div
+      // http://stackoverflow.com/questions/1260122/expand-a-div-to-take-the-remaining-width
+      overflow: hidden
+      input[type="text"]
+        height: 2em
+        width: 100%
+        margin-right: 5px
+        margin-left: 5px
+        // modify input style since it's shadow is too strong for usage in window frame
+        box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 8px -2px $color-1-ui
+    input[type="text"]:focus
+      @if $theme-light
+        box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
+      @else
+        box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
+    button
+      position: relative
+      z-index: 10
+      margin-left: 0px
+      margin-right: 5px
+      height: 2em
+      float: right
