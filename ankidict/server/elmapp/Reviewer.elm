@@ -112,7 +112,7 @@ close_reviewer =
 
 view : Model -> Html Action
 view model =
-  H.div [Att.id "reviewer_modal"][
+  H.div [Att.class "reviewer"][
       H.header [] [
         H.button [Ev.onClick Close] [H.text "X"], -- [text "&times;"],
         H.b [] [
