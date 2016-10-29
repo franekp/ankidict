@@ -5,6 +5,7 @@ import Html as H exposing (Html)
 import Html.App as App
 import Html.Attributes as Att
 import Html.Events as Ev
+import Dom
 import Http
 import Json.Decode as Json exposing ((:=))
 import Json.Encode
@@ -73,10 +74,19 @@ update action model =
     FetchSucceed Nothing ->
       (Finished deck, Cmd.none)
     FetchSucceed (Just rev) ->
-      (InProgress deck rev, Cmd.none)
+      (
+        InProgress deck rev,
+        Dom.focus "answer_textbox"
+        |> Task.perform (\error -> NoOp) (\() -> NoOp)
+      )
     ShowAnswer ->
       case model of
-        InProgress d r -> (InProgress d {r | show_answer = True}, Cmd.none)
+        InProgress d r ->
+          (
+            InProgress d {r | show_answer = True},
+            Dom.focus "answer_button_good"
+            |> Task.perform (\error -> NoOp) (\() -> NoOp)
+          )
         otherwise -> (model, Cmd.none)
 
 -- HTTP
@@ -155,7 +165,7 @@ view model =
                 Att.property "innerHTML" <| Json.Encode.string r.card.question
               ] [],
               H.form [Att.action "#", Ev.onSubmit ShowAnswer] [
-                H.input [Att.type' "text"] [],
+                H.input [Att.type' "text", Att.id "answer_textbox"] [],
                 H.button [Att.type' "submit"] [
                   H.text "Show answer"
                 ]
@@ -168,16 +178,19 @@ view model =
               ] [],
               H.hr [] []
             ] ++ List.map (\btn ->
-              H.button [Ev.onClick <| AnswerCard btn.button] [
-                  H.text (
-                    case btn.button of
-                      Again -> "again"
-                      Hard -> "hard"
-                      Good -> "good"
-                      Easy -> "easy"
-                  ),
+              let btn_name = case btn.button of
+                Again -> "again"
+                Hard -> "hard"
+                Good -> "good"
+                Easy -> "easy"
+              in
+                H.button [
+                  Ev.onClick <| AnswerCard btn.button,
+                  Att.id ("answer_button_" ++ btn_name)
+                ] [
+                  H.text btn_name,
                   H.span [Att.class "gray"] [H.text btn.interval]
-              ]
+                ]
             ) r.buttons )
       )
   ]
