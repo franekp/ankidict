@@ -1,0 +1,26 @@
+// --------- DICTIONARY WINDOW ----------
+
+.dictionary
+  +window
+  width: 55%
+  // https://css-tricks.com/almanac/properties/m/min-width/
+  min-width: 600px
+  padding: 0px
+  margin-top: 10%
+  margin-left: auto
+  margin-right: auto
+
+.dictionary header
+  // modify input style since it's shadow is too strong for usage in window frame
+  input[type="text"]
+    height: 2em
+    width: 40%
+    margin-right: 4px
+    box-shadow: inset 0px 0px 4px 1px $color-1-ui, 0px 0px 8px -2px $color-1-ui
+  input[type="text"]:focus
+    @if $theme-light
+      box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
+    @else
+      box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 8px -2px $color-1-ui
+  button
+    height: 2em

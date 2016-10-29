@@ -51,3 +51,25 @@ input[type="text"]:focus
     box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
   @else
     box-shadow: inset 0px 0px 4px 2px lighten($color-1-ui, 5%), inset 0px 0px 7px 0px lighten($color-1-ui, 5%), 0px 0px 16px -1px $color-1-ui
+
+=window
+  border: 1px solid white
+  border-radius: 7px
+  padding: 0px
+  @if $theme-light
+    box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 6px 2px $color-1-ui
+  @else
+    box-shadow:  inset 0px 0px 15px 4px white, inset 0px 0px 80px -10px white, inset 0px 0px 120px -10px white, inset 0px 0px 90px -10px $color-1-ui, 0px 0px 8px 4px $color-1-ui
+  header
+    margin: 0px
+    padding: 5px
+    border-bottom: 2px solid white
+    // ???
+    line-height: 1.5em
+    @if $theme-light
+      box-shadow: 0px 1px 5px 0px $color-1-ui
+    @else
+      box-shadow: 0px 2px 6px 0px $color-1-ui
+  section
+    margin: 0px
+    padding: 20px

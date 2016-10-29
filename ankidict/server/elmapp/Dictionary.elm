@@ -1,9 +1,9 @@
 module Dictionary exposing (Model, Action, init, update, view)
 
-import Html exposing (div, text, button, h2, br, Html, input)
+import Html as H exposing (Html)
 import Html.App as App
-import Html.Attributes exposing (value, type')
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes as Att
+import Html.Events as Ev
 import Http
 import Json.Decode as Json exposing ((:=))
 import Task
@@ -43,12 +43,17 @@ update action model =
 
 view : Model -> Html Action
 view model =
-  div [] [
-      input [type' "text", value model.word, onInput WordChanged] [],
-      button [onClick SearchWord] [text "Search"],
-      br [] [],
-      div [] (
-        List.map (\sense -> div [] [text sense.definition])
+  H.div [Att.class "dictionary"] [
+      H.header [] [
+        H.input [
+          Att.type' "text",
+          Att.value model.word,
+          Ev.onInput WordChanged
+        ] [],
+        H.button [Ev.onClick SearchWord] [H.text "Search"]
+      ],
+      H.section [] (
+        List.map (\sense -> H.div [] [H.text sense.definition])
           model.dict_entry
       )
     ]

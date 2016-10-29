@@ -148,19 +148,19 @@ view model =
       (
         case model of
           Finished d ->
-            H.main' [] [H.h2 [] [
+            H.section [] [H.h2 [] [
               H.text "Congratulations! You have finished this deck for now."
             ]]
           Loading d ->
-            H.main' [] [H.h2 [] [
+            H.section [] [H.h2 [] [
               H.text "Loading..."
             ]]
           Error d ->
-            H.main' [] [H.h2 [] [
+            H.section [] [H.h2 [] [
               H.text "Error occured."
             ]]
           InProgress d r ->
-            H.main' [] ([
+            H.section [] ([
               H.div [
                 Att.property "innerHTML" <| Json.Encode.string r.card.question
               ] [],
