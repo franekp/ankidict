@@ -19,7 +19,6 @@
   width: 100%
   color: $color-1-ui
   overflow: hidden
-  box-shadow: 0px 2px 6px 0px $color-1-ui
   border-bottom: 1px solid white
   form
     margin-left: 5px
@@ -72,7 +71,7 @@
       margin-top: 2px
       padding: 2px 4px
       z-index: 15
-      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 40%, $color-2-ui 90%, $color-2-ui)
+      background: linear-gradient(to bottom, white, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, $color-2-ui 90%, $color-2-ui)
       cursor: pointer
     li.active
       //background: linear-gradient(to bottom, white, white 20% , $color-2-ui 90%, desaturate(lighten($color-1-ui, 15%), 40%) 95%, desaturate(lighten($color-1-ui, 15%), 40%))
@@ -95,6 +94,7 @@
   ol, ul
     margin: 0px
     padding: 0px
+    width: 100%
   ol > li
     padding: 10px
     padding-left: 15px
