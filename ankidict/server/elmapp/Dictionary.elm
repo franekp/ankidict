@@ -55,6 +55,10 @@ view model =
               Ev.onInput WordChanged
             ] []
           ]
+        ],
+        H.ul [] [
+          H.li [Att.class "active"] [H.text "Definition"],
+          H.li [] [H.text "Related words"]
         ]
       ],
       H.section [] [
