@@ -76,62 +76,6 @@ class AnkiDictApi(object):
         self.reviewer = Reviewer(reviewer_obj)
 
     @apiview
-    def card(self):
-        if self.reviewer_obj.is_finished():
-            return dict(
-                finished=True,
-                deck=self.reviewer_obj.current_deck(),
-            )
-        else:
-            return dict(
-                question=self.reviewer_obj.get_question(),
-                answer=self.reviewer_obj.get_answer(),
-                deck=self.reviewer_obj.current_deck(),
-            )
-
-    @apiview
-    def remaining(self):
-        return self.reviewer_obj.remaining()
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def deactivate(self):
-        aqt.mw.ankidict.deactivate_reviews()
-        return "OK"
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def again(self):
-        self.reviewer_obj.answer_card('again')
-        return "OK"
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def hard(self):
-        self.reviewer_obj.answer_card('hard')
-        return "OK"
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def good(self):
-        self.reviewer_obj.answer_card('good')
-        return "OK"
-
-    @cherrypy.expose
-    @executes_in_main_thread
-    def easy(self):
-        self.reviewer_obj.answer_card('easy')
-        return "OK"
-
-    @apiview
-    def buttons(self):
-        return self.reviewer_obj.buttons()
-
-    @apiview
-    def intervals(self):
-        return self.reviewer_obj.intervals()
-
-    @apiview
     def dictionary(self, word):
         res = macmillan.query_site(word, plain_dict=True)
         #res['senses'] = [str(i) for i in res['senses']]

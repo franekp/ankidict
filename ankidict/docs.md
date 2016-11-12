@@ -1,7 +1,7 @@
 RESTful api documentation
 for each endpoint there is an example result
 
-===== new reviewer API =====
+===== reviewer API =====
 
 GET /api/reviewer
   part of api related to making reviews
@@ -29,36 +29,6 @@ POST /api/reviewer/answer_card/<button_name>
 
 POST /api/reviewer/close
   null
-
-===== old reviewer API =====
-
-GET /api/buttons
-  ["again", "hard", "good", "easy"]
-  return a list of available buttons
-
-GET /api/intervals
-  {"again": "<10m", "good": "1d"}
-  for each available button, return a string describing next review time
-
-POST /api/<button_name>
-  204 No Content
-  button_name should be one of those returned by /api/reviewer/buttons
-
-GET /api/card
-  {
-    "question": "What animal has long neck?",
-    "answer": "Giraffe",
-    "deck": "Animals",
-  }
-  OR
-  {"deck": "Animals", "finished": True}
-
-GET /api/remaining
-  {"new": 10, "learning": 12, "to_review": 35}
-  return how much cards remain to review
-
-POST /api/deactivate
-  204 No Content
 
 ===== dictionary API =====
 
