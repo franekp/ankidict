@@ -33,7 +33,8 @@ class Collection(object):
     use, 'private'.
     """
     def select_deck(self, deckname):
-        """Select deck with given name so that anki functions will add to
+        """Select deck for adding cards.
+        Select deck with given name so that anki functions will add to
         this deck. Also select note model defined in config. Called from
         add_note(...) method.
         """

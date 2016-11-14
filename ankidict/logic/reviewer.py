@@ -37,20 +37,23 @@ class Reviewer(object):
             # deck finished! TODO: view this
             pass
 
-    def select_deck_by_name(self, dname):
-        did = self.col.decks.id(deckname)
+    def select_deck_by_id(self, did):
+        """Select deck for reviews."""
+        did = int(did)
+        if self.col.conf['curDeck'] == did:
+            return
         self.col.decks.select(did)
         # this is necessary for change to take effect, without this the
         # scheduler keeps giving cards from previous deck
         self.col.reset()
-
-    def select_deck_by_id(self, did):
-        self.col.decks.select(did)
-        self.col.reset()
+        self.next_card()
 
     def list_decks(self):
         names = self.col.decks.allNames()
-        return [dict(name=name, id=self.col.decks.id(name)) for name in names]
+        return [
+            dict(deckname=name, deckid=self.col.decks.id(name))
+            for name in names
+        ]
 
     def get_question(self):
         if self.card is None:
@@ -96,10 +99,10 @@ class Reviewer(object):
         }
 
     def answer_card(self, btn):
-        if isinstance(btn, str):
-            for i, name in enumerate(self.buttons(), start=1):
-                if btn == name:
-                    btn = i
+        btn = str(btn)
+        for i, name in enumerate(self.buttons(), start=1):
+            if btn == name:
+                btn = i
         assert isinstance(btn, int)
         if self.card is None:
             self.next_card()

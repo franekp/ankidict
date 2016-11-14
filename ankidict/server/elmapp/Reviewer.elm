@@ -11,6 +11,8 @@ import Json.Decode as Json exposing ((:=))
 import Json.Encode
 import Task
 
+import Util
+
 -- MODEL
 
 type alias Deck = {
@@ -29,8 +31,8 @@ type alias Reviewer = {
 
 type Model
   = Finished Deck
-  | Loading Deck
-  | Error Deck
+  | Loading Deck String
+  | Error Deck String
   | InProgress Deck Reviewer
 
 type Action
@@ -38,23 +40,22 @@ type Action
   | Close
   | ShowAnswer
   | FetchSucceed (Maybe Reviewer)
-  | FetchFail Http.Error
+  | FetchFail String Http.Error
   | NoOp
 
 get_deck_from_model : Model -> Deck
 get_deck_from_model model = case model of
   Finished d -> d
-  Loading d -> d
-  Error d -> d
+  Loading d url -> d
+  Error d errmsg -> d
   InProgress d r -> d
 
-init : (Model, Cmd Action)
--- [{"id": 1, "name": "Default"}, {"id": 1417634086389, "name": "AngolSwoj-2014-2015"}, {"id": 1441020467101, "name": "histmat_1"}, {"id": 1446379596864, "name": "old-CAE--test-1"}, {"id": 1433334008716, "name": "histmat_0"}, {"id": 1444731542932, "name": "AngolLektorat-2015-2016"}, {"id": 1441031405048, "name": "histmat_dubious"}, {"id": 1441049205736, "name": "Custom Study Session"}, {"id": 1441105889111, "name": "histmat_2"}, {"id": 1427183435873, "name": "AngolWilczek-2014-2015"}]
-init =
-  let url = "/api/reviewer/card" in
+init : {a | deckid : Int, deckname : String} -> (Model, Cmd Action)
+init deck =
+  let url = "/api/decks/" ++ toString deck.deckid ++ "/reviewer" in
   (
-    Loading {id = 1444731542932, name = "AngolLektorat-2015-2016"},
-    Task.perform FetchFail FetchSucceed (Http.post apiDecoder url Http.empty)
+    Loading {id = deck.deckid, name = deck.deckname} url,
+    Task.perform (FetchFail url) FetchSucceed (Http.get apiDecoder url)
   )
 
 -- UPDATE
@@ -66,11 +67,11 @@ update action model =
     NoOp ->
       (model, Cmd.none)
     AnswerCard btn ->
-      (Loading deck, answer_card btn)
+      (Loading deck "blabla", answer_card deck btn)
     Close ->
-      (Error deck, close_reviewer)
-    FetchFail err ->
-      (Error deck, Cmd.none)
+      (Error deck "window is being closed now...", close_reviewer)
+    FetchFail url err ->
+      (Error deck ("Failed: " ++ url ++ "  " ++ toString err), Cmd.none)
     FetchSucceed Nothing ->
       (Finished deck, Cmd.none)
     FetchSucceed (Just rev) ->
@@ -91,22 +92,26 @@ update action model =
 
 -- HTTP
 
-answer_card : Button -> Cmd Action
-answer_card btn =
+answer_card : Deck -> Button -> Cmd Action
+answer_card deck btn =
   let
-    url = "/api/reviewer/answer_card/" ++ case btn of
+    answer = case btn of
       Again -> "again"
       Hard -> "hard"
       Good -> "good"
       Easy -> "easy"
+    url = "/api/decks/" ++ toString deck.id ++ "/reviewer/"
+    body = Http.string <| "answer=" ++ answer
   in
-    Task.perform FetchFail FetchSucceed (Http.post apiDecoder url Http.empty)
+    Task.perform (FetchFail url) FetchSucceed (
+      Util.post' apiDecoder url body
+    )
 
 close_reviewer : Cmd Action
 close_reviewer =
-  let url = "/api/reviewer/close" in
+  let url = "/api/close" in
   Task.perform (\a -> NoOp) (\a -> NoOp)
-  (Http.post (Json.succeed ()) url Http.empty)
+  (Util.post' (Json.succeed ()) url Http.empty)
 
 -- VIEW
 
@@ -123,9 +128,9 @@ view model =
           case model of
             Finished d ->
               H.text ""
-            Loading d ->
-              H.text ""
-            Error d ->
+            Loading d url ->
+              H.text <| "Loading... " ++ url
+            Error d errmsg ->
               H.text ""
             InProgress d rev ->
               let r = rev.remaining in
@@ -151,13 +156,13 @@ view model =
             H.section [] [H.h2 [] [
               H.text "Congratulations! You have finished this deck for now."
             ]]
-          Loading d ->
+          Loading d url ->
             H.section [] [H.h2 [] [
               H.text "Loading..."
             ]]
-          Error d ->
+          Error d errmsg ->
             H.section [] [H.h2 [] [
-              H.text "Error occured."
+              H.text <| "Error occured." ++ errmsg
             ]]
           InProgress d r ->
             H.section [] ([

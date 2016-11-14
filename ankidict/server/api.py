@@ -28,7 +28,6 @@ class Reviewer(object):
         self.reviewer_obj = reviewer_obj
 
     def get_card(self):
-        # TODO TODO TODO deck switching here
         if self.reviewer_obj.is_finished():
             return dict(finished=True)
         else:
@@ -51,14 +50,28 @@ class Reviewer(object):
             )
 
     @apiview
-    def card(self):
+    def index(self, deckid, answer=None):
+        self.reviewer_obj.select_deck_by_id(int(deckid))
+        if answer is not None:
+            assert answer in ['again', 'hard', 'good', 'easy']
+            self.reviewer_obj.answer_card(answer)
         return self.get_card()
 
+
+@cherrypy.popargs('deckid')
+class Decks(object):
+    def __init__(self, reviewer_obj):
+        self.reviewer_obj = reviewer_obj
+        self.reviewer = Reviewer(reviewer_obj)
+
     @apiview
-    def answer_card(self, button_name):
-        assert button_name in ['again', 'hard', 'good', 'easy']
-        self.reviewer_obj.answer_card(button_name)
-        return self.get_card()
+    def index(self):
+        return self.reviewer_obj.list_decks()
+
+
+class AnkiDictApi(object):
+    def __init__(self, reviewer_obj):
+        self.decks = Decks(reviewer_obj)
 
     @apiview
     def close(self):
@@ -66,17 +79,6 @@ class Reviewer(object):
         return None
 
     @apiview
-    def list_decks(self):
-        return self.reviewer_obj.list_decks()
-
-
-class AnkiDictApi(object):
-    def __init__(self, reviewer_obj):
-        self.reviewer_obj = reviewer_obj
-        self.reviewer = Reviewer(reviewer_obj)
-
-    @apiview
     def dictionary(self, word):
         res = macmillan.query_site(word, plain_dict=True)
-        #res['senses'] = [str(i) for i in res['senses']]
         return res
