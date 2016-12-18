@@ -10,6 +10,7 @@ import re
 # man -> men // check if it is a suffix for example craftsman -> craftsmen
 # glass -> glasses
 # dig -> digging // doubling the last letter when gerund form
+# affluent -> affluence // making noun from adjective
 
 # TODO:
 # detect if a word directly after slash is present also somewhere before,
@@ -58,7 +59,7 @@ class EraseAlgorithm(object):
                     return True
             return False
         placeholders = [
-            "you", "your", "someone", "somebody", "something", 
+            "you", "your", "someone", "somebody", "something",
             "a", "an"
         ]
         if pat in placeholders:
@@ -342,4 +343,3 @@ class Link(object):
 class Entry(Base):
     def get_keys(self):
         return self.get_original_keys()
-

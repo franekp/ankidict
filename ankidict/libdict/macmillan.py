@@ -13,6 +13,8 @@ from libdict.cache import Cache
 # - "primate"
 # - "go on"
 # - "piece together"
+# - "girth"
+# - "put down"
 
 __all__ = ["models", "MacmillanCache"]
 
