@@ -23,12 +23,15 @@
 # SOFTWARE.
 ####
 
-import aqt
+#import aqt
 
 
 class Reviewer(object):
+    def __init__(self, anki_col):
+        self.col = anki_col
+        self.card = None
+
     def init(self):
-        self.col = aqt.mw.col
         self.card = self.col.sched.getCard()
 
     def next_card(self):
@@ -58,12 +61,14 @@ class Reviewer(object):
     def get_question(self):
         if self.card is None:
             return None
-        return self.card.note()[aqt.mw.ankidict.config.note_question]
+        #return self.card.note()[aqt.mw.ankidict.config.note_question]
+        return self.card.note()["Front"]
 
     def get_answer(self):
         if self.card is None:
             return None
-        return self.card.note()[aqt.mw.ankidict.config.note_answer]
+        #return self.card.note()[aqt.mw.ankidict.config.note_answer]
+        return self.card.note()["Back"]
 
     def is_finished(self):
         return (self.card is None)
@@ -72,7 +77,7 @@ class Reviewer(object):
         # NOT USED, kept for reference only
         if self.card is None:
             return ((1, "Again"), (2, "Good"))
-        l = ((1, _("Again")),)
+        l = ((1, "Again"),)
         cnt = self.col.sched.answerButtons(self.card)
         if cnt == 2:
             return l + ((2, "Good"),)

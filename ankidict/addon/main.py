@@ -65,7 +65,7 @@ class AnkiDict(object):
         from logic.collection import Collection
         from logic.reviewer import Reviewer
         self.col = Collection()
-        self.reviewer = Reviewer()
+        self.reviewer = Reviewer(aqt.mw.col)
 
         # place where we want to place our menu action
         basep = mw.form.menuTools.actions()[6]
